@@ -16,7 +16,7 @@ const runtimeConfig = useRuntimeConfig()
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
   temperature: 0,
-  apiKey: runtimeConfig.public.OPENAI_API_KEY
+  apiKey: runtimeConfig.openaiAPIKey
 })
 
 export default defineEventHandler(async event => {
