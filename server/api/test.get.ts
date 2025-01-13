@@ -10,6 +10,7 @@ import {
   MemorySaver
 } from "@langchain/langgraph";
 import { v4 as uuidv4 } from "uuid"
+import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 
 
 const runtimeConfig = useRuntimeConfig()
@@ -20,13 +21,22 @@ const model = new ChatOpenAI({
   apiKey: runtimeConfig.openaiAPIKey
 })
 
-// const checkpointer = PostgresSaver.fromConnString(
-//   "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
-// );
+const checkpointer = PostgresSaver.fromConnString(
+  "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+);
+let isCheckerpointerSetup = false
 
-const checkpointer = new MemorySaver()
 
 export default defineEventHandler(async event => {
+  if (!isCheckerpointerSetup) {
+    // will only work locally since there is state, but not when deploy to services like netlify
+    // where server function run in "serverless" lambda
+    console.log('before calling checkpointer.setup()')
+    await checkpointer.setup()
+    console.log('after calling checkpointer.setup()')
+    isCheckerpointerSetup = true
+  }
+
   function callLlm(messages: BaseMessage[], targetAgentNodes: string[]) {
     // define the schema for the structured output:
     // - model's text response (`response`)
