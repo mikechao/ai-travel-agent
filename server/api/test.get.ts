@@ -11,6 +11,7 @@ import {
 } from "@langchain/langgraph";
 import { v4 as uuidv4 } from "uuid"
 
+
 const runtimeConfig = useRuntimeConfig()
 
 const model = new ChatOpenAI({
@@ -18,6 +19,12 @@ const model = new ChatOpenAI({
   temperature: 0,
   apiKey: runtimeConfig.openaiAPIKey
 })
+
+// const checkpointer = PostgresSaver.fromConnString(
+//   "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+// );
+
+const checkpointer = new MemorySaver()
 
 export default defineEventHandler(async event => {
   function callLlm(messages: BaseMessage[], targetAgentNodes: string[]) {
@@ -142,7 +149,7 @@ export default defineEventHandler(async event => {
     // We'll always start with a general travel advisor.
     .addEdge(START, "travelAdvisor")
   
-  const checkpointer = new MemorySaver()
+
   const graph = builder.compile({ checkpointer })
   
   //test
