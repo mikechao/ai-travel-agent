@@ -109,7 +109,13 @@ export default defineLazyEventHandler(() => {
     checkpointer: checkpointer,
 })
 
-  return defineEventHandler((event) => {
+  return defineEventHandler(async (event) => {
     // This will be executed on every request
+    const body = await readBody(event)
+    const { messages } = body
+  
+    console.log('Received request:', messages)
+
+    return 'hello, I am suppose to tell the weather'
   })
 })

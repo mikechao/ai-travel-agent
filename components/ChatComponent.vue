@@ -21,8 +21,9 @@
 import { ref, watch } from 'vue'
 import { useChat } from '@ai-sdk/vue'
 
-const { messages, input, handleSubmit, isLoading } = useChat({
-  api: '/api/test',
+const { messages, input, handleSubmit, isLoading, append } = useChat({
+  api: '/api/weather',
+  
   onResponse: (response) => {
     // You can handle any specific response processing here if needed
     console.log('Response received:', response)
@@ -35,6 +36,11 @@ const { messages, input, handleSubmit, isLoading } = useChat({
   onError: (error) => {
     console.error('error', error)
   }
+})
+
+onMounted(() => {
+  // use append with empty content to trigger api endpoint call
+  append({id: 'asdf', content: '', role: 'system'})
 })
 
 const messagesContainer = ref<HTMLDivElement | null>(null)
