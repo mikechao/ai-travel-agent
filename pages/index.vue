@@ -1,10 +1,6 @@
 <script setup lang="ts">
-
-function test() {
-  $fetch('/api/test')
-}
+const ChatComponent = defineAsyncComponent(() => import('~/components/ChatComponent.vue'))
 </script>
 <template>
-  <p>This is the index page</p>
-  <button @click="test">Test</button>
+  <ChatComponent/>
 </template>

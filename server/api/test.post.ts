@@ -1,17 +1,19 @@
 import { z } from "zod";
 import { ChatOpenAI } from "@langchain/openai";
-import { BaseMessage } from "@langchain/core/messages";
+import { BaseMessage, isAIMessageChunk } from "@langchain/core/messages";
 import {
   MessagesAnnotation,
   StateGraph,
   START,
   Command,
   interrupt,
-  MemorySaver
+  MemorySaver,
+  UnreachableNodeError
 } from "@langchain/langgraph";
 import { v4 as uuidv4 } from "uuid"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
-
+import { LangChainAdapter, createDataStreamResponse, streamText,} from 'ai'
+import { convertLangChainMessageToVercelMessage } from "../utils/messageConvert";
 
 const runtimeConfig = useRuntimeConfig()
 
@@ -180,20 +182,42 @@ export default defineEventHandler(async event => {
     // Third round of conversation
     new Command({ resume: "could you recommend something to do near the hotel?" }),
   ]
+
+  const input = inputs[0]
+  console.log('input', input)
   
-  
-  let iter = 0;
-  for await (const userInput of inputs) {
-    iter += 1;
-    console.log(`\n--- Conversation Turn ${iter} ---\n`);
-    console.log(`User: ${JSON.stringify(userInput)}\n`);
-  
-    for await (const update of await graph.stream(userInput, threadConfig)) {
-      const lastMessage = update.messages ? update.messages[update.messages.length - 1] : undefined;
-      if (lastMessage && lastMessage._getType() === "ai") {
-        console.log(`${lastMessage.name}: ${lastMessage.content}`)
+  const eventStream = await graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()} })
+
+  // for await (const { event, data } of eventStream) {
+  //   if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
+  //     if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
+  //       console.log(data.chunk.tool_call_chunks);
+  //     }
+  //   }
+  // }
+
+  const transformedStream = new ReadableStream({
+    async start(controller) {
+      for await (const { event, data } of eventStream) {
+        if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
+          if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
+            for (const chunk of data.chunk.tool_call_chunks) {
+              const formattedData = JSON.stringify({ type: 'text', data: { text: chunk.args } })
+              controller.enqueue(`${chunk.args}\n\n`)
+            }
+          }
+        }
       }
-    }
-  }
-  return { message: 'Ran the test'}
+      controller.close()
+    },
+  })
+
+  setResponseHeaders(event, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+  })
+
+  return sendStream(event, transformedStream)
+
 })
