@@ -1,8 +1,8 @@
 import { ChatOpenAI } from "@langchain/openai"
 import { tool } from "@langchain/core/tools"
-import { StateGraph, MessagesAnnotation, START, END, MemorySaver, interrupt } from "@langchain/langgraph"
+import { StateGraph, MessagesAnnotation, START, END, MemorySaver, interrupt, Command, Messages, UpdateType } from "@langchain/langgraph"
 import { ToolNode } from "@langchain/langgraph/prebuilt"
-import { AIMessage, isAIMessageChunk, ToolMessage } from "@langchain/core/messages"
+import { AIMessage, BaseMessage, isAIMessageChunk, SystemMessage, ToolMessage } from "@langchain/core/messages"
 import { z } from "zod"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { formatDataStreamPart, Message } from "ai"
@@ -19,7 +19,16 @@ export default defineLazyEventHandler(() => {
     apiKey: runtimeConfig.openaiAPIKey
   })
 
+  const askNiceModel = new ChatOpenAI({
+    model: 'gpt-4o-mini',
+    temperature: 0.88,
+    apiKey: runtimeConfig.openaiAPIKey
+  }).withConfig({
+    tags: ["ask_nice"]
+  })
+
   const search = tool((_) => {
+    console.log('search tool invoked')
     return "It's sunny in San Francisco, but you better look out if you're a Gemini 😈.";
   }, {
     name: "search",
@@ -31,6 +40,7 @@ export default defineLazyEventHandler(() => {
   const toolNode = new ToolNode<typeof MessagesAnnotation.State>(tools)
 
   const askHumanTool = tool((_) => {
+    console.log('askHumanTool invoked')
     return "The human said XYZ";
   }, {
     name: "askHuman",
@@ -67,17 +77,32 @@ export default defineLazyEventHandler(() => {
   }
 
 
-  // We define a fake node to ask the human
-  function askHuman(state: typeof MessagesAnnotation.State): Partial<typeof MessagesAnnotation.State> {
+  const askHuman = async (state: typeof MessagesAnnotation.State) => {
     const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
     const toolCallId = lastMessage.tool_calls?.[0].id;
-    const location: string = interrupt("Please provide your location:");
+    const locationQuesion =  await askNiceModel.invoke([
+      new SystemMessage(`You are a pirate and a weather man, but you need to know the user's location. Forumlate a question to find 
+        the user's location. Your question will be the first in a chat so take that into account. Include a short self bio`)
+    ])
+    const location: string = interrupt(locationQuesion.content)
     const newToolMessage = new ToolMessage({
       tool_call_id: toolCallId!,
       content: location,
     })
     return { messages: [newToolMessage] };
   }
+
+  // We define a fake node to ask the human
+  // function askHuman(state: typeof MessagesAnnotation.State): Partial<typeof MessagesAnnotation.State> {
+  //   const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
+  //   const toolCallId = lastMessage.tool_calls?.[0].id;
+  //   const location: string = interrupt("Please provide your location:");
+  //   const newToolMessage = new ToolMessage({
+  //     tool_call_id: toolCallId!,
+  //     content: location,
+  //   })
+  //   return { messages: [newToolMessage] };
+  // }
 
   const messagesWorkflow = new StateGraph(MessagesAnnotation)
   // Define the two nodes we will cycle between
@@ -132,33 +157,46 @@ function shouldUseInitMessage(message: Message) {
     const lastMessage: Message = messages[messages.length - 1]
     const useInitMessage = shouldUseInitMessage(lastMessage)
     console.log("useInitMessage", useInitMessage)
-    const input = {
-      messages: [{
-        role: "user",
-        content: "Use the search tool to ask the user where they are, then look up the weather there",
-      }]
+    const initMessage = {
+      role: "user",
+      content: "Use the search tool to ask the user where they are, then look up the weather there",
     }
-    const config = {version: 'v2', configurable: { thread_id: sessionId} }
-
-    // for await (const {event, data} of messagesApp.streamEvents(input, {version: 'v2', configurable: { thread_id: sessionId} })) {
+    const input = {
+      messages: [initMessage]
+    }
+    const config = { configurable: { thread_id: sessionId}, version: 'v2',}
+    // const config2 = { configurable: { thread_id: "3" }, version: 'v2'};
+    // for await (const event  of await messagesApp.stream(input, config2)) {
     //   console.log('event', event)
-    //   console.log('data', data)
+
     // }
     const encoder = new TextEncoder()
     return new ReadableStream({
       async start(controller) {
+        let niceStr = ''
+        let otherStr = ''
         try {
-          for await (const { event, data } of messagesApp.streamEvents(input, {version: 'v2', configurable: { thread_id: sessionId}, })) {
-            if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
-              if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
-                for (const chunk of data.chunk.tool_call_chunks) {
-                  const part = formatDataStreamPart('text', chunk.args as string)
-                  controller.enqueue(encoder.encode(part))
-                }
+          for await (const { event, data, tags } of messagesApp.streamEvents(input, {version: 'v2', configurable: { thread_id: sessionId}, })) {
+            if(event === 'on_chat_model_stream' && tags?.includes('ask_nice')) {
+              if (isAIMessageChunk(data.chunk)) {
+                niceStr += data.chunk.content as string
+                const part = formatDataStreamPart('text', data.chunk.content as string)
+                controller.enqueue(encoder.encode(part))
               }
             }
+            // for now the else part gets {"input":"Where are you located?"}
+            // else if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
+            //   if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
+            //     for (const chunk of data.chunk.tool_call_chunks) {
+            //       otherStr += chunk.args as string
+            //       const part = formatDataStreamPart('text', chunk.args as string)
+            //       controller.enqueue(encoder.encode(part))
+            //     }
+            //   }
+            // }
           }
         } finally {
+          console.log('niceStr', niceStr)
           controller.close()
         }
       },
