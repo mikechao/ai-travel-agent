@@ -43,7 +43,8 @@ const { messages, input, handleSubmit, isLoading, append } = useChat({
 
 onMounted(() => {
   // use append with empty content to trigger api endpoint call
-  append({id: uuidv4(), content: '', role: 'system'})
+  const initData = { init: true }
+  append({id: uuidv4(), content: '', role: 'system', data: JSON.stringify(initData)})
 })
 
 const messagesContainer = ref<HTMLDivElement | null>(null)

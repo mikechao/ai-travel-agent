@@ -2,9 +2,10 @@ import { ChatOpenAI } from "@langchain/openai"
 import { tool } from "@langchain/core/tools"
 import { StateGraph, MessagesAnnotation, START, END, MemorySaver, interrupt } from "@langchain/langgraph"
 import { ToolNode } from "@langchain/langgraph/prebuilt"
-import { AIMessage, ToolMessage } from "@langchain/core/messages"
+import { AIMessage, isAIMessageChunk, ToolMessage } from "@langchain/core/messages"
 import { z } from "zod"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
+import { formatDataStreamPart, Message } from "ai"
 
 export default defineLazyEventHandler(() => {
   // https://h3.unjs.io/guide/event-handler#lazy-event-handlers
@@ -109,6 +110,18 @@ export default defineLazyEventHandler(() => {
     checkpointer: checkpointer,
 })
 
+function shouldUseInitMessage(message: Message) {
+  if (message.data) {
+    try {
+      const initData = JSON.parse(message.data as string)
+      return initData.hasOwnProperty('init') && initData['init']
+    } catch (error) {
+      return false
+    }
+  }
+  return false
+}
+
   return defineEventHandler(async (event) => {
     // This will be executed on every request
     const body = await readBody(event)
@@ -116,7 +129,39 @@ export default defineLazyEventHandler(() => {
   
     console.log('Received request:', messages)
     console.log('Received sessionId:', sessionId)
+    const lastMessage: Message = messages[messages.length - 1]
+    const useInitMessage = shouldUseInitMessage(lastMessage)
+    console.log("useInitMessage", useInitMessage)
+    const input = {
+      messages: [{
+        role: "user",
+        content: "Use the search tool to ask the user where they are, then look up the weather there",
+      }]
+    }
+    const config = {version: 'v2', configurable: { thread_id: sessionId} }
 
-    return 'hello, I am suppose to tell the weather'
+    // for await (const {event, data} of messagesApp.streamEvents(input, {version: 'v2', configurable: { thread_id: sessionId} })) {
+    //   console.log('event', event)
+    //   console.log('data', data)
+    // }
+    const encoder = new TextEncoder()
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const { event, data } of messagesApp.streamEvents(input, {version: 'v2', configurable: { thread_id: sessionId}, })) {
+            if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
+              if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
+                for (const chunk of data.chunk.tool_call_chunks) {
+                  const part = formatDataStreamPart('text', chunk.args as string)
+                  controller.enqueue(encoder.encode(part))
+                }
+              }
+            }
+          }
+        } finally {
+          controller.close()
+        }
+      },
+    })
   })
 })
