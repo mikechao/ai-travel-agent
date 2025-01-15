@@ -112,9 +112,10 @@ export default defineLazyEventHandler(() => {
   return defineEventHandler(async (event) => {
     // This will be executed on every request
     const body = await readBody(event)
-    const { messages } = body
+    const { messages, sessionId } = body
   
     console.log('Received request:', messages)
+    console.log('Received sessionId:', sessionId)
 
     return 'hello, I am suppose to tell the weather'
   })

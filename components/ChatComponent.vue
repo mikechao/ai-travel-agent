@@ -20,10 +20,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useChat } from '@ai-sdk/vue'
+import { v4 as uuidv4 } from "uuid"
 
 const { messages, input, handleSubmit, isLoading, append } = useChat({
   api: '/api/weather',
-  
+  body: {
+    sessionId: uuidv4()
+  },
   onResponse: (response) => {
     // You can handle any specific response processing here if needed
     console.log('Response received:', response)
@@ -40,7 +43,7 @@ const { messages, input, handleSubmit, isLoading, append } = useChat({
 
 onMounted(() => {
   // use append with empty content to trigger api endpoint call
-  append({id: 'asdf', content: '', role: 'system'})
+  append({id: uuidv4(), content: '', role: 'system'})
 })
 
 const messagesContainer = ref<HTMLDivElement | null>(null)
