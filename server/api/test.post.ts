@@ -185,8 +185,13 @@ export default defineEventHandler(async event => {
 
   const input = inputs[0]
   console.log('input', input)
+
+  // const stream = await graph.stream(input, { configurable : {thread_id : uuidv4()}, streamMode: "values" })
+  // for await (const chunk of stream) {
+  //   console.log('chunk', chunk)
+  // }
   
-  const eventStream = await graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()} })
+  const eventStream = await graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()}, })
 
   // for await (const { event, data } of eventStream) {
   //   if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
@@ -218,6 +223,6 @@ export default defineEventHandler(async event => {
     'Connection': 'keep-alive',
   })
 
-  return sendStream(event, transformedStream)
+  return transformedStream
 
 })
