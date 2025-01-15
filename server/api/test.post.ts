@@ -187,14 +187,15 @@ export default defineEventHandler(async event => {
   console.log('input', input)
   
   //const eventStream = await graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()}, })
-
-  // for await (const { event, data } of eventStream) {
-  //   if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
-  //     if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
-  //       console.log(data.chunk.tool_call_chunks);
-  //     }
-  //   }
-  // }
+  // the list of events from the graph
+  //   'on_chain_start',
+  //   'on_chain_end',
+  //   'on_chat_model_start',
+  //   'on_chat_model_stream',
+  //   'on_chat_model_end',
+  //   'on_parser_start',
+  //   'on_parser_end',
+  //   'on_chain_stream' }
 
   const encoder = new TextEncoder()
   return new ReadableStream({
