@@ -23,7 +23,6 @@ import { useChat } from '@ai-sdk/vue'
 
 const { messages, input, handleSubmit, isLoading } = useChat({
   api: '/api/test',
-  streamProtocol: 'text',
   onResponse: (response) => {
     // You can handle any specific response processing here if needed
     console.log('Response received:', response)
@@ -39,10 +38,6 @@ const { messages, input, handleSubmit, isLoading } = useChat({
 })
 
 const messagesContainer = ref<HTMLDivElement | null>(null)
-
-watch(messages, (newMessages) => {
-  console.log('Messages updated:', newMessages)
-})
 
 // Scroll to bottom when new messages are added
 watch(messages, () => {

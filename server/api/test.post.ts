@@ -12,7 +12,7 @@ import {
 } from "@langchain/langgraph";
 import { v4 as uuidv4 } from "uuid"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
-import { LangChainAdapter, createDataStreamResponse, streamText,} from 'ai'
+import { LangChainAdapter, createDataStreamResponse, formatDataStreamPart, streamText,} from 'ai'
 import { convertLangChainMessageToVercelMessage } from "../utils/messageConvert";
 
 const runtimeConfig = useRuntimeConfig()
@@ -185,13 +185,8 @@ export default defineEventHandler(async event => {
 
   const input = inputs[0]
   console.log('input', input)
-
-  // const stream = await graph.stream(input, { configurable : {thread_id : uuidv4()}, streamMode: "values" })
-  // for await (const chunk of stream) {
-  //   console.log('chunk', chunk)
-  // }
   
-  const eventStream = await graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()}, })
+  //const eventStream = await graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()}, })
 
   // for await (const { event, data } of eventStream) {
   //   if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
@@ -201,28 +196,24 @@ export default defineEventHandler(async event => {
   //   }
   // }
 
-  const transformedStream = new ReadableStream({
+  const encoder = new TextEncoder()
+  return new ReadableStream({
     async start(controller) {
-      for await (const { event, data } of eventStream) {
-        if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
-          if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
-            for (const chunk of data.chunk.tool_call_chunks) {
-              const formattedData = JSON.stringify({ type: 'text', data: { text: chunk.args } })
-              controller.enqueue(`${chunk.args}\n\n`)
+      try {
+        for await (const { event, data } of graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()}, })) {
+          if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
+            if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
+              for (const chunk of data.chunk.tool_call_chunks) {
+                const part = formatDataStreamPart('text', chunk.args as string)
+                controller.enqueue(encoder.encode(part))
+              }
             }
           }
         }
+      } finally {
+        controller.close()
       }
-      controller.close()
     },
   })
-
-  setResponseHeaders(event, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-  })
-
-  return transformedStream
 
 })
