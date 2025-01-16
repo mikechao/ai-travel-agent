@@ -5,25 +5,28 @@ import { ToolNode } from "@langchain/langgraph/prebuilt"
 import { AIMessage, BaseMessage, isAIMessageChunk, SystemMessage, ToolMessage } from "@langchain/core/messages"
 import { z } from "zod"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
-import { formatDataStreamPart, Message } from "ai"
+import { formatDataStreamPart, Message as VercelChatMessage } from "ai"
+import { IterableReadableStream } from "@langchain/core/utils/stream"
+import { StreamEvent } from "@langchain/core/tracers/log_stream"
+import { PregelOutputType } from "@langchain/langgraph/pregel"
+import { ChatPromptTemplate } from "@langchain/core/prompts"
+import { ConsoleCallbackHandler } from "@langchain/core/tracers/console"
 
 export default defineLazyEventHandler(() => {
   // https://h3.unjs.io/guide/event-handler#lazy-event-handlers
   // This will be executed only once
-
   const runtimeConfig = useRuntimeConfig()
 
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0,
-    apiKey: runtimeConfig.openaiAPIKey
+    apiKey: runtimeConfig.openaiAPIKey,
   })
 
   const askNiceModel = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0.88,
-    apiKey: runtimeConfig.openaiAPIKey
-  }).withConfig({
+    apiKey: runtimeConfig.openaiAPIKey,
     tags: ["ask_nice"]
   })
 
@@ -48,13 +51,14 @@ export default defineLazyEventHandler(() => {
     schema: z.string(),
   });
 
-  const modelWithTools = model.bindTools([...tools, askHumanTool])
+  const modelWithTools = askNiceModel.bindTools([...tools, askHumanTool])
 
   // Define the function that determines whether to continue or not
   function shouldContinue(state: typeof MessagesAnnotation.State): "action" | "askHuman" | typeof END {
     const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
     // If there is no function call, then we finish
     if (lastMessage && !lastMessage.tool_calls?.length) {
+      console.log('END REACHED!!!!!')
       return END;
     }
     // If tool call is askHuman, we return that node
@@ -70,14 +74,23 @@ export default defineLazyEventHandler(() => {
 
   // Define the function that calls the model
   async function callModel(state: typeof MessagesAnnotation.State): Promise<Partial<typeof MessagesAnnotation.State>> {
+    console.log('callModel called')
     const messages = state.messages;
     const response = await modelWithTools.invoke(messages);
+    if (response.content && response.content.length > 0) {
+      console.log("response.content", response.content)
+    } else if (response.tool_calls && response.tool_calls.length > 0) {
+      console.log('response.tool_calls[0].name', response.tool_calls[0].name)
+      console.log('response.tool_calls[0].args', response.tool_calls[0].args)
+    } else {
+      console.dir(response)
+    }
     // We return an object with a messages property, because this will get added to the existing list
     return { messages: [response] };
   }
 
-
   const askHuman = async (state: typeof MessagesAnnotation.State) => {
+    console.log('askHuman async method')
     const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
     const toolCallId = lastMessage.tool_calls?.[0].id;
     const locationQuesion =  await askNiceModel.invoke([
@@ -85,24 +98,13 @@ export default defineLazyEventHandler(() => {
         the user's location. Your question will be the first in a chat so take that into account. Include a short self bio`)
     ])
     const location: string = interrupt(locationQuesion.content)
+    console.log('location', location)
     const newToolMessage = new ToolMessage({
       tool_call_id: toolCallId!,
       content: location,
     })
     return { messages: [newToolMessage] };
   }
-
-  // We define a fake node to ask the human
-  // function askHuman(state: typeof MessagesAnnotation.State): Partial<typeof MessagesAnnotation.State> {
-  //   const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
-  //   const toolCallId = lastMessage.tool_calls?.[0].id;
-  //   const location: string = interrupt("Please provide your location:");
-  //   const newToolMessage = new ToolMessage({
-  //     tool_call_id: toolCallId!,
-  //     content: location,
-  //   })
-  //   return { messages: [newToolMessage] };
-  // }
 
   const messagesWorkflow = new StateGraph(MessagesAnnotation)
   // Define the two nodes we will cycle between
@@ -135,7 +137,7 @@ export default defineLazyEventHandler(() => {
     checkpointer: checkpointer,
 })
 
-function shouldUseInitMessage(message: Message) {
+function shouldUseInitMessage(message: VercelChatMessage) {
   if (message.data) {
     try {
       const initData = JSON.parse(message.data as string)
@@ -152,54 +154,54 @@ function shouldUseInitMessage(message: Message) {
     const body = await readBody(event)
     const { messages, sessionId } = body
   
-    console.log('Received request:', messages)
-    console.log('Received sessionId:', sessionId)
-    const lastMessage: Message = messages[messages.length - 1]
+    console.log('\nReceived request')
+    const lastMessage: VercelChatMessage = messages[messages.length - 1]
     const useInitMessage = shouldUseInitMessage(lastMessage)
-    console.log("useInitMessage", useInitMessage)
-    const initMessage = {
-      role: "user",
-      content: "Use the search tool to ask the user where they are, then look up the weather there",
-    }
-    const input = {
-      messages: [initMessage]
-    }
-    const config = { configurable: { thread_id: sessionId}, version: 'v2',}
-    // const config2 = { configurable: { thread_id: "3" }, version: 'v2'};
-    // for await (const event  of await messagesApp.stream(input, config2)) {
-    //   console.log('event', event)
+    console.log('lastMessage', lastMessage)
 
-    // }
+    const messageToUse = useInitMessage ? { 
+      role: "user", content: "Use the search tool to ask the user where they are, then look up the weather there",
+      } : { role: "user", content: lastMessage.content }
+    const input = {
+      messages: [messageToUse]
+    }
+    console.log('messageToUse', messageToUse)
     const encoder = new TextEncoder()
-    return new ReadableStream({
-      async start(controller) {
-        let niceStr = ''
-        let otherStr = ''
-        try {
-          for await (const { event, data, tags } of messagesApp.streamEvents(input, {version: 'v2', configurable: { thread_id: sessionId}, })) {
-            if(event === 'on_chat_model_stream' && tags?.includes('ask_nice')) {
-              if (isAIMessageChunk(data.chunk)) {
-                niceStr += data.chunk.content as string
-                const part = formatDataStreamPart('text', data.chunk.content as string)
+    if (useInitMessage) {
+      const stream = await messagesApp.stream(input,
+        {configurable: { thread_id: sessionId}, streamMode: 'messages' as const })
+      return new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const [message, _metadata] of stream) {
+              if (isAIMessageChunk(message) && !message.tool_call_chunks?.length) {
+                const part = formatDataStreamPart('text', message.content as string)
                 controller.enqueue(encoder.encode(part))
               }
             }
-            // for now the else part gets {"input":"Where are you located?"}
-            // else if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
-            //   if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
-            //     for (const chunk of data.chunk.tool_call_chunks) {
-            //       otherStr += chunk.args as string
-            //       const part = formatDataStreamPart('text', chunk.args as string)
-            //       controller.enqueue(encoder.encode(part))
-            //     }
-            //   }
-            // }
+          } finally {
+            controller.close()
           }
-        } finally {
-          console.log('niceStr', niceStr)
-          controller.close()
-        }
-      },
-    })
+        },
+      })
+    } else {
+      const stream = await messagesApp.stream(new Command({resume: messageToUse.content}), 
+        {configurable: { thread_id: sessionId}, streamMode: 'messages' as const },)
+      return new ReadableStream({
+        async start(controller) {
+          try {
+            for await (const [message, _metadata] of stream) {
+              if (isAIMessageChunk(message) && !message.tool_call_chunks?.length) {
+                const part = formatDataStreamPart('text', message.content as string)
+                controller.enqueue(encoder.encode(part))
+              }
+            }
+          } finally {
+            controller.close()
+          }
+        },
+      })
+    }
+
   })
 })
