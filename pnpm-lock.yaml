@@ -45,6 +45,9 @@ importers:
         specifier: ^3.24.1
         version: 3.24.1
     devDependencies:
+      nuxi:
+        specifier: ^3.20.0
+        version: 3.20.0
       supabase:
         specifier: ^2.6.8
         version: 2.6.8
