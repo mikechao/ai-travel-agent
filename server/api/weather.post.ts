@@ -2,7 +2,7 @@ import { ChatOpenAI } from "@langchain/openai"
 import { tool } from "@langchain/core/tools"
 import { StateGraph, MessagesAnnotation, START, END, MemorySaver, interrupt, Command, Messages, UpdateType } from "@langchain/langgraph"
 import { ToolNode } from "@langchain/langgraph/prebuilt"
-import { AIMessage, BaseMessage, isAIMessageChunk, SystemMessage, ToolMessage } from "@langchain/core/messages"
+import { AIMessage, BaseMessage, HumanMessage, isAIMessageChunk, SystemMessage, ToolMessage } from "@langchain/core/messages"
 import { z } from "zod"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { formatDataStreamPart, Message as VercelChatMessage } from "ai"
@@ -154,50 +154,28 @@ function shouldUseInitMessage(message: VercelChatMessage) {
     const lastMessage: VercelChatMessage = messages[messages.length - 1]
     const useInitMessage = shouldUseInitMessage(lastMessage)
     console.log('lastMessage', lastMessage)
-
-    const messageToUse = useInitMessage ? { 
-      role: "user", content: "Use the search tool to ask the user where they are, then look up the weather there",
-      } : { role: "user", content: lastMessage.content }
-    const input = {
-      messages: [messageToUse]
-    }
-    console.log('messageToUse', messageToUse)
+    const humanMessage = new HumanMessage({
+      content:"Use the search tool to ask the user where they are, then look up the weather there"
+    })
+    const input = useInitMessage ? { messages: [humanMessage] } : new Command({resume: lastMessage.content})
     const encoder = new TextEncoder()
-    if (useInitMessage) {
-      const stream = await messagesApp.stream(input,
-        {configurable: { thread_id: sessionId}, streamMode: 'messages' as const })
-      return new ReadableStream({
-        async start(controller) {
-          try {
-            for await (const [message, _metadata] of stream) {
-              if (isAIMessageChunk(message) && !message.tool_call_chunks?.length) {
-                const part = formatDataStreamPart('text', message.content as string)
-                controller.enqueue(encoder.encode(part))
-              }
+    const stream = await messagesApp.stream(input,
+      {configurable: { thread_id: sessionId}, streamMode: 'messages' as const })
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const [message, _metadata] of stream) {
+            if (isAIMessageChunk(message) && !message.tool_call_chunks?.length) {
+              const part = formatDataStreamPart('text', message.content as string)
+              controller.enqueue(encoder.encode(part))
             }
-          } finally {
-            controller.close()
           }
-        },
-      })
-    } else {
-      const stream = await messagesApp.stream(new Command({resume: messageToUse.content}), 
-        {configurable: { thread_id: sessionId}, streamMode: 'messages' as const },)
-      return new ReadableStream({
-        async start(controller) {
-          try {
-            for await (const [message, _metadata] of stream) {
-              if (isAIMessageChunk(message) && !message.tool_call_chunks?.length) {
-                const part = formatDataStreamPart('text', message.content as string)
-                controller.enqueue(encoder.encode(part))
-              }
-            }
-          } finally {
-            controller.close()
-          }
-        },
-      })
-    }
+        } finally {
+          controller.close()
+        }
+      },
+    })
+    
 
   })
 })
