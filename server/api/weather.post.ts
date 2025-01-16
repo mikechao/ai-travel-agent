@@ -6,17 +6,12 @@ import { AIMessage, BaseMessage, isAIMessageChunk, SystemMessage, ToolMessage } 
 import { z } from "zod"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { formatDataStreamPart, Message as VercelChatMessage } from "ai"
-import { IterableReadableStream } from "@langchain/core/utils/stream"
-import { StreamEvent } from "@langchain/core/tracers/log_stream"
-import { PregelOutputType } from "@langchain/langgraph/pregel"
-import { ChatPromptTemplate } from "@langchain/core/prompts"
-import { ConsoleCallbackHandler } from "@langchain/core/tracers/console"
 
 export default defineLazyEventHandler(() => {
   // https://h3.unjs.io/guide/event-handler#lazy-event-handlers
   // This will be executed only once
   const runtimeConfig = useRuntimeConfig()
-
+  
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0,
@@ -91,8 +86,9 @@ export default defineLazyEventHandler(() => {
 
   const askHuman = async (state: typeof MessagesAnnotation.State) => {
     console.log('askHuman async method')
-    const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
-    const toolCallId = lastMessage.tool_calls?.[0].id;
+    const lastMessage = state.messages[state.messages.length - 1] as AIMessage
+    const toolCallId = lastMessage.tool_calls?.[0].id
+    console.log('askNiceModel.invoked')
     const locationQuesion =  await askNiceModel.invoke([
       new SystemMessage(`You are a pirate and a weather man, but you need to know the user's location. Forumlate a question to find 
         the user's location. Your question will be the first in a chat so take that into account. Include a short self bio`)
