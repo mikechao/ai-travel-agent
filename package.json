@@ -19,7 +19,7 @@
     "@langchain/openai": "^0.3.17",
     "ai": "^4.0.36",
     "langsmith": "^0.2.15",
-    "nuxt": "^3.15.1",
+    "nuxt": "^3.15.2",
     "uuid": "^11.0.5",
     "vue": "latest",
     "vue-router": "latest",
