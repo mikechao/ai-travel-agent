@@ -17,7 +17,7 @@ export default defineLazyEventHandler(() => {
     locationQuestion: Annotation<string>
   })
 
-  const askNiceModel = new ChatOpenAI({
+  const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0.88,
     apiKey: runtimeConfig.openaiAPIKey,
@@ -53,7 +53,7 @@ export default defineLazyEventHandler(() => {
     schema: z.string(),
   });
 
-  const modelWithTools = askNiceModel.bindTools([...tools, askHumanTool, generateQuestionTool])
+  const modelWithTools = model.bindTools([...tools, askHumanTool, generateQuestionTool])
 
   // Define the function that determines whether to continue or not
   function shouldContinue(state: typeof MessagesAnnotation.State): "action" | "askHuman" | "generateQuestion" | typeof END {
@@ -116,7 +116,7 @@ export default defineLazyEventHandler(() => {
       // generate the question to ask in this node to pass to the askHuman node
       // where the interrupt happens to wait user input, so that we do not
       // generate twice when the askHuman node resumes after interrupt
-      const locationQuesion =  await askNiceModel.invoke([
+      const locationQuesion =  await model.invoke([
         new SystemMessage(`You are a pirate and a weather man, but you need to know the user's location. Forumlate a question to find 
           the user's location. Your question will be the first in a chat so take that into account. Include a short self bio`)
       ])
