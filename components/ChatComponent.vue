@@ -1,7 +1,7 @@
 <template>
   <div class="chat-container">
     <div class="messages" ref="messagesContainer">
-      <div v-for="message in messages" :key="message.id" :class="['message', message.role]">
+      <div v-for="message in messages" :key="message.id" :class="['message', message.role]" class="whitespace-pre-line">
         {{ message.content }}
       </div>
     </div>
