@@ -22,11 +22,13 @@ import { ref, watch } from 'vue'
 import { useChat } from '@ai-sdk/vue'
 import { v4 as uuidv4 } from "uuid"
 
+const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append } = useChat({
   api: '/api/weather',
-  body: {
-    sessionId: uuidv4()
-  },
+  body: computed(() => ({
+    sessionId: sessionId,
+    messages: messages.value.length > 0 ? [messages.value[messages.value.length - 1]] : [],
+  })),
   onResponse: (response) => {
     // You can handle any specific response processing here if needed
     console.log('Response received:', response)
