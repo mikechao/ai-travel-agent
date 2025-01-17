@@ -10,6 +10,8 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts"
+import { DuckDuckGoSearch } from "@langchain/community/tools/duckduckgo_search";
+import { forecast } from 'duck-duck-scrape'
 
 export default defineLazyEventHandler(() => {
   // https://h3.unjs.io/guide/event-handler#lazy-event-handlers
@@ -27,13 +29,28 @@ export default defineLazyEventHandler(() => {
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
-  const search = tool((_) => {
-    console.log('search tool invoked')
-    return "It's sunny in San Francisco, but you better look out if you're a Gemini 😈.";
+  const duckDuckGoSearch = new DuckDuckGoSearch({ maxResults: 1})
+
+  const search = tool( async ({searchTerm}) => {
+    console.log('search tool invoked with ', searchTerm)
+
+    try {
+      const forcastResult = await forecast(searchTerm)
+      if (forcastResult && 'currentWeather' in forcastResult) {
+        return forcastResult['currentWeather']
+      }
+    } catch (error) {
+      console.error('forecast error', error)
+    }
+    const result = await duckDuckGoSearch.invoke(searchTerm)
+    console.log('result', result)
+    return result
   }, {
     name: "search",
     description: "Call to surf the web.",
-    schema: z.string(),
+    schema: z.object({
+      searchTerm: z.string().describe('The terms to search for')
+    }),
   })
 
   const tools = [search]
