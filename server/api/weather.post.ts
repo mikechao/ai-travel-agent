@@ -1,12 +1,11 @@
 import { ChatOpenAI } from "@langchain/openai"
 import { tool } from "@langchain/core/tools"
-import { StateGraph, MessagesAnnotation, START, END, MemorySaver, interrupt, Command, Messages, UpdateType, Annotation, messagesStateReducer } from "@langchain/langgraph"
+import { StateGraph, MessagesAnnotation, START, END,interrupt, Command, Annotation, } from "@langchain/langgraph"
 import { ToolNode } from "@langchain/langgraph/prebuilt"
 import { AIMessage, BaseMessage, HumanMessage, isAIMessageChunk, SystemMessage, ToolMessage } from "@langchain/core/messages"
 import { z } from "zod"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { formatDataStreamPart, Message as VercelChatMessage } from "ai"
-import { RunnableConfig } from "@langchain/core/runnables"
 
 export default defineLazyEventHandler(() => {
   // https://h3.unjs.io/guide/event-handler#lazy-event-handlers

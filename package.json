@@ -12,12 +12,12 @@
     "sbStop": "pnpm supabase stop"
   },
   "dependencies": {
-    "@ai-sdk/vue": "^1.0.11",
+    "@ai-sdk/vue": "^1.0.12",
     "@langchain/core": "^0.3.30",
-    "@langchain/langgraph": "^0.2.39",
+    "@langchain/langgraph": "^0.2.40",
     "@langchain/langgraph-checkpoint-postgres": "^0.0.2",
     "@langchain/openai": "^0.3.17",
-    "ai": "^4.0.36",
+    "ai": "^4.0.39",
     "langsmith": "^0.2.15",
     "nuxt": "^3.15.2",
     "uuid": "^11.0.5",
