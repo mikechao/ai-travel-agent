@@ -12,6 +12,7 @@ import {
 } from "@langchain/core/prompts"
 import { DuckDuckGoSearch } from "@langchain/community/tools/duckduckgo_search";
 import { forecast } from 'duck-duck-scrape'
+import { isInitMessage } from "../utils/isInitMessage"
 
 export default defineLazyEventHandler(() => {
   // https://h3.unjs.io/guide/event-handler#lazy-event-handlers
@@ -185,19 +186,7 @@ export default defineLazyEventHandler(() => {
 
   const messagesApp = messagesWorkflow.compile({
     checkpointer: checkpointer,
-})
-
-function shouldUseInitMessage(message: VercelChatMessage) {
-  if (message.data) {
-    try {
-      const initData = JSON.parse(message.data as string)
-      return initData.hasOwnProperty('init') && initData['init']
-    } catch (error) {
-      return false
-    }
-  }
-  return false
-}
+  })
 
   return defineEventHandler(async (event) => {
     // This will be executed on every request
@@ -206,7 +195,7 @@ function shouldUseInitMessage(message: VercelChatMessage) {
   
     console.log('\nReceived request')
     const lastMessage: VercelChatMessage = messages[0]
-    const useInitMessage = shouldUseInitMessage(lastMessage)
+    const useInitMessage = isInitMessage(lastMessage)
     console.log('lastMessage', lastMessage)
     const humanMessage = new HumanMessage({
       content:"Use the generateQuestion tool to generate a question. Use the search tool to ask the user where they are, then look up the weather there"
