@@ -1,26 +1,25 @@
 import { z } from "zod";
 import { ChatOpenAI } from "@langchain/openai";
-import { BaseMessage, isAIMessageChunk } from "@langchain/core/messages";
+import { AIMessageChunk, BaseMessage, isAIMessage, isAIMessageChunk } from "@langchain/core/messages";
 import {
   MessagesAnnotation,
   StateGraph,
   START,
   Command,
   interrupt,
-  MemorySaver,
-  UnreachableNodeError
 } from "@langchain/langgraph";
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
-import { LangChainAdapter, createDataStreamResponse, formatDataStreamPart, streamText,} from 'ai'
+import { Message as VercelChatMessage, formatDataStreamPart } from 'ai'
 import { convertLangChainMessageToVercelMessage } from "../utils/messageConvert";
 
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
 
+const tag = 'stream-out'
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
   temperature: 0,
-  apiKey: runtimeConfig.openaiAPIKey
+  apiKey: runtimeConfig.openaiAPIKey,
 })
 
 const checkpointer = PostgresSaver.fromConnString(
@@ -28,7 +27,7 @@ const checkpointer = PostgresSaver.fromConnString(
 );
 await checkpointer.setup()
 
-function callLlm(messages: BaseMessage[], targetAgentNodes: string[]) {
+function callLlm(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM') {
   // define the schema for the structured output:
   // - model's text response (`response`)
   // - name of the node to go to next (or 'finish')
@@ -36,7 +35,8 @@ function callLlm(messages: BaseMessage[], targetAgentNodes: string[]) {
     response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
     goto: z.enum(["finish", ...targetAgentNodes]).describe("The next agent to call, or 'finish' if the user's query has been resolved. Must be one of the specified values."),
   })
-  return model.withStructuredOutput(outputSchema, { name: "Response" }).invoke(messages)
+
+  return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [tag]})
 }
 
 async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
@@ -49,7 +49,7 @@ async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Co
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["sightseeingAdvisor", "hotelAdvisor"];
-  const response = await callLlm(messages, targetAgentNodes);
+  const response = await callLlm(messages, targetAgentNodes, 'travelAdvisor');
   const aiMsg = {"role": "ai", "content": response.response, "name": "travelAdvisor"};
 
   let goto = response.goto;
@@ -152,11 +152,13 @@ const builder = new StateGraph(MessagesAnnotation)
 
 const graph = builder.compile({ checkpointer })
 
-return defineEventHandler(async event => {
-  const body = await readBody(event)
+return defineEventHandler(async webEvent => {
+  const body = await readBody(webEvent)
   const { messages, sessionId } = body
-  //test
-  const config = { configurable: { thread_id: sessionId }, streamMode: "values" as const };
+  console.log('\nReceived request sessionId', sessionId)
+
+  const lastMessage: VercelChatMessage = messages[0]
+
   
   const inputs = [
     // 1st round of conversation
@@ -178,14 +180,17 @@ return defineEventHandler(async event => {
   console.log('input', input)
   
   const encoder = new TextEncoder()
+  const config = { configurable: { thread_id: sessionId }, streamMode: "messages" as const }
+  const config2 = {version: "v2" as const, configurable: {thread_id: sessionId}, }
   return new ReadableStream({
     async start(controller) {
       try {
-        for await (const { event, data } of graph.streamEvents(input, {version: 'v2', configurable: { thread_id: sessionId}, })) {
-          if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
-            if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
-              for (const chunk of data.chunk.tool_call_chunks) {
-                const part = formatDataStreamPart('text', chunk.args as string)
+        for await (const event of graph.streamEvents(input, config2, {includeTags: [tag]})) {
+          if (event.event === 'on_chat_model_stream' && event.tags?.includes(tag)) {
+            if (isAIMessageChunk(event.data.chunk)) {
+              const aiMessageChunk = event.data.chunk as AIMessageChunk
+              if (aiMessageChunk.tool_call_chunks?.length) {
+                const part = formatDataStreamPart('text', aiMessageChunk.tool_call_chunks[0].args as string)
                 controller.enqueue(encoder.encode(part))
               }
             }

@@ -24,7 +24,7 @@ import { v4 as uuidv4 } from "uuid"
 
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append } = useChat({
-  api: '/api/weather',
+  api: '/api/travel',
   body: computed(() => ({
     sessionId: sessionId,
     messages: messages.value.length > 0 ? [messages.value[messages.value.length - 1]] : [],
