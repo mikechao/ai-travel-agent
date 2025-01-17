@@ -25,7 +25,7 @@ const tag = 'stream-out'
 
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
-  temperature: 0,
+  temperature: 0.6,
   apiKey: runtimeConfig.openaiAPIKey,
 })
 
@@ -165,14 +165,15 @@ return defineEventHandler(async webEvent => {
   console.log('\nReceived request sessionId', sessionId)
 
   const lastMessage: VercelChatMessage = messages[0]
+  console.log('lastMessage', lastMessage.content)
 
   const initMessage = {
     messages: [
-      {role: "system", content: "Use the tools and agents you have to figure out what to ask the user"}
+      {role: "system", content: `Use the tools and agents you have to figure out what to ask the user.
+        Introduce yourself and give the user a summary of your skills and knowledge `}
     ]
   }
   const input = isInitMessage(lastMessage) ? initMessage : new Command({resume: lastMessage.content})
-  console.log('input', input)
   
   const encoder = new TextEncoder()
 
