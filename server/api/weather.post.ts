@@ -16,17 +16,11 @@ export default defineLazyEventHandler(() => {
     messages: Annotation<BaseMessage[]>,
     locationQuestion: Annotation<string>
   })
-  const model = new ChatOpenAI({
-    model: 'gpt-4o-mini',
-    temperature: 0,
-    apiKey: runtimeConfig.openaiAPIKey,
-  })
 
   const askNiceModel = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0.88,
     apiKey: runtimeConfig.openaiAPIKey,
-    tags: ["ask_nice"]
   })
 
   const search = tool((_) => {
