@@ -1,22 +1,30 @@
 <template>
-  <div class="chat-container">
-    <div class="messages" ref="messagesContainer">
-      <div v-for="message in messages" :key="message.id" :class="['message', message.role]" class="whitespace-pre-line">
-        {{ message.content }}
+  <div class="chat-container flex flex-col h-screen max-w-2xl mx-auto p-4">
+    <div class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300 rounded" ref="messagesContainer">
+      <div v-for="message in messages" :key="message.id">
+        <div v-if="message.content.length > 0" :class="['mb-4 p-2 rounded', message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
+          <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
+          <div v-html="renderMessage(message.content)"></div>
+        </div>
       </div>
     </div>
-    <form @submit.prevent="handleSubmit" class="input-form">
+    <form @submit.prevent="handleSubmit" class="flex gap-2">
       <input
         v-model="input"
-        type="text"
-        placeholder="Type a message..."
+        placeholder="Type your message..."
+        class="flex-grow p-2 border border-gray-300 rounded"
         :disabled="isLoading"
       />
-      <button type="submit" :disabled="isLoading">Send</button>
+      <button
+        type="submit"
+        :disabled="isLoading"
+        class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+      >
+        Send
+      </button>
     </form>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useChat } from '@ai-sdk/vue'
@@ -40,7 +48,8 @@ const { messages, input, handleSubmit, isLoading, append } = useChat({
   },
   onError: (error) => {
     console.error('error', error)
-  }
+  },
+  
 })
 
 onMounted(() => {
@@ -59,6 +68,15 @@ watch(messages, () => {
     }
   }, 0)
 })
+
+const renderMessage = (content: string): string => {
+  console.log('renderMessage', content)
+  const result = content.replace(`{"response":"`, '')
+    .replace(`,"goto":"finish"}`, '')
+    .replaceAll(`\\n`, '<br/>')
+  console.log('result', result)
+  return result
+}
 </script>
 
 <style scoped>
