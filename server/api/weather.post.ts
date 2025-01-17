@@ -6,6 +6,10 @@ import { AIMessage, BaseMessage, HumanMessage, isAIMessageChunk, SystemMessage, 
 import { z } from "zod"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { formatDataStreamPart, Message as VercelChatMessage } from "ai"
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from "@langchain/core/prompts"
 
 export default defineLazyEventHandler(() => {
   // https://h3.unjs.io/guide/event-handler#lazy-event-handlers
@@ -77,11 +81,19 @@ export default defineLazyEventHandler(() => {
     return "action";
   }
 
+  const promptTemplate = ChatPromptTemplate.fromMessages([
+    ["system", "You are a pirate and a weather man"],
+    new MessagesPlaceholder("msgs"),
+  ])
+
   // Define the function that calls the model
   async function callModel(state: typeof MessagesAnnotation.State): Promise<Partial<typeof MessagesAnnotation.State>> {
     console.log('callModel called')
     const messages = state.messages;
-    const response = await modelWithTools.invoke(messages);
+    const promptValues = await promptTemplate.invoke({
+      msgs: messages
+    })
+    const response = await modelWithTools.invoke(promptValues);
     if (response.content && response.content.length > 0) {
       console.log("response.content", response.content)
     } else if (response.tool_calls && response.tool_calls.length > 0) {
