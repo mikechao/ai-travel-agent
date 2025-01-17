@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { ChatOpenAI } from "@langchain/openai";
-import { AIMessageChunk, BaseMessage, isAIMessage, isAIMessageChunk } from "@langchain/core/messages";
+import { 
+  AIMessageChunk, 
+  BaseMessage, 
+  isAIMessageChunk 
+} from "@langchain/core/messages";
 import {
   MessagesAnnotation,
   StateGraph,
@@ -9,13 +13,16 @@ import {
   interrupt,
 } from "@langchain/langgraph";
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
-import { Message as VercelChatMessage, formatDataStreamPart } from 'ai'
-import { convertLangChainMessageToVercelMessage } from "../utils/messageConvert";
+import { 
+  Message as VercelChatMessage, 
+  formatDataStreamPart 
+} from 'ai'
 
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
 
 const tag = 'stream-out'
+
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
   temperature: 0,
@@ -36,7 +43,7 @@ function callLlm(messages: BaseMessage[], targetAgentNodes: string[], runName = 
     goto: z.enum(["finish", ...targetAgentNodes]).describe("The next agent to call, or 'finish' if the user's query has been resolved. Must be one of the specified values."),
   })
 
-  return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [tag]})
+  return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [tag], runName: runName })
 }
 
 async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
@@ -180,17 +187,20 @@ return defineEventHandler(async webEvent => {
   console.log('input', input)
   
   const encoder = new TextEncoder()
-  const config = { configurable: { thread_id: sessionId }, streamMode: "messages" as const }
-  const config2 = {version: "v2" as const, configurable: {thread_id: sessionId}, }
+
+  const config = {version: "v2" as const, configurable: {thread_id: sessionId},}
   return new ReadableStream({
     async start(controller) {
       try {
-        for await (const event of graph.streamEvents(input, config2, {includeTags: [tag]})) {
+        for await (const event of graph.streamEvents(input, config, {includeTags: [tag]})) {
           if (event.event === 'on_chat_model_stream' && event.tags?.includes(tag)) {
             if (isAIMessageChunk(event.data.chunk)) {
               const aiMessageChunk = event.data.chunk as AIMessageChunk
-              if (aiMessageChunk.tool_call_chunks?.length) {
-                const part = formatDataStreamPart('text', aiMessageChunk.tool_call_chunks[0].args as string)
+              if (aiMessageChunk.tool_call_chunks?.length && aiMessageChunk.tool_call_chunks[0].args) {
+                const toolChunk =  aiMessageChunk.tool_call_chunks[0].args
+                // we can filter the toolChunk to exclude the {response:... but it depends on
+                // how the model tokenizes and introduces overhead
+                const part = formatDataStreamPart('text', toolChunk)
                 controller.enqueue(encoder.encode(part))
               }
             }
