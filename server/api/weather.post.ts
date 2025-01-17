@@ -1,17 +1,22 @@
 import { ChatOpenAI } from "@langchain/openai"
 import { tool } from "@langchain/core/tools"
-import { StateGraph, MessagesAnnotation, START, END, MemorySaver, interrupt, Command, Messages, UpdateType } from "@langchain/langgraph"
+import { StateGraph, MessagesAnnotation, START, END, MemorySaver, interrupt, Command, Messages, UpdateType, Annotation, messagesStateReducer } from "@langchain/langgraph"
 import { ToolNode } from "@langchain/langgraph/prebuilt"
 import { AIMessage, BaseMessage, HumanMessage, isAIMessageChunk, SystemMessage, ToolMessage } from "@langchain/core/messages"
 import { z } from "zod"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { formatDataStreamPart, Message as VercelChatMessage } from "ai"
+import { RunnableConfig } from "@langchain/core/runnables"
 
 export default defineLazyEventHandler(() => {
   // https://h3.unjs.io/guide/event-handler#lazy-event-handlers
   // This will be executed only once
   const runtimeConfig = useRuntimeConfig()
   
+  const AskHumanStateAnnotation = Annotation.Root({
+    messages: Annotation<BaseMessage[]>,
+    locationQuestion: Annotation<string>
+  })
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0,
@@ -46,10 +51,19 @@ export default defineLazyEventHandler(() => {
     schema: z.string(),
   });
 
-  const modelWithTools = askNiceModel.bindTools([...tools, askHumanTool])
+  const generateQuestionTool = tool((_) => {
+    console.log('generateQuestionTool invoked')
+    return "Generated Question";
+  }, {
+    name: "generateQuestion",
+    description: "Generate a question to ask the human for input",
+    schema: z.string(),
+  });
+
+  const modelWithTools = askNiceModel.bindTools([...tools, askHumanTool, generateQuestionTool])
 
   // Define the function that determines whether to continue or not
-  function shouldContinue(state: typeof MessagesAnnotation.State): "action" | "askHuman" | typeof END {
+  function shouldContinue(state: typeof MessagesAnnotation.State): "action" | "askHuman" | "generateQuestion" | typeof END {
     const lastMessage = state.messages[state.messages.length - 1] as AIMessage;
     // If there is no function call, then we finish
     if (lastMessage && !lastMessage.tool_calls?.length) {
@@ -62,6 +76,9 @@ export default defineLazyEventHandler(() => {
     if (lastMessage.tool_calls?.[0]?.name === "askHuman") {
       console.log("--- ASKING HUMAN ---")
       return "askHuman";
+    } else if (lastMessage.tool_calls?.[0]?.name === 'generateQuestion') {
+      console.log('---Generate Question ---')
+      return "generateQuestion"
     }
     // Otherwise if it isn't, we continue with the action node
     return "action";
@@ -84,16 +101,12 @@ export default defineLazyEventHandler(() => {
     return { messages: [response] };
   }
 
-  const askHuman = async (state: typeof MessagesAnnotation.State) => {
+  const askHuman = async (state: typeof AskHumanStateAnnotation.State) => {
     console.log('askHuman async method')
+    console.log('state.locationQuestion', state.locationQuestion)
     const lastMessage = state.messages[state.messages.length - 1] as AIMessage
     const toolCallId = lastMessage.tool_calls?.[0].id
-    console.log('askNiceModel.invoked')
-    const locationQuesion =  await askNiceModel.invoke([
-      new SystemMessage(`You are a pirate and a weather man, but you need to know the user's location. Forumlate a question to find 
-        the user's location. Your question will be the first in a chat so take that into account. Include a short self bio`)
-    ])
-    const location: string = interrupt(locationQuesion.content)
+    const location: string = interrupt(state.locationQuestion)
     console.log('location', location)
     const newToolMessage = new ToolMessage({
       tool_call_id: toolCallId!,
@@ -102,11 +115,29 @@ export default defineLazyEventHandler(() => {
     return { messages: [newToolMessage] };
   }
 
+  const generateQuestion = async (state: typeof AskHumanStateAnnotation.State) => {
+    console.log('generateQuestion')
+    let question = state.locationQuestion
+    console.log('question', question)
+    if (!question) {
+      // generate the question to ask in this node to pass to the askHuman node
+      // where the interrupt happens to wait user input, so that we do not
+      // generate twice when the askHuman node resumes after interrupt
+      const locationQuesion =  await askNiceModel.invoke([
+        new SystemMessage(`You are a pirate and a weather man, but you need to know the user's location. Forumlate a question to find 
+          the user's location. Your question will be the first in a chat so take that into account. Include a short self bio`)
+      ])
+      question = locationQuesion.content as string
+    }
+    return {locationQuestion: question}
+  }
+
   const messagesWorkflow = new StateGraph(MessagesAnnotation)
   // Define the two nodes we will cycle between
   .addNode("agent", callModel)
   .addNode("action", toolNode)
-  .addNode("askHuman", askHuman)
+  .addNode("askHuman", askHuman, {input: AskHumanStateAnnotation})
+  .addNode("generateQuestion", generateQuestion, {input: AskHumanStateAnnotation})
   // We now add a conditional edge
   .addConditionalEdges(
     // First, we define the start node. We use `agent`.
@@ -120,6 +151,7 @@ export default defineLazyEventHandler(() => {
   .addEdge("action", "agent")
   // After we get back the human response, we go back to the agent
   .addEdge("askHuman", "agent")
+  .addEdge("generateQuestion", "askHuman")
   // Set the entrypoint as `agent`
   // This means that this node is the first one called
   .addEdge(START, "agent")
@@ -155,9 +187,9 @@ function shouldUseInitMessage(message: VercelChatMessage) {
     const useInitMessage = shouldUseInitMessage(lastMessage)
     console.log('lastMessage', lastMessage)
     const humanMessage = new HumanMessage({
-      content:"Use the search tool to ask the user where they are, then look up the weather there"
+      content:"Use the generateQuestion tool to generate a question. Use the search tool to ask the user where they are, then look up the weather there"
     })
-    const input = useInitMessage ? { messages: [humanMessage] } : new Command({resume: lastMessage.content})
+    const input = useInitMessage ? { messages: [humanMessage] } : new Command({resume: lastMessage.content, update: {locationQuestion: 'Yes'}})
     const encoder = new TextEncoder()
     const stream = await messagesApp.stream(input,
       {configurable: { thread_id: sessionId}, streamMode: 'messages' as const })
