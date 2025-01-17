@@ -200,7 +200,7 @@ export default defineLazyEventHandler(() => {
     const humanMessage = new HumanMessage({
       content:"Use the generateQuestion tool to generate a question. Use the search tool to ask the user where they are, then look up the weather there"
     })
-    const input = useInitMessage ? { messages: [humanMessage] } : new Command({resume: lastMessage.content, update: {locationQuestion: 'Yes'}})
+    const input = useInitMessage ? { messages: [humanMessage] } : new Command({resume: lastMessage.content})
     const encoder = new TextEncoder()
     const stream = await messagesApp.stream(input,
       {configurable: { thread_id: sessionId}, streamMode: 'messages' as const })
