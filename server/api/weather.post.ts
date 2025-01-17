@@ -182,7 +182,7 @@ function shouldUseInitMessage(message: VercelChatMessage) {
     const { messages, sessionId } = body
   
     console.log('\nReceived request')
-    const lastMessage: VercelChatMessage = messages[messages.length - 1]
+    const lastMessage: VercelChatMessage = messages[0]
     const useInitMessage = shouldUseInitMessage(lastMessage)
     console.log('lastMessage', lastMessage)
     const humanMessage = new HumanMessage({
