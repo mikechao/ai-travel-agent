@@ -166,24 +166,12 @@ return defineEventHandler(async webEvent => {
 
   const lastMessage: VercelChatMessage = messages[0]
 
-  
-  const inputs = [
-    // 1st round of conversation
-    {
-      messages: [
-        { role: "user", content: "i wanna go somewhere warm in the caribbean" }
-      ]
-    },
-    // Since we're using `interrupt`, we'll need to resume using the Command primitive.
-    // 2nd round of conversation
-    new Command({
-      resume: "could you recommend a nice hotel in one of the areas and tell me which area it is."
-    }),
-    // Third round of conversation
-    new Command({ resume: "could you recommend something to do near the hotel?" }),
-  ]
-
-  const input = inputs[0]
+  const initMessage = {
+    messages: [
+      {role: "system", content: "Use the tools and agents you have to figure out what to ask the user"}
+    ]
+  }
+  const input = isInitMessage(lastMessage) ? initMessage : new Command({resume: lastMessage.content})
   console.log('input', input)
   
   const encoder = new TextEncoder()
