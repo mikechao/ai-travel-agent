@@ -10,7 +10,6 @@ import {
   MemorySaver,
   UnreachableNodeError
 } from "@langchain/langgraph";
-import { v4 as uuidv4 } from "uuid"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { LangChainAdapter, createDataStreamResponse, formatDataStreamPart, streamText,} from 'ai'
 import { convertLangChainMessageToVercelMessage } from "../utils/messageConvert";
@@ -154,9 +153,10 @@ const builder = new StateGraph(MessagesAnnotation)
 const graph = builder.compile({ checkpointer })
 
 return defineEventHandler(async event => {
-  
+  const body = await readBody(event)
+  const { messages, sessionId } = body
   //test
-  const threadConfig = { configurable: { thread_id: uuidv4() }, streamMode: "values" as const };
+  const config = { configurable: { thread_id: sessionId }, streamMode: "values" as const };
   
   const inputs = [
     // 1st round of conversation
@@ -177,22 +177,11 @@ return defineEventHandler(async event => {
   const input = inputs[0]
   console.log('input', input)
   
-  //const eventStream = await graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()}, })
-  // the list of events from the graph
-  //   'on_chain_start',
-  //   'on_chain_end',
-  //   'on_chat_model_start',
-  //   'on_chat_model_stream',
-  //   'on_chat_model_end',
-  //   'on_parser_start',
-  //   'on_parser_end',
-  //   'on_chain_stream' }
-
   const encoder = new TextEncoder()
   return new ReadableStream({
     async start(controller) {
       try {
-        for await (const { event, data } of graph.streamEvents(input, {version: 'v2', configurable: { thread_id: uuidv4()}, })) {
+        for await (const { event, data } of graph.streamEvents(input, {version: 'v2', configurable: { thread_id: sessionId}, })) {
           if (event === "on_chat_model_stream" && isAIMessageChunk(data.chunk)) {
             if (data.chunk.tool_call_chunks !== undefined && data.chunk.tool_call_chunks.length > 0) {
               for (const chunk of data.chunk.tool_call_chunks) {
