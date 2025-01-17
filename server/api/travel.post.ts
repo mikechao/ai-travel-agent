@@ -15,6 +15,7 @@ import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { LangChainAdapter, createDataStreamResponse, formatDataStreamPart, streamText,} from 'ai'
 import { convertLangChainMessageToVercelMessage } from "../utils/messageConvert";
 
+export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
 
 const model = new ChatOpenAI({
@@ -26,143 +27,133 @@ const model = new ChatOpenAI({
 const checkpointer = PostgresSaver.fromConnString(
   "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 );
-let isCheckerpointerSetup = false
+await checkpointer.setup()
 
+function callLlm(messages: BaseMessage[], targetAgentNodes: string[]) {
+  // define the schema for the structured output:
+  // - model's text response (`response`)
+  // - name of the node to go to next (or 'finish')
+  const outputSchema = z.object({
+    response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
+    goto: z.enum(["finish", ...targetAgentNodes]).describe("The next agent to call, or 'finish' if the user's query has been resolved. Must be one of the specified values."),
+  })
+  return model.withStructuredOutput(outputSchema, { name: "Response" }).invoke(messages)
+}
 
-export default defineEventHandler(async event => {
-  if (!isCheckerpointerSetup) {
-    // will only work locally since there is state, but not when deploy to services like netlify
-    // where server function run in "serverless" lambda
-    console.log('before calling checkpointer.setup()')
-    await checkpointer.setup()
-    console.log('after calling checkpointer.setup()')
-    isCheckerpointerSetup = true
+async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
+  const systemPrompt = 
+      "You are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). " +
+      "If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' for help. " +
+      "If you need hotel recommendations, ask 'hotelAdvisor' for help. " +
+      "If you have enough information to respond to the user, return 'finish'. " +
+      "Never mention other agents by name.";
+
+  const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
+  const targetAgentNodes = ["sightseeingAdvisor", "hotelAdvisor"];
+  const response = await callLlm(messages, targetAgentNodes);
+  const aiMsg = {"role": "ai", "content": response.response, "name": "travelAdvisor"};
+
+  let goto = response.goto;
+  if (goto === "finish") {
+      goto = "human";
   }
 
-  function callLlm(messages: BaseMessage[], targetAgentNodes: string[]) {
-    // define the schema for the structured output:
-    // - model's text response (`response`)
-    // - name of the node to go to next (or 'finish')
-    const outputSchema = z.object({
-      response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
-      goto: z.enum(["finish", ...targetAgentNodes]).describe("The next agent to call, or 'finish' if the user's query has been resolved. Must be one of the specified values."),
-    })
-    return model.withStructuredOutput(outputSchema, { name: "Response" }).invoke(messages)
-  }
-  
-  async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
-    const systemPrompt = 
-        "You are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). " +
-        "If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' for help. " +
-        "If you need hotel recommendations, ask 'hotelAdvisor' for help. " +
-        "If you have enough information to respond to the user, return 'finish'. " +
-        "Never mention other agents by name.";
-  
-    const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
-    const targetAgentNodes = ["sightseeingAdvisor", "hotelAdvisor"];
-    const response = await callLlm(messages, targetAgentNodes);
-    const aiMsg = {"role": "ai", "content": response.response, "name": "travelAdvisor"};
-  
-    let goto = response.goto;
-    if (goto === "finish") {
-        goto = "human";
-    }
-  
-    return new Command({goto, update: { "messages": [aiMsg] } });
-  }
-  
-  async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
-    const systemPrompt = 
-        "You are a travel expert that can provide specific sightseeing recommendations for a given destination. " +
-        "If you need general travel help, go to 'travelAdvisor' for help. " +
-        "If you need hotel recommendations, go to 'hotelAdvisor' for help. " +
-        "If you have enough information to respond to the user, return 'finish'. " +
-        "Never mention other agents by name.";
-  
-    const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
-    const targetAgentNodes = ["travelAdvisor", "hotelAdvisor"];
-    const response = await callLlm(messages, targetAgentNodes);
-    const aiMsg = {"role": "ai", "content": response.response, "name": "sightseeingAdvisor"};
-  
-    let goto = response.goto;
-    if (goto === "finish") {
-        goto = "human";
-    }
-  
-    return new Command({ goto, update: {"messages": [aiMsg] } });
-  }
-  
-  async function hotelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
-    const systemPrompt = 
-        "You are a travel expert that can provide hotel recommendations for a given destination. " +
-        "If you need general travel help, ask 'travelAdvisor' for help. " +
-        "If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' for help. " +
-        "If you have enough information to respond to the user, return 'finish'. " +
-        "Never mention other agents by name.";
-  
-    const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
-    const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor"];
-    const response = await callLlm(messages, targetAgentNodes);
-    const aiMsg = {"role": "ai", "content": response.response, "name": "hotelAdvisor"};
-  
-    let goto = response.goto;
-    if (goto === "finish") {
-        goto = "human";
-    }
-  
-    return new Command({ goto, update: {"messages": [aiMsg] } });
-  }
-  
-  function humanNode(state: typeof MessagesAnnotation.State): Command {
-    const userInput: string = interrupt("Ready for user input.");
-  
-    let activeAgent: string | undefined = undefined;
-  
-    // Look up the active agent
-    for (let i = state.messages.length - 1; i >= 0; i--) {
-        if (state.messages[i].name) {
-            activeAgent = state.messages[i].name;
-            break;
-        }
-    }
-  
-    if (!activeAgent) {
-        throw new Error("Could not determine the active agent.");
-    }
-  
-    return new Command({
-        goto: activeAgent,
-        update: {
-          "messages": [
-              {
-                  "role": "human",
-                  "content": userInput,
-              }
-          ]
-        }
-    });
-  }
-  
-  const builder = new StateGraph(MessagesAnnotation)
-    .addNode("travelAdvisor", travelAdvisor, {
-      ends: ["sightseeingAdvisor", "hotelAdvisor"]
-    })
-    .addNode("sightseeingAdvisor", sightseeingAdvisor, {
-      ends: ["human", "travelAdvisor", "hotelAdvisor"]
-    })
-    .addNode("hotelAdvisor", hotelAdvisor, {
-      ends: ["human", "travelAdvisor", "sightseeingAdvisor"]
-    })
-    // This adds a node to collect human input, which will route
-    // back to the active agent.
-    .addNode("human", humanNode, {
-      ends: ["hotelAdvisor", "sightseeingAdvisor", "travelAdvisor", "human"]
-    })
-    // We'll always start with a general travel advisor.
-    .addEdge(START, "travelAdvisor")
-  
+  return new Command({goto, update: { "messages": [aiMsg] } });
+}
 
-  const graph = builder.compile({ checkpointer })
+async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
+  const systemPrompt = 
+      "You are a travel expert that can provide specific sightseeing recommendations for a given destination. " +
+      "If you need general travel help, go to 'travelAdvisor' for help. " +
+      "If you need hotel recommendations, go to 'hotelAdvisor' for help. " +
+      "If you have enough information to respond to the user, return 'finish'. " +
+      "Never mention other agents by name.";
+
+  const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
+  const targetAgentNodes = ["travelAdvisor", "hotelAdvisor"];
+  const response = await callLlm(messages, targetAgentNodes);
+  const aiMsg = {"role": "ai", "content": response.response, "name": "sightseeingAdvisor"};
+
+  let goto = response.goto;
+  if (goto === "finish") {
+      goto = "human";
+  }
+
+  return new Command({ goto, update: {"messages": [aiMsg] } });
+}
+
+async function hotelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
+  const systemPrompt = 
+      "You are a travel expert that can provide hotel recommendations for a given destination. " +
+      "If you need general travel help, ask 'travelAdvisor' for help. " +
+      "If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' for help. " +
+      "If you have enough information to respond to the user, return 'finish'. " +
+      "Never mention other agents by name.";
+
+  const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
+  const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor"];
+  const response = await callLlm(messages, targetAgentNodes);
+  const aiMsg = {"role": "ai", "content": response.response, "name": "hotelAdvisor"};
+
+  let goto = response.goto;
+  if (goto === "finish") {
+      goto = "human";
+  }
+
+  return new Command({ goto, update: {"messages": [aiMsg] } });
+}
+
+function humanNode(state: typeof MessagesAnnotation.State): Command {
+  const userInput: string = interrupt("Ready for user input.");
+
+  let activeAgent: string | undefined = undefined;
+
+  // Look up the active agent
+  for (let i = state.messages.length - 1; i >= 0; i--) {
+      if (state.messages[i].name) {
+          activeAgent = state.messages[i].name;
+          break;
+      }
+  }
+
+  if (!activeAgent) {
+      throw new Error("Could not determine the active agent.");
+  }
+
+  return new Command({
+      goto: activeAgent,
+      update: {
+        "messages": [
+            {
+                "role": "human",
+                "content": userInput,
+            }
+        ]
+      }
+  });
+}
+
+const builder = new StateGraph(MessagesAnnotation)
+.addNode("travelAdvisor", travelAdvisor, {
+  ends: ["sightseeingAdvisor", "hotelAdvisor"]
+})
+.addNode("sightseeingAdvisor", sightseeingAdvisor, {
+  ends: ["human", "travelAdvisor", "hotelAdvisor"]
+})
+.addNode("hotelAdvisor", hotelAdvisor, {
+  ends: ["human", "travelAdvisor", "sightseeingAdvisor"]
+})
+// This adds a node to collect human input, which will route
+// back to the active agent.
+.addNode("human", humanNode, {
+  ends: ["hotelAdvisor", "sightseeingAdvisor", "travelAdvisor", "human"]
+})
+// We'll always start with a general travel advisor.
+.addEdge(START, "travelAdvisor")
+
+const graph = builder.compile({ checkpointer })
+
+return defineEventHandler(async event => {
   
   //test
   const threadConfig = { configurable: { thread_id: uuidv4() }, streamMode: "values" as const };
@@ -216,5 +207,7 @@ export default defineEventHandler(async event => {
       }
     },
   })
+
+})
 
 })
