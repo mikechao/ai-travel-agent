@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatOpenAI,} from "@langchain/openai";
 import { tool } from "@langchain/core/tools"
 import { 
   AIMessageChunk, 
@@ -18,6 +18,7 @@ import {
   Message as VercelChatMessage, 
   formatDataStreamPart 
 } from 'ai'
+import { zodToJsonSchema } from "zod-to-json-schema"
 
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
@@ -49,7 +50,7 @@ const checkpointer = PostgresSaver.fromConnString(
 );
 await checkpointer.setup()
 
-function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM') {
+async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM') {
   // define the schema for the structured output:
   // - model's text response (`response`)
   // - name of the node to go to next (or 'finish')
@@ -58,11 +59,33 @@ function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 
     goto: z.enum(["finish", ...targetAgentNodes]).describe("The next agent to call, or 'finish' if the user's query has been resolved. Must be one of the specified values."),
   })
 
+  const asJsonSchema = zodToJsonSchema(outputSchema)
+  const functionName = "Response"
+
+  // this seems to work, but you need to include You have a variety of tools avaiable to you, but by default you should used the one call 'Response' 
+  // in the prompt/messages
+  const modelWithTools = model.bind({
+    tools: [
+      weatherForecastTool,
+      {
+        type: "function" as const,
+        function: {
+          name: functionName,
+          description: asJsonSchema.description,
+          parameters: asJsonSchema,
+        }
+      }
+    ],
+  })
+
+  const modelWithToolsResult = await modelWithTools.invoke(messages, {tags: ['modelWithTools']})
+  console.log('modelWithToolsResult', modelWithToolsResult)
   return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [tag], runName: runName })
 }
 
 async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
   const systemPrompt = 
+      `You have a variety of tools avaiable to you, but by default you should used the one call 'Response' ` +
       `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
        Be sure to bark a lot and use dog related emojis ` +
       `If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' named Polly Parrot for help. ` +
