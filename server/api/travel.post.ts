@@ -50,7 +50,7 @@ const checkpointer = PostgresSaver.fromConnString(
 );
 await checkpointer.setup()
 
-async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM') {
+async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: any[] = []) {
   // define the schema for the structured output:
   // - model's text response (`response`)
   // - name of the node to go to next (or 'finish')
@@ -66,7 +66,7 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
   // in the prompt/messages
   const modelWithTools = model.bind({
     tools: [
-      weatherForecastTool,
+      ...toolsToUse,
       {
         type: "function" as const,
         function: {
@@ -166,7 +166,7 @@ async function weatherAdvisor(state: typeof MessagesAnnotation.State): Promise<C
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[]
   const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"];
-  const response = await callLLM(messages, targetAgentNodes);
+  const response = await callLLM(messages, targetAgentNodes, "weatherRun", [weatherForecastTool]);
   const aiMsg = {"role": "ai", "content": response.response, "name": "weatherAdvisor"};
 
   let goto = response.goto;
