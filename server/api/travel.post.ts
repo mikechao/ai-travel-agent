@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ChatOpenAI } from "@langchain/openai";
+import { tool } from "@langchain/core/tools"
 import { 
   AIMessageChunk, 
   BaseMessage, 
@@ -22,6 +23,20 @@ export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
 
 const tag = 'stream-out'
+
+const weatherForecastTool = tool(async (input: { lat: number; long: number }) => {
+  const { lat, long } = input;
+  const url = `http://api.weatherapi.com/v1/forecast.json?key=${runtimeConfig.weatherAPIKey}&q=${lat},${long}&days=7&aqi=no&alerts=no`
+  const forecast = await $fetch(url)
+  return forecast
+}, {
+  name: 'weatherForecastTool',
+  description: 'Use to forecast the weather for the location the user has expressed an interest in',
+  schema: z.object({
+    lat : z.number().describe('The Latitude in decimal degree of the location to get forecast for'),
+    long: z.number().describe('The Longitude in decimal degree of the location to get forecast for')
+  }),
+})
 
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
