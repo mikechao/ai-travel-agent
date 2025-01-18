@@ -34,7 +34,7 @@ const checkpointer = PostgresSaver.fromConnString(
 );
 await checkpointer.setup()
 
-function callLlm(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM') {
+function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM') {
   // define the schema for the structured output:
   // - model's text response (`response`)
   // - name of the node to go to next (or 'finish')
@@ -48,7 +48,8 @@ function callLlm(messages: BaseMessage[], targetAgentNodes: string[], runName = 
 
 async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
   const systemPrompt = 
-      "You are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). " +
+      `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
+       Be sure to bark a lot and use dog related emojis ` +
       `If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' named Polly Parrot for help. ` +
       "If you need hotel recommendations, ask 'hotelAdvisor' named Penny Restmore for help. " +
       "If you have enough information to respond to the user, return 'finish'. " +
@@ -56,7 +57,7 @@ async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Co
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["sightseeingAdvisor", "hotelAdvisor"];
-  const response = await callLlm(messages, targetAgentNodes, 'travelAdvisor');
+  const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor');
   const aiMsg = {"role": "ai", "content": response.response, "name": "travelAdvisor"};
 
   let goto = response.goto;
@@ -78,7 +79,7 @@ async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promi
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["travelAdvisor", "hotelAdvisor"];
-  const response = await callLlm(messages, targetAgentNodes);
+  const response = await callLLM(messages, targetAgentNodes);
   const aiMsg = {"role": "ai", "content": response.response, "name": "sightseeingAdvisor"};
 
   let goto = response.goto;
@@ -100,7 +101,7 @@ async function hotelAdvisor(state: typeof MessagesAnnotation.State): Promise<Com
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor"];
-  const response = await callLlm(messages, targetAgentNodes);
+  const response = await callLLM(messages, targetAgentNodes);
   const aiMsg = {"role": "ai", "content": response.response, "name": "hotelAdvisor"};
 
   let goto = response.goto;
