@@ -76,6 +76,7 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
         }
       }
     ],
+    tool_choice: 'any'
   })
 
   const modelWithToolsResult = await modelWithTools.invoke(messages, {tags: ['modelWithTools']})
@@ -85,7 +86,6 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
 
 async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
   const systemPrompt = 
-      `You have a variety of tools avaiable to you, but by default you should used the one call 'Response' ` +
       `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
        Be sure to bark a lot and use dog related emojis ` +
       `If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' named Polly Parrot for help. ` +
