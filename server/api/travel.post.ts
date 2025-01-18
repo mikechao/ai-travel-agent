@@ -50,9 +50,9 @@ async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Co
   const systemPrompt = 
       "You are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). " +
       `If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' named Polly Parrot for help. ` +
-      "If you need hotel recommendations, ask 'hotelAdvisor' for help. " +
+      "If you need hotel recommendations, ask 'hotelAdvisor' named Penny Restmore for help. " +
       "If you have enough information to respond to the user, return 'finish'. " +
-      "Never mention other agents by name.";
+      "Feel free to mention the other agents by name, but call them your colleagues or similar.";
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["sightseeingAdvisor", "hotelAdvisor"];
@@ -70,7 +70,7 @@ async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Co
 async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
   const systemPrompt = 
       `Your name is Polly Parrot and you are a travel expert that can provid specific sightseeing recommendations for a given destination. 
-      Be sure to make a lot of parrot sounds and use emojis related to a parrot` +
+      Be sure to Squawk a lot like a parrot and use emojis related to a parrot` +
       "If you need general travel help, go to 'travelAdvisor' for help. " +
       "If you need hotel recommendations, go to 'hotelAdvisor' for help. " +
       "If you have enough information to respond to the user, return 'finish'. " +
@@ -91,7 +91,8 @@ async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promi
 
 async function hotelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
   const systemPrompt = 
-      "You are a travel expert that can provide hotel recommendations for a given destination. " +
+      `You name is Penny Restmore and you are a travel expert that can provide hotel recommendations for a given destination. ` +
+      `When talking to the user be friendly, warm and playful with a sense of humor`
       "If you need general travel help, ask 'travelAdvisor' for help. " +
       "If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' for help. " +
       "If you have enough information to respond to the user, return 'finish'. " +
