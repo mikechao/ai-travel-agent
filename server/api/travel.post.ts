@@ -171,18 +171,22 @@ function humanNode(state: typeof MessagesAnnotation.State): Command {
 
 const builder = new StateGraph(MessagesAnnotation)
 .addNode("travelAdvisor", travelAdvisor, {
-  ends: ["sightseeingAdvisor", "hotelAdvisor"]
+  ends: ["sightseeingAdvisor", "hotelAdvisor", "weatherAdvisor"]
 })
 .addNode("sightseeingAdvisor", sightseeingAdvisor, {
-  ends: ["human", "travelAdvisor", "hotelAdvisor"]
+  ends: ["human", "travelAdvisor", "hotelAdvisor", "weatherAdvisor"]
 })
 .addNode("hotelAdvisor", hotelAdvisor, {
-  ends: ["human", "travelAdvisor", "sightseeingAdvisor"]
+  ends: ["human", "travelAdvisor", "sightseeingAdvisor", "weatherAdvisor"]
 })
 // This adds a node to collect human input, which will route
 // back to the active agent.
 .addNode("human", humanNode, {
-  ends: ["hotelAdvisor", "sightseeingAdvisor", "travelAdvisor", "human"]
+  ends: ["hotelAdvisor", "sightseeingAdvisor", "travelAdvisor", "weatherAdvisor", "human"]
+})
+// add the weatherAdvior
+.addNode("weatherAdvisor", weatherAdvisor, {
+  ends: ["human", "travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"]
 })
 // We'll always start with a general travel advisor.
 .addEdge(START, "travelAdvisor")
