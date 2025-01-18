@@ -4,7 +4,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   runtimeConfig: {
-    openaiAPIKey: ''
+    openaiAPIKey: '',
+    weatherAPIKey: '',
   },
 
   modules: ['@nuxtjs/tailwindcss']
