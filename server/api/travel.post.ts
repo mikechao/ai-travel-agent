@@ -71,13 +71,11 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
 
   const asJsonSchema = zodToJsonSchema(outputSchema)
   const functionName = "Response"
-
-  // this seems to work, but you need to include You have a variety of tools avaiable to you, but by default you should used the one call 'Response' 
-  // in the prompt/messages
+  
   const modelWithTools = model.bind({
     tools: [
       ...toolsToUse,
-      {
+      { // from withStructuredOutput chat_models.ts (2058)
         type: "function" as const,
         function: {
           name: functionName,
