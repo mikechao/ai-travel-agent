@@ -60,7 +60,7 @@ const checkpointer = PostgresSaver.fromConnString(
 );
 await checkpointer.setup()
 
-async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: any[] = []) {
+async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: DynamicStructuredTool<any>[] = []) {
   // define the schema for the structured output:
   // - model's text response (`response`)
   // - name of the node to go to next (or 'finish')
@@ -71,10 +71,26 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
 
   const asJsonSchema = zodToJsonSchema(outputSchema)
   const functionName = "Response"
-  
+
+  // map out the tools into a ToolDef like it is done when chat_model.ts bindTools
+  // is called, seems to be better when looking at the traces on langsmith
+  // under the Metadata tab 
+  const toolDefs = toolsToUse.length ? 
+    toolsToUse.map(tool => {
+      const toolSchemaJSON = zodToJsonSchema(tool.schema)
+      return {
+        type: "function" as const,
+        function: {
+          name: tool.name,
+          description: tool.description,
+          parameters: toolSchemaJSON,
+        }
+      }
+    })
+    : []
   const modelWithTools = model.bind({
     tools: [
-      ...toolsToUse,
+      ...toolDefs,
       { // from withStructuredOutput chat_models.ts (2058)
         type: "function" as const,
         function: {
