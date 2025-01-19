@@ -31,7 +31,7 @@ import { useChat } from '@ai-sdk/vue'
 import { v4 as uuidv4 } from "uuid"
 
 const sessionId = uuidv4()
-const { messages, input, handleSubmit, isLoading, append } = useChat({
+const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   api: '/api/travel',
   body: computed(() => ({
     sessionId: sessionId,
@@ -69,12 +69,17 @@ watch(messages, () => {
   }, 0)
 })
 
+watch(data, (newData, oldData) => {
+  console.log('newData[0]', newData?.at(0))
+
+})
+
 const renderMessage = (content: string): string => {
-  console.log('renderMessage', content)
+  // console.log('renderMessage', content)
   const result = content.replaceAll(`{"response":"`, '')
     .replace(/","goto":"[^"]+"}/g, '')
     .replaceAll(`\\n`, '<br/>')
-  console.log('result', result)
+  // console.log('result', result)
   return result
 }
 </script>

@@ -297,8 +297,13 @@ return defineEventHandler(async webEvent => {
           if (event.event === 'on_tool_end' && event.tags?.includes(toolTag)) {
             if (event.data.output && (event.data.output as ToolMessage).content.length) {
               const content = (event.data.output as ToolMessage).content as string
-              const part = formatDataStreamPart('data', [content])
-              controller.enqueue(encoder.encode(part))
+              console.log('on_tool_end content\n', Object.prototype.toString.call(content))
+              const testObj = {
+                banana: 'yes'
+              }
+    
+              const part = `2:[${JSON.stringify(testObj)}]\n`
+              controller.enqueue(part)
             }
           }
         }
