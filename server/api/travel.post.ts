@@ -4,7 +4,8 @@ import { tool } from "@langchain/core/tools"
 import { 
   AIMessageChunk, 
   BaseMessage, 
-  isAIMessageChunk 
+  isAIMessageChunk, 
+  ToolMessage
 } from "@langchain/core/messages";
 import {
   MessagesAnnotation,
@@ -24,7 +25,8 @@ import { ToolNode } from "@langchain/langgraph/prebuilt";
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
 
-const tag = 'stream-out'
+const modelTag = 'stream-out'
+const toolTag = 'tool-out'
 const functionNameResponse = "Response"
 
 const weatherForecastTool = tool(async (input: { lat: number; long: number }) => {
@@ -33,7 +35,8 @@ const weatherForecastTool = tool(async (input: { lat: number; long: number }) =>
   const url = `http://api.weatherapi.com/v1/forecast.json?key=${runtimeConfig.weatherAPIKey}&q=${lat},${long}&days=7&aqi=no&alerts=no`
   console.log('url', url)
   const forecast = await $fetch(url)
-  return forecast
+  // comes back as object, JSON.stringify it since it will be stored in ToolMessage.content
+  return JSON.stringify(forecast)
 }, {
   name: 'weatherForecastTool',
   description: 'Use to forecast the weather for the location the user has expressed an interest in',
@@ -84,7 +87,7 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
     ],
     tool_choice: 'any'
   })
-  return modelWithTools.invoke(messages, {tags: [tag], runName: runName})
+  return modelWithTools.invoke(messages, {tags: [modelTag], runName: runName})
   // const modelWithToolsResult = await modelWithTools.invoke(messages, {tags: [tag], runName: runName})
   // console.log('modelWithToolsResult', modelWithToolsResult)
   // return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [tag], runName: runName })
@@ -187,7 +190,7 @@ async function weatherAdvisor(state: typeof MessagesAnnotation.State): Promise<C
   const aiMessageChunk = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
   if (aiMessageChunk.tool_calls![0].name !== functionNameResponse) {
     console.log('calling toolNode')
-    const toolResult = await toolNode.invoke([aiMessageChunk])
+    const toolResult = await toolNode.invoke([aiMessageChunk], {tags: [toolTag]})
     // toolResult is an array, aiMessageChunk needs to be infront else error below
     // 400 Invalid parameter: messages with role 'tool' must be a response to a preceeding message with 'tool_calls'
     return new Command({goto: "weatherAdvisor", update: { "messages": [aiMessageChunk, ...toolResult]}})
@@ -278,8 +281,8 @@ return defineEventHandler(async webEvent => {
   return new ReadableStream({
     async start(controller) {
       try {
-        for await (const event of graph.streamEvents(input, config, {includeTags: [tag]})) {
-          if (event.event === 'on_chat_model_stream' && event.tags?.includes(tag)) {
+        for await (const event of graph.streamEvents(input, config, {includeTags: [modelTag, toolTag]})) {
+          if (event.event === 'on_chat_model_stream' && event.tags?.includes(modelTag)) {
             if (isAIMessageChunk(event.data.chunk)) {
               const aiMessageChunk = event.data.chunk as AIMessageChunk
               if (aiMessageChunk.tool_call_chunks?.length && aiMessageChunk.tool_call_chunks[0].args) {
@@ -290,9 +293,13 @@ return defineEventHandler(async webEvent => {
                 controller.enqueue(encoder.encode(part))
               }
             }
-          } else if (event.event === 'on_tool_end') {
-            console.log('on_tool_end encountered')
-            console.log('event.data', event.data)
+          }
+          if (event.event === 'on_tool_end' && event.tags?.includes(toolTag)) {
+            if (event.data.output && (event.data.output as ToolMessage).content.length) {
+              const content = (event.data.output as ToolMessage).content as string
+              const part = formatDataStreamPart('data', [content])
+              controller.enqueue(encoder.encode(part))
+            }
           }
         }
       } finally {
