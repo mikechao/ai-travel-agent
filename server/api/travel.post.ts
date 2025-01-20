@@ -79,7 +79,9 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
   // - name of the node to go to next (or 'finish')
   const outputSchema = z.object({
     response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
-    goto: z.enum(["finish", ...targetAgentNodes]).describe("The next agent to call, or 'finish' if the user's query has been resolved. Must be one of the specified values."),
+    goto: z.enum(["finish", "callTools", ...targetAgentNodes])
+      .describe(`The next agent to call, 'callTools' if a tool should be used 
+        or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
     toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty')
   })
   const toolNames = toolsToUse.map((tool) => `name: ${tool.name}, description: ${tool.description}`).join("\n")
