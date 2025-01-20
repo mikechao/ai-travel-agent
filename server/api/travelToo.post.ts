@@ -8,10 +8,11 @@ import {
 import { ToolNode } from "@langchain/langgraph/prebuilt"
 import { ChatOpenAI } from "@langchain/openai"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
-import { AIMessage, BaseMessage, HumanMessage, ToolMessage } from "@langchain/core/messages"
+import { AIMessage, AIMessageChunk, BaseMessage, HumanMessage, isAIMessageChunk, SystemMessage, ToolMessage } from "@langchain/core/messages"
 import { Runnable, RunnableConfig } from "@langchain/core/runnables"
 import { convertToOpenAITool } from "@langchain/core/utils/function_calling"
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts"
+import zodToJsonSchema from "zod-to-json-schema"
 
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
@@ -70,23 +71,39 @@ export default defineLazyEventHandler(async () => {
     llm,
     tools,
     systemMessage,
+    targetAgentNodes,
   }: {
     llm: ChatOpenAI;
     tools: StructuredTool[];
     systemMessage: string;
+    targetAgentNodes: string[];
   }): Promise<Runnable> {
-    const toolNames = tools.map((tool) => tool.name).join(", ");
+    const functionName = "Response"
+    const toolNames = tools.map((tool) => tool.name).join(", ") + ',' + functionName;
     const formattedTools = tools.map((t) => convertToOpenAITool(t));
   
+    const outputSchema = z.object({
+      response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
+      goto: z.enum(["finish", "call_tool", ...targetAgentNodes])
+        .describe(`The next agent to call, 
+          or 'finish' if the user's query has been resolved. 
+          Must be one of the specified values.`),
+    })
+    const asJsonSchema = zodToJsonSchema(outputSchema)
+    formattedTools.push({ // from withStructuredOutput chat_models.ts (2058)
+      type: "function" as const,
+      function: {
+        name: functionName,
+        description: asJsonSchema.description,
+        parameters: asJsonSchema,
+      }
+    })
+
     let prompt = ChatPromptTemplate.fromMessages([
       [
         "system",
-        "You are a helpful AI assistant, collaborating with other assistants." +
+        "You are collaborating with other assistants." +
         " Use the provided tools to progress towards answering the question." +
-        " If you are unable to fully answer, that's OK, another assistant with different tools " +
-        " will help where you left off. Execute what you can to make progress." +
-        " If you or any of the other assistants have the final answer or deliverable," +
-        " prefix your response with FINAL ANSWER so the team knows to stop." +
         " You have access to the following tools: {tool_names}.\n{system_message}",
       ],
       new MessagesPlaceholder("messages"),
@@ -95,8 +112,8 @@ export default defineLazyEventHandler(async () => {
       system_message: systemMessage,
       tool_names: toolNames,
     });
-  
-    return prompt.pipe(llm.bind({ tools: formattedTools }));
+
+    return prompt.pipe(llm.bind({ tools: formattedTools, tool_choice: 'any' }));
   }
 
   async function runAgentNode(props: {
@@ -128,7 +145,8 @@ export default defineLazyEventHandler(async () => {
     systemMessage: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
     Be sure to bark a lot and use dog related emojis ` +
     "If you need weather forecast and clothing to pack, ask 'weatherAdvisor named Petey the Pirate for help" +
-    "Feel free to mention the other agents by name, but call them your colleagues or similar."
+    "Feel free to mention the other agents by name, but call them your colleagues or similar.",
+    targetAgentNodes: ["weatherAdvisor"]
   })
 
   async function travelAdvisorNode(
@@ -151,7 +169,8 @@ export default defineLazyEventHandler(async () => {
     of clothes the user should pack for their trip ` +
     "Talke to the user like a pirate and use pirate related emojis " +
     "If you need general travel help, go to 'travelAdvisor' named Pluto the pup for help. " +
-    "Feel free to meantion the other agents by name, but in a pirate way"
+    "Feel free to meantion the other agents by name, but in a pirate way",
+    targetAgentNodes: ['travelAdvisor']
   })
 
   async function weatherAdvisorNode(
@@ -184,8 +203,12 @@ export default defineLazyEventHandler(async () => {
   }
 
   const workflow = new StateGraph(AgentState)
-    .addNode("TravelAdvisor", travelAdvisorNode)
-    .addNode("WeatherAdvisor", weatherAdvisorNode)
+    .addNode("TravelAdvisor", travelAdvisorNode, {
+      ends: ["WeatherAdvisor", "call_tool"]
+    })
+    .addNode("WeatherAdvisor", weatherAdvisorNode, {
+      ends: ["TravelAdvisor", "call_tool"]
+    })
     .addNode("call_tool", toolNode)
 
   workflow.addConditionalEdges("WeatherAdvisor", router, {
@@ -213,11 +236,55 @@ export default defineLazyEventHandler(async () => {
   
     const initMessage = {
       messages: [
-        {role: "system", content: `Use the tools and agents you have to figure out what to ask the user.
-          Introduce yourself and give the user a summary of your skills and knowledge `}
+        new SystemMessage({content: `Use the tools and agents you have to figure out what to ask the user.
+          Introduce yourself and give the user a summary of your skills and knowledge `})
       ]
     }
-    const input = isInitMessage(lastMessage) ? initMessage : new Command({resume: lastMessage.content})
-    
+    const userMessage = {
+      messages: [
+        new HumanMessage({ content: lastMessage.content})
+      ]
+    }
+    const input = isInitMessage(lastMessage) ? initMessage : userMessage
+
+    const encoder = new TextEncoder()
+    const config = {version: "v2" as const, configurable: {thread_id: sessionId},}
+    return new ReadableStream({
+      async start(controller) {
+        const set = new Set()
+        try {
+          for await (const event of graph.streamEvents(input, config)) {
+            set.add(event.event)
+            if (event.event === 'on_chat_model_stream') {
+              if (isAIMessageChunk(event.data.chunk)) {
+                const aiMessageChunk = event.data.chunk as AIMessageChunk
+                if (aiMessageChunk.tool_call_chunks?.length && aiMessageChunk.tool_call_chunks[0].args) {
+                  const toolChunk =  aiMessageChunk.tool_call_chunks[0].args
+                  // we can filter the toolChunk to exclude the {response:... but it depends on
+                  // how the model tokenizes and introduces overhead
+                  const part = formatDataStreamPart('text', toolChunk)
+                  controller.enqueue(encoder.encode(part))
+                }
+              }
+            }
+            if (event.event === 'on_tool_end') {
+              if (event.data.output && (event.data.output as ToolMessage).content.length) {
+                const content = (event.data.output as ToolMessage).content as string
+                console.log('on_tool_end content\n', Object.prototype.toString.call(content))
+                const testObj = {
+                  banana: 'yes'
+                }
+      
+                const part = `2:[${JSON.stringify(testObj)}]\n`
+                controller.enqueue(part)
+              }
+            }
+          }
+        } finally {
+          console.log('events', set)
+          controller.close()
+        }
+      },
+    })
   })
 })
