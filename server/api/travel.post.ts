@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ChatOpenAI,} from "@langchain/openai";
-import { DynamicStructuredTool, tool } from "@langchain/core/tools"
+import { DynamicStructuredTool, StructuredTool, StructuredToolInterface, tool } from "@langchain/core/tools"
 import { 
   AIMessageChunk, 
   BaseMessage, 
@@ -24,6 +24,7 @@ import {
 import { zodToJsonSchema } from "zod-to-json-schema"
 import { ToolNode } from "@langchain/langgraph/prebuilt";
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
+import { BindToolsInput } from "@langchain/core/language_models/chat_models";
 
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
@@ -31,6 +32,8 @@ const runtimeConfig = useRuntimeConfig()
 const modelTag = 'stream-out'
 const toolTag = 'tool-out'
 const functionNameResponse = "Response"
+
+type AIMsg = { role: string; content: string; name: string; toolsToCall?: string }
 
 const weatherForecastTool = new DynamicStructuredTool({
   name: 'weatherForecastTool',
@@ -50,7 +53,8 @@ const weatherForecastTool = new DynamicStructuredTool({
   }
 })
 
-const toolNode = new ToolNode([weatherForecastTool])
+const toolsByName = new Map<string, StructuredToolInterface>()
+toolsByName.set(weatherForecastTool.name, weatherForecastTool)
 
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
@@ -202,7 +206,14 @@ async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> 
   const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"];
   const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
   console.dir(response, {depth: Infinity})
-  const aiMsg = {"role": "ai", "content": response.response, "name": "weatherAdvisor"};
+  const aiMsg: AIMsg = {
+    role: "ai",
+    content: response.response,
+    name: "weatherAdvisor",
+  }
+  if (response.toolsToCall) {
+    aiMsg.toolsToCall = response.toolsToCall
+  }
   let goto = response.goto;
   if (goto === "finish") {
       goto = "human";
@@ -234,6 +245,31 @@ function humanNode(state: typeof AgentState.State): Command {
   });
 }
 
+async function callTools(state: typeof AgentState.State): Promise<Command> {
+  console.log('callTools')
+  const lastMessage = state.messages[state.messages.length - 1] 
+  console.dir(lastMessage)
+  const aiMsg = lastMessage as unknown as AIMsg
+  const tools: StructuredToolInterface[] = []
+  aiMsg.toolsToCall?.split(',').forEach((name) => {
+    const tool = toolsByName.get(name)
+    if (tool) {
+      tools.push(tool)
+    }
+  })
+  if (tools.length) {
+    const modelWithTools = model.bindTools(tools)
+    const result = await modelWithTools.invoke(state.messages)
+    const toolNode = new ToolNode(tools)
+    const toolResults = await toolNode.invoke({ messages: [...state.messages, result] })
+    console.dir(toolResults, {depth: Infinity})
+  }
+
+  return new Command({
+    goto: state.sender
+  })
+}
+
 const builder = new StateGraph(AgentState)
 .addNode("travelAdvisor", travelAdvisor, {
   ends: ["sightseeingAdvisor", "hotelAdvisor", "weatherAdvisor"]
@@ -251,7 +287,10 @@ const builder = new StateGraph(AgentState)
 })
 // add the weatherAdvsior
 .addNode("weatherAdvisor", weatherAdvisor, {
-  ends: ["human", "travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"]
+  ends: ["human", "travelAdvisor", "sightseeingAdvisor", "hotelAdvisor", "callTools"]
+})
+.addNode("callTools", callTools, {
+  ends: ["hotelAdvisor", "sightseeingAdvisor", "travelAdvisor", "weatherAdvisor"]
 })
 // We'll always start with a general travel advisor.
 .addEdge(START, "travelAdvisor")
