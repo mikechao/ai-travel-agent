@@ -12,10 +12,18 @@ import { AIMessage, AIMessageChunk, BaseMessage, HumanMessage, isAIMessageChunk,
 import { Runnable, RunnableConfig } from "@langchain/core/runnables"
 import { convertToOpenAITool } from "@langchain/core/utils/function_calling"
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts"
-import { JsonOutputParser } from "@langchain/core/output_parsers"
+import zodToJsonSchema from "zod-to-json-schema"
+import {
+  JsonOutputKeyToolsParser,
+} from "@langchain/core/output_parsers/openai_tools"
 
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
+
+  type Resposne = {
+    response: string,
+    goto: string
+  }
 
   const weatherForecastTool = new DynamicStructuredTool({
     name: 'weatherForecastTool',
@@ -35,7 +43,7 @@ export default defineLazyEventHandler(async () => {
     }
   })
 
-  const tools = [weatherForecastTool, ]
+  const tools = [weatherForecastTool]
   const toolNode = new ToolNode<typeof AgentState.State>(tools)
 
   const llm = new ChatOpenAI({
@@ -78,14 +86,29 @@ export default defineLazyEventHandler(async () => {
   }): Promise<Runnable> {
     const functionName = "Response"
     const toolNames = tools.map((tool) => tool.name).join(", ") + ',' + functionName;
-    const formattedTools = tools.map((t) => convertToOpenAITool(t));
   
-  const formatInstructions = `Respond only in valid JSON. The JSON object you return should match the following schema:
-      {response: "string", goto: "string} 
-      Where response is A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user. 
-      goto is The next agent to call, or 'finish' if the user's query has been resolved.
-      goto must be one of the following values: ['finish', ${targetAgentNodes.join(',')}]
-  `
+    const outputSchema = z.object({
+      response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
+      goto: z.enum(["finish", "call_tool", ...targetAgentNodes])
+        .describe(`The next agent to call, 
+          or 'finish' if the user's query has been resolved. 
+          or 'call_tool' if you need to call a tool other than 'Response' 
+          Must be one of the specified values.`),
+    })
+    const toolDefs = tools.length ?
+      tools.map((tool) => {
+        const toolSchemaJSON = zodToJsonSchema(tool.schema)
+        return {
+          type: "function" as const,
+          function: {
+            name: tool.name,
+            description: tool.description,
+            parameters: toolSchemaJSON,
+          }
+        }
+      })
+      : []
+    const asJsonSchema = zodToJsonSchema(outputSchema)
 
     let prompt = ChatPromptTemplate.fromMessages([
       [
@@ -103,7 +126,25 @@ export default defineLazyEventHandler(async () => {
       format_instructions: formatInstructions
     });
 
-    return prompt.pipe(llm.bind({ tools: formattedTools }));
+    return prompt.pipe(llm.bind({ 
+      tools: [
+        { // from withStructuredOutput chat_models.ts (2058)
+          type: "function" as const,
+          function: {
+            name: functionName,
+            description: asJsonSchema.description,
+            parameters: asJsonSchema,
+          }
+        },
+        ...toolDefs
+      ], 
+      tool_choice: {
+        type: "function" as const,
+        function: {
+          name: functionName,
+        },
+      }
+    }));
   }
 
   async function runAgentNode(props: {
@@ -113,17 +154,18 @@ export default defineLazyEventHandler(async () => {
     config?: RunnableConfig;
   }) {
     const { state, agent, name, config } = props;
-    console.log(`runAgentNode name: ${name}`)
     const result = await agent.invoke(state, config);
-    const aiMessageCheck = result as AIMessageChunk
-    if (aiMessageCheck.content) {
-      const parsed = await parser.parse(aiMessageCheck.content as string)
-      const aiMsg = {"role": "ai", "content": parsed.response, "name": name}
-      let goto = parsed.goto
+    console.log(`name: ${name} invoked`)
+    const aiMessageChunk = result as AIMessageChunk
+    if (aiMessageChunk.tool_call_chunks && aiMessageChunk.tool_call_chunks[0].name === 'Response') {
+      const responseStr = aiMessageChunk.tool_call_chunks[0].args as string
+      const response = JSON.parse(responseStr) as Resposne
+      const aiMsg = {"role": "ai", "content": response.response, "name": name}
+      let goto = response.goto
       if (goto === "finish") {
           goto = "human"
       }
-      console.log(`goto: ${goto} result:${result}`)
+      console.log(`goto: ${goto}`)
       return new Command({
         goto,
         update: { 
@@ -131,17 +173,22 @@ export default defineLazyEventHandler(async () => {
           "sender": name
         }
       })
-    } else {
-      console.log('here')
-      return new Command({
-        goto: 'call_tool',
-        update: {
-          "messages": [result],
-          "sender": name
-        }
-      })
     }
+    console.dir(result, { depth: Infinity})
 
+    const aiMsg = {"role": "ai", "content": result.response, "name": name}
+    let goto = result.goto
+    if (goto === "finish") {
+        goto = "human"
+    }
+    console.log(`goto: ${goto}`)
+    return new Command({
+      goto,
+      update: { 
+        "messages": [aiMsg],
+        "sender": name
+      }
+    })
   }
 
   const travelAdvisor = await createAgent({
@@ -151,7 +198,7 @@ export default defineLazyEventHandler(async () => {
     Be sure to bark a lot and use dog related emojis ` +
     "If you need weather forecast and clothing to pack, ask 'WeatherAdvisor' named Petey the Pirate for help" +
     "Feel free to mention the other agents by name, but call them your colleagues or similar.",
-    targetAgentNodes: ["WeatherAdvisor", 'human']
+    targetAgentNodes: ["WeatherAdvisor"]
   })
 
   async function travelAdvisorNode(
@@ -176,7 +223,7 @@ export default defineLazyEventHandler(async () => {
     "Talke to the user like a pirate and use pirate related emojis " +
     "If you need general travel help, go to 'TravelAdvisor' named Pluto the pup for help. " +
     "Feel free to meantion the other agents by name, but in a pirate way",
-    targetAgentNodes: ['TravelAdvisor', 'human']
+    targetAgentNodes: ['TravelAdvisor']
   })
 
   async function weatherAdvisorNode(
@@ -193,25 +240,28 @@ export default defineLazyEventHandler(async () => {
     return result
   }
 
+  async function callToolsNode(state: typeof AgentState.State): Promise<Command> {
+    console.log('callToolsNode state.sender', state.sender)
+    const lastMessage = state.messages[state.messages.length - 1]
+    console.log('lastMessage')
+    console.dir(lastMessage, {depth: Infinity})
+    const toolResult = await toolNode.invoke([lastMessage], {tags: ["tools"]})
+    console.dir(toolResult, {depth: Infinity})
+    const resultMessages = [lastMessage, ...toolResult]
+    console.log(resultMessages)
+    return new Command({
+      goto: state.sender,
+      update: { "messages": [...toolResult]}
+    })
+  }
+
   function humanNode(state: typeof AgentState.State): Command {
+    console.log('humanNode')
     const userInput: string = interrupt("Ready for user input.");
     console.log(`userInput ${userInput}`)
-    let activeAgent: string | undefined = undefined;
-  
-    // Look up the active agent
-    for (let i = state.messages.length - 1; i >= 0; i--) {
-        if (state.messages[i].name) {
-            activeAgent = state.messages[i].name;
-            break;
-        }
-    }
-  
-    if (!activeAgent) {
-        throw new Error("Could not determine the active agent.");
-    }
-    console.log(`activeAgent ${activeAgent}`)
+
     return new Command({
-        goto: activeAgent,
+        goto: state.sender,
         update: {
           "messages": [
               {
@@ -221,18 +271,6 @@ export default defineLazyEventHandler(async () => {
           ]
         }
     });
-  }
-
-  async function callToolsNode(state: typeof AgentState.State): Promise<Command> {
-    console.log('callToolsNode state.sender', state.sender)
-    const lastMessage = state.messages[state.messages.length - 1]
-    const toolResult = await toolNode.invoke([lastMessage], {tags: ["tools"]})
-    const resultMessages = [lastMessage, ...toolResult]
-    console.log(resultMessages)
-    return new Command({
-      goto: state.sender,
-      update: { "messages": [...toolResult]}
-    })
   }
 
   const workflow = new StateGraph(AgentState)
@@ -316,7 +354,6 @@ export default defineLazyEventHandler(async () => {
             }
           }
         } finally {
-          // console.log('events', set)
           controller.close()
         }
       },
