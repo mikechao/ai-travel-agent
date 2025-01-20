@@ -77,7 +77,7 @@ watch(data, (newData, oldData) => {
 const renderMessage = (content: string): string => {
   // console.log('renderMessage', content)
   const result = content.replaceAll(`{"response":"`, '')
-    .replace(/","goto":"[^"]+"}/g, '')
+    .replace(/","goto":.*?}/g, '')
     .replaceAll(`\\n`, '<br/>')
   // console.log('result', result)
   return result
