@@ -35,15 +35,7 @@ export default defineLazyEventHandler(async () => {
     }
   })
 
-  const askHumanTool = tool((_) => {
-    const userInput = interrupt('ready for user input')
-    return userInput
-  }, {
-    name: "askHuman",
-    description: "Ask the human for input.",
-    schema: z.string(),
-  });
-  const tools = [weatherForecastTool, askHumanTool]
+  const tools = [weatherForecastTool]
   const toolNode = new ToolNode<typeof AgentState.State>(tools)
 
   const llm = new ChatOpenAI({
@@ -113,7 +105,7 @@ export default defineLazyEventHandler(async () => {
       tool_names: toolNames,
     });
 
-    return prompt.pipe(llm.bind({ tools: formattedTools, tool_choice: 'any' }));
+    return prompt.pipe(llm.bind({ tools: formattedTools, tool_choice: 'any', parallel_tool_calls: false }));
   }
 
   async function runAgentNode(props: {
@@ -124,29 +116,30 @@ export default defineLazyEventHandler(async () => {
   }) {
     const { state, agent, name, config } = props;
     let result = await agent.invoke(state, config);
-    // We convert the agent output into a format that is suitable
-    // to append to the global state
-    if (!result?.tool_calls || result.tool_calls.length === 0) {
-      // If the agent is NOT calling a tool, we want it to
-      // look like a human message.
-      result = new HumanMessage({ ...result, name: name });
+    const aiMessage = result as AIMessage
+    const aiMsg = {"role": "ai", "content": result.response, "name": name}
+    let goto = result.goto
+    if (goto === "finish") {
+        goto = "human"
     }
-    return {
-      messages: [result],
-      // Since we have a strict workflow, we can
-      // track the sender so we know who to pass to next.
-      sender: name,
-    };
+    console.log(`goto: ${goto} result:${result}`)
+    return new Command({
+      goto,
+      update: { 
+        "messages": [aiMsg],
+        "sender": name
+      }
+    })
   }
 
   const travelAdvisor = await createAgent({
     llm,
-    tools: [askHumanTool],
+    tools: [],
     systemMessage: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
     Be sure to bark a lot and use dog related emojis ` +
     "If you need weather forecast and clothing to pack, ask 'weatherAdvisor named Petey the Pirate for help" +
     "Feel free to mention the other agents by name, but call them your colleagues or similar.",
-    targetAgentNodes: ["weatherAdvisor"]
+    targetAgentNodes: ["WeatherAdvisor"]
   })
 
   async function travelAdvisorNode(
@@ -163,14 +156,14 @@ export default defineLazyEventHandler(async () => {
 
   const weatherAdvsior = await createAgent({
     llm,
-    tools: [askHumanTool, weatherForecastTool],
+    tools: [weatherForecastTool],
     systemMessage:     `Your name is Petey the Pirate and you are a travel expert that can provide the weather forecast 
     for a given destination and duration. When you get a weather forecast also recommand what types 
     of clothes the user should pack for their trip ` +
     "Talke to the user like a pirate and use pirate related emojis " +
     "If you need general travel help, go to 'travelAdvisor' named Pluto the pup for help. " +
     "Feel free to meantion the other agents by name, but in a pirate way",
-    targetAgentNodes: ['travelAdvisor']
+    targetAgentNodes: ['TravelAdvisor']
   })
 
   async function weatherAdvisorNode(
@@ -185,21 +178,46 @@ export default defineLazyEventHandler(async () => {
     })
   }
 
-  function router(state: typeof AgentState.State) {
-    const messages = state.messages;
-    const lastMessage = messages[messages.length - 1] as AIMessage;
-    if (lastMessage?.tool_calls && lastMessage.tool_calls.length > 0) {
-      // The previous agent is invoking a tool
-      return "call_tool";
+  async function callToolsNode(state: typeof AgentState.State): Promise<Command> {
+    console.log('callToolsNode state.sender', state.sender)
+    const lastMessage = state.messages[state.messages.length - 1]
+    const toolResult = await toolNode.invoke([lastMessage], {tags: ["tools"]})
+    const resultMessages = [lastMessage, ...toolResult]
+    console.log(resultMessages)
+    return new Command({
+      goto: state.sender,
+      update: { "messages": [...toolResult]}
+    })
+  }
+
+  function humanNode(state: typeof AgentState.State): Command {
+    const userInput: string = interrupt("Ready for user input.");
+    console.log(`userInput ${userInput}`)
+    let activeAgent: string | undefined = undefined;
+  
+    // Look up the active agent
+    for (let i = state.messages.length - 1; i >= 0; i--) {
+        if (state.messages[i].name) {
+            activeAgent = state.messages[i].name;
+            break;
+        }
     }
-    if (
-      typeof lastMessage.content === "string" &&
-      lastMessage.content.includes("FINAL ANSWER")
-    ) {
-      // Any agent decided the work is done
-      return "end";
+  
+    if (!activeAgent) {
+        throw new Error("Could not determine the active agent.");
     }
-    return "continue";
+    console.log(`activeAgent ${activeAgent}`)
+    return new Command({
+        goto: activeAgent,
+        update: {
+          "messages": [
+              {
+                  "role": "human",
+                  "content": userInput,
+              }
+          ]
+        }
+    });
   }
 
   const workflow = new StateGraph(AgentState)
@@ -207,22 +225,15 @@ export default defineLazyEventHandler(async () => {
       ends: ["WeatherAdvisor", "call_tool"]
     })
     .addNode("WeatherAdvisor", weatherAdvisorNode, {
-      ends: ["TravelAdvisor", "call_tool"]
+      ends: ["TravelAdvisor", "call_tool", "human"]
     })
-    .addNode("call_tool", toolNode)
-
-  workflow.addConditionalEdges("WeatherAdvisor", router, {
-    continue: "TravelAdvisor",
-    call_tool: "call_tool",
-    end: END
-  })
-
-  workflow.addConditionalEdges("call_tool", (x) => x.sender, {
-    TravelAdvisor: "TravelAdvisor",
-    WeatherAdvisor: "WeatherAdvisor"
-  })
-
-  workflow.addEdge(START, "TravelAdvisor")
+    .addNode("human", humanNode, {
+      ends: ["TravelAdvisor", "WeatherAdvisor"]
+    })
+    .addNode("call_tool", callToolsNode, {
+      ends: ["TravelAdvisor", "WeatherAdvisor", "human"]
+    })
+    .addEdge(START, "TravelAdvisor")
 
   const graph = workflow.compile()
 
@@ -281,7 +292,6 @@ export default defineLazyEventHandler(async () => {
             }
           }
         } finally {
-          console.log('events', set)
           controller.close()
         }
       },
