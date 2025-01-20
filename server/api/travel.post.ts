@@ -85,6 +85,7 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
 }
 
 async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
+  console.log('travelAdvisor')
   const systemPrompt = 
       `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
        Be sure to bark a lot and use dog related emojis ` +
@@ -102,11 +103,18 @@ async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
   if (goto === "finish") {
       goto = "human";
   }  
-  return new Command({goto, update: { "messages": [aiMsg] } });
+  return new Command({
+    goto, 
+    update: { 
+      "messages": [aiMsg],
+      "sender": 'travelAdvisor'
+    } 
+  });
   
 }
 
 async function sightseeingAdvisor(state: typeof AgentState.State): Promise<Command> {
+  console.log('sightseeingAdvisor')
   const systemPrompt = 
       `Your name is Polly Parrot and you are a travel expert that can provid specific sightseeing recommendations for a given destination. 
       Be sure to Squawk a lot like a parrot and use emojis related to a parrot` +
@@ -124,10 +132,17 @@ async function sightseeingAdvisor(state: typeof AgentState.State): Promise<Comma
   if (goto === "finish") {
       goto = "human";
   }  
-  return new Command({goto, update: { "messages": [aiMsg] } });
+  return new Command({
+    goto, 
+    update: { 
+      "messages": [aiMsg],
+      "sender": 'sightseeingAdvisor'
+    } 
+  });
 }
 
 async function hotelAdvisor(state: typeof AgentState.State): Promise<Command> {
+  console.log('hotelAdvisor')
   const systemPrompt = 
       `You name is Penny Restmore and you are a travel expert that can provide hotel recommendations for a given destination. ` +
       `When talking to the user be friendly, warm and playful with a sense of humor`
@@ -145,11 +160,18 @@ async function hotelAdvisor(state: typeof AgentState.State): Promise<Command> {
   if (goto === "finish") {
       goto = "human";
   }  
-  return new Command({goto, update: { "messages": [aiMsg] } });
+  return new Command({
+    goto, 
+    update: { 
+      "messages": [aiMsg] ,
+      "sender": 'hotelAdvisor'
+    } 
+  });
 }
 
 
 async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> {
+  console.log('weatherAdvisor')
   const systemPrompt = 
     `Your name is Petey the Pirate and you are a travel expert that can provide the weather forecast 
     for a given destination and duration. When you get a weather forecast also recommand what types 
@@ -168,29 +190,22 @@ async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> 
   if (goto === "finish") {
       goto = "human";
   }  
-  return new Command({goto, update: { "messages": [aiMsg] } });
+  return new Command({
+    goto, 
+    update: { 
+      "messages": [aiMsg],
+      "sender": "weatherAdvisor"
+    } 
+  });
 
 }
 
 function humanNode(state: typeof AgentState.State): Command {
+  console.log('humanNode')
   const userInput: string = interrupt("Ready for user input.");
 
-  let activeAgent: string | undefined = undefined;
-
-  // Look up the active agent
-  for (let i = state.messages.length - 1; i >= 0; i--) {
-      if (state.messages[i].name) {
-          activeAgent = state.messages[i].name;
-          break;
-      }
-  }
-
-  if (!activeAgent) {
-      throw new Error("Could not determine the active agent.");
-  }
-
   return new Command({
-      goto: activeAgent,
+      goto: state.sender,
       update: {
         "messages": [
             {
@@ -217,7 +232,7 @@ const builder = new StateGraph(AgentState)
 .addNode("human", humanNode, {
   ends: ["hotelAdvisor", "sightseeingAdvisor", "travelAdvisor", "weatherAdvisor", "human"]
 })
-// add the weatherAdvior
+// add the weatherAdvsior
 .addNode("weatherAdvisor", weatherAdvisor, {
   ends: ["human", "travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"]
 })
