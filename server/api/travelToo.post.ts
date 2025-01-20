@@ -12,7 +12,7 @@ import { AIMessage, AIMessageChunk, BaseMessage, HumanMessage, isAIMessageChunk,
 import { Runnable, RunnableConfig } from "@langchain/core/runnables"
 import { convertToOpenAITool } from "@langchain/core/utils/function_calling"
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts"
-import zodToJsonSchema from "zod-to-json-schema"
+import { JsonOutputParser } from "@langchain/core/output_parsers"
 
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
@@ -67,6 +67,11 @@ export default defineLazyEventHandler(async () => {
     }),
   })
 
+  type Resposne = {
+    response: string,
+    goto: string
+  }
+
   async function createAgent({
     llm,
     tools,
@@ -82,38 +87,31 @@ export default defineLazyEventHandler(async () => {
     const toolNames = tools.map((tool) => tool.name).join(", ") + ',' + functionName;
     const formattedTools = tools.map((t) => convertToOpenAITool(t));
   
-    const outputSchema = z.object({
-      response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
-      goto: z.enum(["finish", "call_tool", ...targetAgentNodes])
-        .describe(`The next agent to call, 
-          or 'finish' if the user's query has been resolved. 
-          Must be one of the specified values.`),
-    })
-    const asJsonSchema = zodToJsonSchema(outputSchema)
-    formattedTools.push({ // from withStructuredOutput chat_models.ts (2058)
-      type: "function" as const,
-      function: {
-        name: functionName,
-        description: asJsonSchema.description,
-        parameters: asJsonSchema,
-      }
-    })
-
+  const formatInstructions = `Respond only in valid JSON. The JSON object you return should match the following schema:
+      {response: "string", goto: "string} 
+      Where response is A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user. 
+      goto is The next agent to call, or 'finish' if the user's query has been resolved.
+      'call_tool' if you need to call a tool.  
+      goto must be one of the following values: ['finish', 'call_tool', ${targetAgentNodes.join(',')}]
+  `
+  const parser = new JsonOutputParser<Resposne>()
     let prompt = ChatPromptTemplate.fromMessages([
       [
         "system",
         "You are collaborating with other assistants." +
         " Use the provided tools to progress towards answering the question." +
-        " You have access to the following tools: {tool_names}.\n{system_message}",
+        " You have access to the following tools: {tool_names}.\n{system_message} " +
+        "Wrap the output in `json` tags\n{format_instructions}"
       ],
       new MessagesPlaceholder("messages"),
     ]);
     prompt = await prompt.partial({
       system_message: systemMessage,
       tool_names: toolNames,
+      format_instructions: formatInstructions
     });
 
-    return prompt.pipe(llm.bind({ tools: formattedTools, tool_choice: 'any' }));
+    return prompt.pipe(llm.bind({ tools: formattedTools })).pipe(parser);
   }
 
   async function runAgentNode(props: {
