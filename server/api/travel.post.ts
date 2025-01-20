@@ -23,6 +23,7 @@ import {
 } from 'ai'
 import { zodToJsonSchema } from "zod-to-json-schema"
 import { ToolNode } from "@langchain/langgraph/prebuilt";
+import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
 
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
@@ -79,9 +80,22 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
   const outputSchema = z.object({
     response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
     goto: z.enum(["finish", ...targetAgentNodes]).describe("The next agent to call, or 'finish' if the user's query has been resolved. Must be one of the specified values."),
+    toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty')
   })
+  const toolNames = toolsToUse.map((tool) => `name: ${tool.name}, description: ${tool.description}`).join("\n")
 
-  return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [modelTag], runName: runName })
+  const prompt = await ChatPromptTemplate.fromMessages([
+    [
+      "system",
+      "You are collaborating with other assistants." +
+      " Use the provided tools to progress towards answering the question." +
+      " You have access to the following tools: {tool_names}.\n"
+    ],
+    new MessagesPlaceholder("messages"),
+  ]).partial({
+    tool_names: toolNames
+  })
+  return prompt.pipe(model.withStructuredOutput(outputSchema, {name: "Response"})).invoke({messages: messages}, {tags: [modelTag], runName: runName })
 }
 
 async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
@@ -185,6 +199,7 @@ async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[]
   const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"];
   const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
+  console.dir(response, {depth: Infinity})
   const aiMsg = {"role": "ai", "content": response.response, "name": "weatherAdvisor"};
   let goto = response.goto;
   if (goto === "finish") {
