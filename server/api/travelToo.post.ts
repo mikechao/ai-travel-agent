@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { DynamicStructuredTool, StructuredTool, tool } from '@langchain/core/tools'
-import { Annotation, Command, END, interrupt, MessagesAnnotation } from '@langchain/langgraph'
+import { Annotation, Command, END, interrupt, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph'
 import { 
   Message as VercelChatMessage, 
   formatDataStreamPart 
@@ -8,8 +8,8 @@ import {
 import { ToolNode } from "@langchain/langgraph/prebuilt"
 import { ChatOpenAI } from "@langchain/openai"
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
-import { AIMessage, BaseMessage, ToolMessage } from "@langchain/core/messages"
-import { Runnable } from "@langchain/core/runnables"
+import { AIMessage, BaseMessage, HumanMessage, ToolMessage } from "@langchain/core/messages"
+import { Runnable, RunnableConfig } from "@langchain/core/runnables"
 import { convertToOpenAITool } from "@langchain/core/utils/function_calling"
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts"
 
@@ -42,17 +42,15 @@ export default defineLazyEventHandler(async () => {
     description: "Ask the human for input.",
     schema: z.string(),
   });
+  const tools = [weatherForecastTool, askHumanTool]
+  const toolNode = new ToolNode<typeof AgentState.State>(tools)
 
-  const toolNode = new ToolNode([weatherForecastTool])
-
-  const model = new ChatOpenAI({
+  const llm = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0.6,
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
-  const modelWithTools = model.bindTools([weatherForecastTool])
-  
   const checkpointer = PostgresSaver.fromConnString(
     "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
   );
@@ -85,6 +83,10 @@ export default defineLazyEventHandler(async () => {
         "system",
         "You are a helpful AI assistant, collaborating with other assistants." +
         " Use the provided tools to progress towards answering the question." +
+        " If you are unable to fully answer, that's OK, another assistant with different tools " +
+        " will help where you left off. Execute what you can to make progress." +
+        " If you or any of the other assistants have the final answer or deliverable," +
+        " prefix your response with FINAL ANSWER so the team knows to stop." +
         " You have access to the following tools: {tool_names}.\n{system_message}",
       ],
       new MessagesPlaceholder("messages"),
@@ -97,21 +99,109 @@ export default defineLazyEventHandler(async () => {
     return prompt.pipe(llm.bind({ tools: formattedTools }));
   }
 
-  async function callModel(state: typeof MessagesAnnotation.State): Promise<Partial<typeof MessagesAnnotation.State>> {
-    console.log('callModel called')
-    const messages = state.messages;
-    const response = await modelWithTools.invoke(messages);
-    if (response.content && response.content.length > 0) {
-      console.log("response.content", response.content)
-    } else if (response.tool_calls && response.tool_calls.length > 0) {
-      console.log('response.tool_calls[0].name', response.tool_calls[0].name)
-      console.log('response.tool_calls[0].args', response.tool_calls[0].args)
-    } else {
-      console.dir(response)
+  async function runAgentNode(props: {
+    state: typeof AgentState.State;
+    agent: Runnable;
+    name: string;
+    config?: RunnableConfig;
+  }) {
+    const { state, agent, name, config } = props;
+    let result = await agent.invoke(state, config);
+    // We convert the agent output into a format that is suitable
+    // to append to the global state
+    if (!result?.tool_calls || result.tool_calls.length === 0) {
+      // If the agent is NOT calling a tool, we want it to
+      // look like a human message.
+      result = new HumanMessage({ ...result, name: name });
     }
-    // We return an object with a messages property, because this will get added to the existing list
-    return { messages: [response] };
+    return {
+      messages: [result],
+      // Since we have a strict workflow, we can
+      // track the sender so we know who to pass to next.
+      sender: name,
+    };
   }
+
+  const travelAdvisor = await createAgent({
+    llm,
+    tools: [askHumanTool],
+    systemMessage: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
+    Be sure to bark a lot and use dog related emojis ` +
+    "If you need weather forecast and clothing to pack, ask 'weatherAdvisor named Petey the Pirate for help" +
+    "Feel free to mention the other agents by name, but call them your colleagues or similar."
+  })
+
+  async function travelAdvisorNode(
+    state: typeof AgentState.State,
+    config?: RunnableConfig
+  ) {
+    return runAgentNode({
+      state: state,
+      agent: travelAdvisor,
+      name: "TravelAdvisor",
+      config
+    })
+  }
+
+  const weatherAdvsior = await createAgent({
+    llm,
+    tools: [askHumanTool, weatherForecastTool],
+    systemMessage:     `Your name is Petey the Pirate and you are a travel expert that can provide the weather forecast 
+    for a given destination and duration. When you get a weather forecast also recommand what types 
+    of clothes the user should pack for their trip ` +
+    "Talke to the user like a pirate and use pirate related emojis " +
+    "If you need general travel help, go to 'travelAdvisor' named Pluto the pup for help. " +
+    "Feel free to meantion the other agents by name, but in a pirate way"
+  })
+
+  async function weatherAdvisorNode(
+    staet: typeof AgentState.State,
+    config?: RunnableConfig
+  ) {
+    return runAgentNode({
+      state: staet,
+      agent: weatherAdvsior,
+      name: "WeatherAdvisor",
+      config
+    })
+  }
+
+  function router(state: typeof AgentState.State) {
+    const messages = state.messages;
+    const lastMessage = messages[messages.length - 1] as AIMessage;
+    if (lastMessage?.tool_calls && lastMessage.tool_calls.length > 0) {
+      // The previous agent is invoking a tool
+      return "call_tool";
+    }
+    if (
+      typeof lastMessage.content === "string" &&
+      lastMessage.content.includes("FINAL ANSWER")
+    ) {
+      // Any agent decided the work is done
+      return "end";
+    }
+    return "continue";
+  }
+
+  const workflow = new StateGraph(AgentState)
+    .addNode("TravelAdvisor", travelAdvisorNode)
+    .addNode("WeatherAdvisor", weatherAdvisorNode)
+    .addNode("call_tool", toolNode)
+
+  workflow.addConditionalEdges("WeatherAdvisor", router, {
+    continue: "TravelAdvisor",
+    call_tool: "call_tool",
+    end: END
+  })
+
+  workflow.addConditionalEdges("call_tool", (x) => x.sender, {
+    TravelAdvisor: "TravelAdvisor",
+    WeatherAdvisor: "WeatherAdvisor"
+  })
+
+  workflow.addEdge(START, "TravelAdvisor")
+
+  const graph = workflow.compile()
 
   return defineEventHandler(async (webEvent) => {
     const body = await readBody(webEvent)
@@ -128,5 +218,6 @@ export default defineLazyEventHandler(async () => {
       ]
     }
     const input = isInitMessage(lastMessage) ? initMessage : new Command({resume: lastMessage.content})
+    
   })
 })
