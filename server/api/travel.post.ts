@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { ChatOpenAI,} from "@langchain/openai";
-import { DynamicStructuredTool, StructuredTool, StructuredToolInterface, tool } from "@langchain/core/tools"
+import { 
+  DynamicStructuredTool, 
+  StructuredToolInterface 
+} from "@langchain/core/tools"
 import { 
   AIMessageChunk, 
   BaseMessage, 
@@ -9,7 +12,6 @@ import {
   ToolMessage
 } from "@langchain/core/messages";
 import {
-  MessagesAnnotation,
   StateGraph,
   START,
   Command,
@@ -21,17 +23,17 @@ import {
   Message as VercelChatMessage, 
   formatDataStreamPart 
 } from 'ai'
-import { zodToJsonSchema } from "zod-to-json-schema"
 import { ToolNode } from "@langchain/langgraph/prebuilt";
-import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
-import { BindToolsInput } from "@langchain/core/language_models/chat_models";
+import { 
+  ChatPromptTemplate, 
+  MessagesPlaceholder 
+} from "@langchain/core/prompts";
 
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
 
 const modelTag = 'stream-out'
 const toolTag = 'tool-out'
-const functionNameResponse = "Response"
 
 type AIMsg = { role: string; content: string; name: string; toolsToCall?: string }
 
@@ -78,6 +80,8 @@ const AgentState = Annotation.Root({
 })
 
 async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: DynamicStructuredTool<any>[] = []) {
+  // without this if/else it seems like it will loop a few times before the LLM figures out 
+  // that we have already gotten the weather forecast for example
   if (toolsToUse.length) {
     const outputSchema = z.object({
       response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
@@ -218,7 +222,7 @@ async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> 
   } else {
     response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
   }
-  console.dir(response, {depth: Infinity})
+
   const aiMsg: AIMsg = {
     role: "ai",
     content: response.response,
@@ -263,15 +267,13 @@ async function callTools(state: typeof AgentState.State): Promise<Command> {
   console.log('callTools')
   const lastMessage = state.messages[state.messages.length - 1] 
   const aiMsg = lastMessage as unknown as AIMsg
-  const tools: StructuredToolInterface[] = []
-  const toolNames: string[] = []
-  aiMsg.toolsToCall?.split(',').forEach((name) => {
-    toolNames.push(name)
-    const tool = toolsByName.get(name)
-    if (tool) {
-      tools.push(tool)
-    }
-  })
+  const tools: StructuredToolInterface[] = 
+    (aiMsg.toolsToCall) ? 
+      aiMsg.toolsToCall.split(',')
+        .map((name) => toolsByName.get(name))
+        .filter(tool => tool !== undefined)
+    : []
+
   if (tools.length) {
     const modelWithTools = model.bindTools(tools)
     const result = await modelWithTools.invoke(state.messages)
