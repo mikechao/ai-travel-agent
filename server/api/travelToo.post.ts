@@ -13,9 +13,17 @@ import { Runnable, RunnableConfig } from "@langchain/core/runnables"
 import { convertToOpenAITool } from "@langchain/core/utils/function_calling"
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts"
 import zodToJsonSchema from "zod-to-json-schema"
+import {
+  JsonOutputKeyToolsParser,
+} from "@langchain/core/output_parsers/openai_tools"
 
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
+
+  type Resposne = {
+    response: string,
+    goto: string
+  }
 
   const weatherForecastTool = new DynamicStructuredTool({
     name: 'weatherForecastTool',
@@ -72,24 +80,29 @@ export default defineLazyEventHandler(async () => {
   }): Promise<Runnable> {
     const functionName = "Response"
     const toolNames = tools.map((tool) => tool.name).join(", ") + ',' + functionName;
-    const formattedTools = tools.map((t) => convertToOpenAITool(t));
   
     const outputSchema = z.object({
       response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
       goto: z.enum(["finish", "call_tool", ...targetAgentNodes])
         .describe(`The next agent to call, 
           or 'finish' if the user's query has been resolved. 
+          or 'call_tool' if you need to call a tool other than 'Response' 
           Must be one of the specified values.`),
     })
+    const toolDefs = tools.length ?
+      tools.map((tool) => {
+        const toolSchemaJSON = zodToJsonSchema(tool.schema)
+        return {
+          type: "function" as const,
+          function: {
+            name: tool.name,
+            description: tool.description,
+            parameters: toolSchemaJSON,
+          }
+        }
+      })
+      : []
     const asJsonSchema = zodToJsonSchema(outputSchema)
-    formattedTools.push({ // from withStructuredOutput chat_models.ts (2058)
-      type: "function" as const,
-      function: {
-        name: functionName,
-        description: asJsonSchema.description,
-        parameters: asJsonSchema,
-      }
-    })
 
     let prompt = ChatPromptTemplate.fromMessages([
       [
@@ -105,7 +118,25 @@ export default defineLazyEventHandler(async () => {
       tool_names: toolNames,
     });
 
-    return prompt.pipe(llm.bind({ tools: formattedTools, tool_choice: 'any', parallel_tool_calls: false }));
+    return prompt.pipe(llm.bind({ 
+      tools: [
+        { // from withStructuredOutput chat_models.ts (2058)
+          type: "function" as const,
+          function: {
+            name: functionName,
+            description: asJsonSchema.description,
+            parameters: asJsonSchema,
+          }
+        },
+        ...toolDefs
+      ], 
+      tool_choice: {
+        type: "function" as const,
+        function: {
+          name: functionName,
+        },
+      }
+    }));
   }
 
   async function runAgentNode(props: {
@@ -115,14 +146,34 @@ export default defineLazyEventHandler(async () => {
     config?: RunnableConfig;
   }) {
     const { state, agent, name, config } = props;
-    let result = await agent.invoke(state, config);
-    const aiMessage = result as AIMessage
+    const result = await agent.invoke(state, config);
+    console.log(`name: ${name} invoked`)
+    const aiMessageChunk = result as AIMessageChunk
+    if (aiMessageChunk.tool_call_chunks && aiMessageChunk.tool_call_chunks[0].name === 'Response') {
+      const responseStr = aiMessageChunk.tool_call_chunks[0].args as string
+      const response = JSON.parse(responseStr) as Resposne
+      const aiMsg = {"role": "ai", "content": response.response, "name": name}
+      let goto = response.goto
+      if (goto === "finish") {
+          goto = "human"
+      }
+      console.log(`goto: ${goto}`)
+      return new Command({
+        goto,
+        update: { 
+          "messages": [aiMsg],
+          "sender": name
+        }
+      })
+    }
+    console.dir(result, { depth: Infinity})
+
     const aiMsg = {"role": "ai", "content": result.response, "name": name}
     let goto = result.goto
     if (goto === "finish") {
         goto = "human"
     }
-    console.log(`goto: ${goto} result:${result}`)
+    console.log(`goto: ${goto}`)
     return new Command({
       goto,
       update: { 
@@ -181,7 +232,10 @@ export default defineLazyEventHandler(async () => {
   async function callToolsNode(state: typeof AgentState.State): Promise<Command> {
     console.log('callToolsNode state.sender', state.sender)
     const lastMessage = state.messages[state.messages.length - 1]
+    console.log('lastMessage')
+    console.dir(lastMessage, {depth: Infinity})
     const toolResult = await toolNode.invoke([lastMessage], {tags: ["tools"]})
+    console.dir(toolResult, {depth: Infinity})
     const resultMessages = [lastMessage, ...toolResult]
     console.log(resultMessages)
     return new Command({
@@ -191,24 +245,12 @@ export default defineLazyEventHandler(async () => {
   }
 
   function humanNode(state: typeof AgentState.State): Command {
+    console.log('humanNode')
     const userInput: string = interrupt("Ready for user input.");
     console.log(`userInput ${userInput}`)
-    let activeAgent: string | undefined = undefined;
-  
-    // Look up the active agent
-    for (let i = state.messages.length - 1; i >= 0; i--) {
-        if (state.messages[i].name) {
-            activeAgent = state.messages[i].name;
-            break;
-        }
-    }
-  
-    if (!activeAgent) {
-        throw new Error("Could not determine the active agent.");
-    }
-    console.log(`activeAgent ${activeAgent}`)
+
     return new Command({
-        goto: activeAgent,
+        goto: state.sender,
         update: {
           "messages": [
               {
