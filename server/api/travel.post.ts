@@ -5,6 +5,7 @@ import {
   AIMessageChunk, 
   BaseMessage, 
   isAIMessageChunk, 
+  SystemMessage, 
   ToolMessage
 } from "@langchain/core/messages";
 import {
@@ -13,6 +14,7 @@ import {
   START,
   Command,
   interrupt,
+  Annotation,
 } from "@langchain/langgraph";
 import { PostgresSaver } from "@langchain/langgraph-checkpoint-postgres"
 import { 
@@ -60,6 +62,16 @@ const checkpointer = PostgresSaver.fromConnString(
 );
 await checkpointer.setup()
 
+const AgentState = Annotation.Root({
+  messages: Annotation<BaseMessage[]>({
+    reducer: (x, y) => x.concat(y),
+  }),
+  sender: Annotation<string>({
+    reducer: (x, y) => y ?? x ?? "human",
+    default: () => "human",
+  }),
+})
+
 async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: DynamicStructuredTool<any>[] = []) {
   // define the schema for the structured output:
   // - model's text response (`response`)
@@ -72,7 +84,7 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
   return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [modelTag], runName: runName })
 }
 
-async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
+async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
   const systemPrompt = 
       `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
        Be sure to bark a lot and use dog related emojis ` +
@@ -94,7 +106,7 @@ async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Co
   
 }
 
-async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
+async function sightseeingAdvisor(state: typeof AgentState.State): Promise<Command> {
   const systemPrompt = 
       `Your name is Polly Parrot and you are a travel expert that can provid specific sightseeing recommendations for a given destination. 
       Be sure to Squawk a lot like a parrot and use emojis related to a parrot` +
@@ -115,7 +127,7 @@ async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promi
   return new Command({goto, update: { "messages": [aiMsg] } });
 }
 
-async function hotelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
+async function hotelAdvisor(state: typeof AgentState.State): Promise<Command> {
   const systemPrompt = 
       `You name is Penny Restmore and you are a travel expert that can provide hotel recommendations for a given destination. ` +
       `When talking to the user be friendly, warm and playful with a sense of humor`
@@ -137,7 +149,7 @@ async function hotelAdvisor(state: typeof MessagesAnnotation.State): Promise<Com
 }
 
 
-async function weatherAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
+async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> {
   const systemPrompt = 
     `Your name is Petey the Pirate and you are a travel expert that can provide the weather forecast 
     for a given destination and duration. When you get a weather forecast also recommand what types 
@@ -160,7 +172,7 @@ async function weatherAdvisor(state: typeof MessagesAnnotation.State): Promise<C
 
 }
 
-function humanNode(state: typeof MessagesAnnotation.State): Command {
+function humanNode(state: typeof AgentState.State): Command {
   const userInput: string = interrupt("Ready for user input.");
 
   let activeAgent: string | undefined = undefined;
@@ -190,7 +202,7 @@ function humanNode(state: typeof MessagesAnnotation.State): Command {
   });
 }
 
-const builder = new StateGraph(MessagesAnnotation)
+const builder = new StateGraph(AgentState)
 .addNode("travelAdvisor", travelAdvisor, {
   ends: ["sightseeingAdvisor", "hotelAdvisor", "weatherAdvisor"]
 })
@@ -224,8 +236,8 @@ return defineEventHandler(async webEvent => {
 
   const initMessage = {
     messages: [
-      {role: "system", content: `Use the tools and agents you have to figure out what to ask the user.
-        Introduce yourself and give the user a summary of your skills and knowledge `}
+      new SystemMessage({content:`Use the tools and agents you have to figure out what to ask the user.
+        Introduce yourself and give the user a summary of your skills and knowledge `})
     ]
   }
   const input = isInitMessage(lastMessage) ? initMessage : new Command({resume: lastMessage.content})
