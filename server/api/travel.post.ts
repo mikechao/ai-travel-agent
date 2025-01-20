@@ -69,43 +69,7 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
     goto: z.enum(["finish", ...targetAgentNodes]).describe("The next agent to call, or 'finish' if the user's query has been resolved. Must be one of the specified values."),
   })
 
-  const asJsonSchema = zodToJsonSchema(outputSchema)
-  const functionName = "Response"
-
-  // map out the tools into a ToolDef like it is done when chat_model.ts bindTools
-  // is called, seems to be better when looking at the traces on langsmith
-  // under the Metadata tab 
-  const toolDefs = toolsToUse.length ? 
-    toolsToUse.map(tool => {
-      const toolSchemaJSON = zodToJsonSchema(tool.schema)
-      return {
-        type: "function" as const,
-        function: {
-          name: tool.name,
-          description: tool.description,
-          parameters: toolSchemaJSON,
-        }
-      }
-    })
-    : []
-  const modelWithTools = model.bind({
-    tools: [
-      ...toolDefs,
-      { // from withStructuredOutput chat_models.ts (2058)
-        type: "function" as const,
-        function: {
-          name: functionName,
-          description: asJsonSchema.description,
-          parameters: asJsonSchema,
-        }
-      }
-    ],
-    tool_choice: 'any'
-  })
-  return modelWithTools.invoke(messages, {tags: [modelTag], runName: runName})
-  // const modelWithToolsResult = await modelWithTools.invoke(messages, {tags: [tag], runName: runName})
-  // console.log('modelWithToolsResult', modelWithToolsResult)
-  // return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [tag], runName: runName })
+  return model.withStructuredOutput(outputSchema, {name: "Response"}).invoke(messages, {tags: [modelTag], runName: runName })
 }
 
 async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
@@ -120,19 +84,14 @@ async function travelAdvisor(state: typeof MessagesAnnotation.State): Promise<Co
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["sightseeingAdvisor", "hotelAdvisor", "weatherAdvisor"];
-  const aiMessageChunk = await callLLM(messages, targetAgentNodes, 'travelAdvisor');
-  if (aiMessageChunk.tool_calls![0].name === functionNameResponse) {
-    const response = aiMessageChunk.tool_calls![0].args
-    const aiMsg = {"role": "ai", "content": response.response, "name": "travelAdvisor"};
-    let goto = response.goto;
-    if (goto === "finish") {
-        goto = "human";
-    }  
-    return new Command({goto, update: { "messages": [aiMsg] } });
-  } else {
-    // should be other tool calls here
-    throw new Error("not yet implemented")
-  }
+  const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor');
+  const aiMsg = {"role": "ai", "content": response.response, "name": "travelAdvisor"};
+  let goto = response.goto;
+  if (goto === "finish") {
+      goto = "human";
+  }  
+  return new Command({goto, update: { "messages": [aiMsg] } });
+  
 }
 
 async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
@@ -147,19 +106,13 @@ async function sightseeingAdvisor(state: typeof MessagesAnnotation.State): Promi
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["travelAdvisor", "hotelAdvisor", "weatherAdvisor"];
-  const aiMessageChunk = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor');
-  if (aiMessageChunk.tool_calls![0].name === functionNameResponse) {
-    const response = aiMessageChunk.tool_calls![0].args
-    const aiMsg = {"role": "ai", "content": response.response, "name": "sightseeingAdvisor"};
-    let goto = response.goto;
-    if (goto === "finish") {
-        goto = "human";
-    }  
-    return new Command({goto, update: { "messages": [aiMsg] } });
-  } else {
-    // should be other tool calls here
-    throw new Error("not yet implemented")
-  }
+  const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor');
+  const aiMsg = {"role": "ai", "content": response.response, "name": "sightseeingAdvisor"};
+  let goto = response.goto;
+  if (goto === "finish") {
+      goto = "human";
+  }  
+  return new Command({goto, update: { "messages": [aiMsg] } });
 }
 
 async function hotelAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
@@ -174,20 +127,15 @@ async function hotelAdvisor(state: typeof MessagesAnnotation.State): Promise<Com
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor", "weatherAdvisor"];
-  const aiMessageChunk = await callLLM(messages, targetAgentNodes, 'hotelAdvisor');
-  if (aiMessageChunk.tool_calls![0].name === functionNameResponse) {
-    const response = aiMessageChunk.tool_calls![0].args
-    const aiMsg = {"role": "ai", "content": response.response, "name": "hotelAdvisor"};
-    let goto = response.goto;
-    if (goto === "finish") {
-        goto = "human";
-    }  
-    return new Command({goto, update: { "messages": [aiMsg] } });
-  } else {
-    // should be other tool calls here
-    throw new Error("not yet implemented")
-  }
+  const response = await callLLM(messages, targetAgentNodes, 'hotelAdvisor');
+  const aiMsg = {"role": "ai", "content": response.response, "name": "hotelAdvisor"};
+  let goto = response.goto;
+  if (goto === "finish") {
+      goto = "human";
+  }  
+  return new Command({goto, update: { "messages": [aiMsg] } });
 }
+
 
 async function weatherAdvisor(state: typeof MessagesAnnotation.State): Promise<Command> {
   const systemPrompt = 
@@ -202,22 +150,14 @@ async function weatherAdvisor(state: typeof MessagesAnnotation.State): Promise<C
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[]
   const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"];
-  const aiMessageChunk = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
-  if (aiMessageChunk.tool_calls![0].name !== functionNameResponse) {
-    console.log('calling toolNode')
-    const toolResult = await toolNode.invoke([aiMessageChunk], {tags: [toolTag]})
-    // toolResult is an array, aiMessageChunk needs to be infront else error below
-    // 400 Invalid parameter: messages with role 'tool' must be a response to a preceeding message with 'tool_calls'
-    return new Command({goto: "weatherAdvisor", update: { "messages": [aiMessageChunk, ...toolResult]}})
-  } else {
-    const response = aiMessageChunk.tool_calls![0].args
-    const aiMsg = {"role": "ai", "content": response.response, "name": "weatherAdvisor"};
-    let goto = response.goto;
-    if (goto === "finish") {
-        goto = "human";
-    }  
-    return new Command({goto, update: { "messages": [aiMsg] } });
-  }
+  const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
+  const aiMsg = {"role": "ai", "content": response.response, "name": "weatherAdvisor"};
+  let goto = response.goto;
+  if (goto === "finish") {
+      goto = "human";
+  }  
+  return new Command({goto, update: { "messages": [aiMsg] } });
+
 }
 
 function humanNode(state: typeof MessagesAnnotation.State): Command {
