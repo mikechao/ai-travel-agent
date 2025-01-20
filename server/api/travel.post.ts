@@ -278,7 +278,7 @@ async function callTools(state: typeof AgentState.State): Promise<Command> {
     const modelWithTools = model.bindTools(tools)
     const result = await modelWithTools.invoke(state.messages)
     const toolNode = new ToolNode(tools)
-    const toolResults = await toolNode.invoke([...state.messages, result])
+    const toolResults = await toolNode.invoke([...state.messages, result], {tags: [toolTag]})
     return new Command({
       goto: state.sender,
       update: {
