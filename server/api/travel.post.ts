@@ -78,30 +78,37 @@ const AgentState = Annotation.Root({
 })
 
 async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: DynamicStructuredTool<any>[] = []) {
-  // define the schema for the structured output:
-  // - model's text response (`response`)
-  // - name of the node to go to next (or 'finish')
-  const outputSchema = z.object({
-    response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
-    goto: z.enum(["finish", "callTools", ...targetAgentNodes])
-      .describe(`The next agent to call, 'callTools' if a tool should be used 
-        or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
-    toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty')
-  })
-  const toolNames = toolsToUse.map((tool) => `name: ${tool.name}, description: ${tool.description}`).join("\n")
-
-  const prompt = await ChatPromptTemplate.fromMessages([
-    [
-      "system",
-      "You are collaborating with other assistants." +
-      " Use the provided tools to progress towards answering the question." +
-      " You have access to the following tools: {tool_names}.\n"
-    ],
-    new MessagesPlaceholder("messages"),
-  ]).partial({
-    tool_names: toolNames
-  })
-  return prompt.pipe(model.withStructuredOutput(outputSchema, {name: "Response"})).invoke({messages: messages}, {tags: [modelTag], runName: runName })
+  if (toolsToUse.length) {
+    const outputSchema = z.object({
+      response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
+      goto: z.enum(["finish", "callTools", ...targetAgentNodes])
+        .describe(`The next agent to call, 'callTools' if a tool should be used 
+          or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
+      toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty')
+    })
+    const toolNames = toolsToUse.map((tool) => `name: ${tool.name}, description: ${tool.description}`).join("\n")
+    const prompt = await ChatPromptTemplate.fromMessages([
+      [
+        "system",
+        "You are collaborating with other assistants." +
+        " Use the provided tools to progress towards answering the question." +
+        " You have access to the following tools: {tool_names}.\n"
+      ],
+      new MessagesPlaceholder("messages"),
+    ]).partial({
+      tool_names: toolNames
+    })
+    return prompt.pipe(model.withStructuredOutput(outputSchema, {name: "Response"})).invoke({messages: messages}, {tags: [modelTag], runName: runName })
+  } else {
+    const outputSchema = z.object({
+      response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
+      goto: z.enum(["finish", ...targetAgentNodes])
+        .describe(`The next agent to call, 
+          or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
+      toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty')
+    })
+    return model.withStructuredOutput(outputSchema, {name: 'Response'}).invoke(messages, {tags: [modelTag], runName: runName })
+  }
 }
 
 async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
@@ -122,7 +129,8 @@ async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
   let goto = response.goto;
   if (goto === "finish") {
       goto = "human";
-  }  
+  }
+  console.log('goto', goto)
   return new Command({
     goto, 
     update: { 
@@ -204,7 +212,12 @@ async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> 
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[]
   const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"];
-  const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
+  let response;
+  if (state.sender === 'callTools') {
+    response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor')
+  } else {
+    response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
+  }
   console.dir(response, {depth: Infinity})
   const aiMsg: AIMsg = {
     role: "ai",
@@ -217,12 +230,13 @@ async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> 
   let goto = response.goto;
   if (goto === "finish") {
       goto = "human";
-  }  
+  }
+  console.log('goto', goto)
   return new Command({
     goto, 
     update: { 
       "messages": [aiMsg],
-      "sender": "weatherAdvisor"
+      "sender": "weatherAdvisor",
     } 
   });
 
@@ -248,10 +262,11 @@ function humanNode(state: typeof AgentState.State): Command {
 async function callTools(state: typeof AgentState.State): Promise<Command> {
   console.log('callTools')
   const lastMessage = state.messages[state.messages.length - 1] 
-  console.dir(lastMessage)
   const aiMsg = lastMessage as unknown as AIMsg
   const tools: StructuredToolInterface[] = []
+  const toolNames: string[] = []
   aiMsg.toolsToCall?.split(',').forEach((name) => {
+    toolNames.push(name)
     const tool = toolsByName.get(name)
     if (tool) {
       tools.push(tool)
@@ -261,8 +276,14 @@ async function callTools(state: typeof AgentState.State): Promise<Command> {
     const modelWithTools = model.bindTools(tools)
     const result = await modelWithTools.invoke(state.messages)
     const toolNode = new ToolNode(tools)
-    const toolResults = await toolNode.invoke({ messages: [...state.messages, result] })
-    console.dir(toolResults, {depth: Infinity})
+    const toolResults = await toolNode.invoke([...state.messages, result])
+    return new Command({
+      goto: state.sender,
+      update: {
+        "messages": [result, ...toolResults],
+        "sender": "callTools"
+      }
+    })
   }
 
   return new Command({
