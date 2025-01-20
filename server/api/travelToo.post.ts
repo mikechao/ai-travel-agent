@@ -15,6 +15,7 @@ import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts
 import zodToJsonSchema from "zod-to-json-schema"
 import {
   JsonOutputKeyToolsParser,
+  JsonOutputToolsParser,
 } from "@langchain/core/output_parsers/openai_tools"
 
 export default defineLazyEventHandler(async () => {
@@ -88,7 +89,29 @@ export default defineLazyEventHandler(async () => {
           or 'finish' if the user's query has been resolved. 
           or 'call_tool' if you need to call a tool other than 'Response' 
           Must be one of the specified values.`),
+      toolsToCall: z.string().array().optional()
+          .describe('An array of strings which represent the names of the tools to call, if there are any. Can be empty'),
+      toolArgs: z.any().array().optional()
+          .describe('An array of objects that represent the arguments for the toolsToCall, if there are any Can be empty')
     })
+    const asJsonSchema = zodToJsonSchema(outputSchema)
+    const outputTool = { // from withStructuredOutput chat_models.ts (2058)
+      type: "function" as const,
+      function: {
+        name: functionName,
+        description: asJsonSchema.description,
+        parameters: asJsonSchema,
+      }
+    }
+    const p2 = new JsonOutputToolsParser({
+      returnId: true
+    })
+    const outputParser = new JsonOutputKeyToolsParser({
+      returnSingle: true,
+      keyName: functionName,
+      zodSchema: outputSchema,
+    })
+
     const toolDefs = tools.length ?
       tools.map((tool) => {
         const toolSchemaJSON = zodToJsonSchema(tool.schema)
@@ -102,8 +125,6 @@ export default defineLazyEventHandler(async () => {
         }
       })
       : []
-    const asJsonSchema = zodToJsonSchema(outputSchema)
-
     let prompt = ChatPromptTemplate.fromMessages([
       [
         "system",
@@ -119,24 +140,9 @@ export default defineLazyEventHandler(async () => {
     });
 
     return prompt.pipe(llm.bind({ 
-      tools: [
-        { // from withStructuredOutput chat_models.ts (2058)
-          type: "function" as const,
-          function: {
-            name: functionName,
-            description: asJsonSchema.description,
-            parameters: asJsonSchema,
-          }
-        },
-        ...toolDefs
-      ], 
-      tool_choice: {
-        type: "function" as const,
-        function: {
-          name: functionName,
-        },
-      }
-    }));
+      tools: [outputTool, ...toolDefs], 
+      tool_choice: 'any'
+    })).pipe(outputParser);
   }
 
   async function runAgentNode(props: {
@@ -148,24 +154,6 @@ export default defineLazyEventHandler(async () => {
     const { state, agent, name, config } = props;
     const result = await agent.invoke(state, config);
     console.log(`name: ${name} invoked`)
-    const aiMessageChunk = result as AIMessageChunk
-    if (aiMessageChunk.tool_call_chunks && aiMessageChunk.tool_call_chunks[0].name === 'Response') {
-      const responseStr = aiMessageChunk.tool_call_chunks[0].args as string
-      const response = JSON.parse(responseStr) as Resposne
-      const aiMsg = {"role": "ai", "content": response.response, "name": name}
-      let goto = response.goto
-      if (goto === "finish") {
-          goto = "human"
-      }
-      console.log(`goto: ${goto}`)
-      return new Command({
-        goto,
-        update: { 
-          "messages": [aiMsg],
-          "sender": name
-        }
-      })
-    }
     console.dir(result, { depth: Infinity})
 
     const aiMsg = {"role": "ai", "content": result.response, "name": name}
@@ -296,12 +284,8 @@ export default defineLazyEventHandler(async () => {
           Introduce yourself and give the user a summary of your skills and knowledge `})
       ]
     }
-    const userMessage = {
-      messages: [
-        new HumanMessage({ content: lastMessage.content})
-      ]
-    }
-    const input = isInitMessage(lastMessage) ? initMessage : userMessage
+
+    const input = isInitMessage(lastMessage) ? initMessage : new Command({resume: lastMessage.content})
 
     const encoder = new TextEncoder()
     const config = {version: "v2" as const, configurable: {thread_id: sessionId},}
