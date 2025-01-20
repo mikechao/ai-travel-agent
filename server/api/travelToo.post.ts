@@ -67,12 +67,6 @@ export default defineLazyEventHandler(async () => {
     }),
   })
 
-  type Resposne = {
-    response: string,
-    goto: string
-  }
-  const parser = new JsonOutputParser<Resposne>()
-
   async function createAgent({
     llm,
     tools,
@@ -115,15 +109,13 @@ export default defineLazyEventHandler(async () => {
         "system",
         "You are collaborating with other assistants." +
         " Use the provided tools to progress towards answering the question." +
-        " You have access to the following tools: {tool_names}.\n{system_message} " +
-        "Wrap the output in `json` tags\n{format_instructions}"
+        " You have access to the following tools: {tool_names}.\n{system_message} "
       ],
       new MessagesPlaceholder("messages"),
     ]);
     prompt = await prompt.partial({
       system_message: systemMessage,
       tool_names: toolNames,
-      format_instructions: formatInstructions
     });
 
     return prompt.pipe(llm.bind({ 
