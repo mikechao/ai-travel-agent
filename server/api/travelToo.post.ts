@@ -35,15 +35,7 @@ export default defineLazyEventHandler(async () => {
     }
   })
 
-  const askHumanTool = tool((_) => {
-    const userInput = interrupt('ready for user input')
-    return userInput
-  }, {
-    name: "askHuman",
-    description: "Ask the human for input.",
-    schema: z.string(),
-  });
-  const tools = [weatherForecastTool, askHumanTool]
+  const tools = [weatherForecastTool, ]
   const toolNode = new ToolNode<typeof AgentState.State>(tools)
 
   const llm = new ChatOpenAI({
@@ -71,6 +63,7 @@ export default defineLazyEventHandler(async () => {
     response: string,
     goto: string
   }
+  const parser = new JsonOutputParser<Resposne>()
 
   async function createAgent({
     llm,
@@ -91,10 +84,9 @@ export default defineLazyEventHandler(async () => {
       {response: "string", goto: "string} 
       Where response is A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user. 
       goto is The next agent to call, or 'finish' if the user's query has been resolved.
-      'call_tool' if you need to call a tool.  
-      goto must be one of the following values: ['finish', 'call_tool', ${targetAgentNodes.join(',')}]
+      goto must be one of the following values: ['finish', ${targetAgentNodes.join(',')}]
   `
-  const parser = new JsonOutputParser<Resposne>()
+
     let prompt = ChatPromptTemplate.fromMessages([
       [
         "system",
@@ -111,7 +103,7 @@ export default defineLazyEventHandler(async () => {
       format_instructions: formatInstructions
     });
 
-    return prompt.pipe(llm.bind({ tools: formattedTools })).pipe(parser);
+    return prompt.pipe(llm.bind({ tools: formattedTools }));
   }
 
   async function runAgentNode(props: {
@@ -121,83 +113,126 @@ export default defineLazyEventHandler(async () => {
     config?: RunnableConfig;
   }) {
     const { state, agent, name, config } = props;
-    let result = await agent.invoke(state, config);
-    // We convert the agent output into a format that is suitable
-    // to append to the global state
-    if (!result?.tool_calls || result.tool_calls.length === 0) {
-      // If the agent is NOT calling a tool, we want it to
-      // look like a human message.
-      result = new HumanMessage({ ...result, name: name });
+    console.log(`runAgentNode name: ${name}`)
+    const result = await agent.invoke(state, config);
+    const aiMessageCheck = result as AIMessageChunk
+    if (aiMessageCheck.content) {
+      const parsed = await parser.parse(aiMessageCheck.content as string)
+      const aiMsg = {"role": "ai", "content": parsed.response, "name": name}
+      let goto = parsed.goto
+      if (goto === "finish") {
+          goto = "human"
+      }
+      console.log(`goto: ${goto} result:${result}`)
+      return new Command({
+        goto,
+        update: { 
+          "messages": [aiMsg],
+          "sender": name
+        }
+      })
+    } else {
+      console.log('here')
+      return new Command({
+        goto: 'call_tool',
+        update: {
+          "messages": [result],
+          "sender": name
+        }
+      })
     }
-    return {
-      messages: [result],
-      // Since we have a strict workflow, we can
-      // track the sender so we know who to pass to next.
-      sender: name,
-    };
+
   }
 
   const travelAdvisor = await createAgent({
     llm,
-    tools: [askHumanTool],
+    tools: [],
     systemMessage: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
     Be sure to bark a lot and use dog related emojis ` +
-    "If you need weather forecast and clothing to pack, ask 'weatherAdvisor named Petey the Pirate for help" +
+    "If you need weather forecast and clothing to pack, ask 'WeatherAdvisor' named Petey the Pirate for help" +
     "Feel free to mention the other agents by name, but call them your colleagues or similar.",
-    targetAgentNodes: ["weatherAdvisor"]
+    targetAgentNodes: ["WeatherAdvisor", 'human']
   })
 
   async function travelAdvisorNode(
     state: typeof AgentState.State,
     config?: RunnableConfig
   ) {
-    return runAgentNode({
+    const result = await runAgentNode({
       state: state,
       agent: travelAdvisor,
       name: "TravelAdvisor",
       config
     })
+    return result
   }
 
   const weatherAdvsior = await createAgent({
     llm,
-    tools: [askHumanTool, weatherForecastTool],
+    tools: [weatherForecastTool],
     systemMessage:     `Your name is Petey the Pirate and you are a travel expert that can provide the weather forecast 
     for a given destination and duration. When you get a weather forecast also recommand what types 
     of clothes the user should pack for their trip ` +
     "Talke to the user like a pirate and use pirate related emojis " +
-    "If you need general travel help, go to 'travelAdvisor' named Pluto the pup for help. " +
+    "If you need general travel help, go to 'TravelAdvisor' named Pluto the pup for help. " +
     "Feel free to meantion the other agents by name, but in a pirate way",
-    targetAgentNodes: ['travelAdvisor']
+    targetAgentNodes: ['TravelAdvisor', 'human']
   })
 
   async function weatherAdvisorNode(
     staet: typeof AgentState.State,
     config?: RunnableConfig
   ) {
-    return runAgentNode({
+    console.log('weatherAdvisorNode')
+    const result = runAgentNode({
       state: staet,
       agent: weatherAdvsior,
       name: "WeatherAdvisor",
       config
     })
+    return result
   }
 
-  function router(state: typeof AgentState.State) {
-    const messages = state.messages;
-    const lastMessage = messages[messages.length - 1] as AIMessage;
-    if (lastMessage?.tool_calls && lastMessage.tool_calls.length > 0) {
-      // The previous agent is invoking a tool
-      return "call_tool";
+  function humanNode(state: typeof AgentState.State): Command {
+    const userInput: string = interrupt("Ready for user input.");
+    console.log(`userInput ${userInput}`)
+    let activeAgent: string | undefined = undefined;
+  
+    // Look up the active agent
+    for (let i = state.messages.length - 1; i >= 0; i--) {
+        if (state.messages[i].name) {
+            activeAgent = state.messages[i].name;
+            break;
+        }
     }
-    if (
-      typeof lastMessage.content === "string" &&
-      lastMessage.content.includes("FINAL ANSWER")
-    ) {
-      // Any agent decided the work is done
-      return "end";
+  
+    if (!activeAgent) {
+        throw new Error("Could not determine the active agent.");
     }
-    return "continue";
+    console.log(`activeAgent ${activeAgent}`)
+    return new Command({
+        goto: activeAgent,
+        update: {
+          "messages": [
+              {
+                  "role": "human",
+                  "content": userInput,
+              }
+          ]
+        }
+    });
+  }
+
+  async function callToolsNode(state: typeof AgentState.State): Promise<Command> {
+    console.log('callToolsNode state.sender', state.sender)
+    const lastMessage = state.messages[state.messages.length - 1]
+    const toolResult = await toolNode.invoke([lastMessage], {tags: ["tools"]})
+    const resultMessages = [lastMessage, ...toolResult]
+    console.log(resultMessages)
+    return new Command({
+      goto: state.sender,
+      update: { "messages": [...toolResult]}
+    })
   }
 
   const workflow = new StateGraph(AgentState)
@@ -205,22 +240,15 @@ export default defineLazyEventHandler(async () => {
       ends: ["WeatherAdvisor", "call_tool"]
     })
     .addNode("WeatherAdvisor", weatherAdvisorNode, {
-      ends: ["TravelAdvisor", "call_tool"]
+      ends: ["TravelAdvisor", "call_tool", "human"]
     })
-    .addNode("call_tool", toolNode)
-
-  workflow.addConditionalEdges("WeatherAdvisor", router, {
-    continue: "TravelAdvisor",
-    call_tool: "call_tool",
-    end: END
-  })
-
-  workflow.addConditionalEdges("call_tool", (x) => x.sender, {
-    TravelAdvisor: "TravelAdvisor",
-    WeatherAdvisor: "WeatherAdvisor"
-  })
-
-  workflow.addEdge(START, "TravelAdvisor")
+    .addNode("human", humanNode, {
+      ends: ["TravelAdvisor", "WeatherAdvisor"]
+    })
+    .addNode("call_tool", callToolsNode, {
+      ends: ["TravelAdvisor", "WeatherAdvisor", "human"]
+    })
+    .addEdge(START, "TravelAdvisor")
 
   const graph = workflow.compile()
 
@@ -249,6 +277,18 @@ export default defineLazyEventHandler(async () => {
     const config = {version: "v2" as const, configurable: {thread_id: sessionId},}
     return new ReadableStream({
       async start(controller) {
+
+        //events Set(10) {
+  // 'on_chain_start',
+  // 'on_chain_end',
+  // 'on_prompt_start',
+  // 'on_prompt_end',
+  // 'on_chat_model_start',
+  // 'on_chat_model_stream',
+  // 'on_chat_model_end',
+  // 'on_parser_start',
+  // 'on_parser_end',
+  // 'on_chain_stream' }
         const set = new Set()
         try {
           for await (const event of graph.streamEvents(input, config)) {
@@ -256,11 +296,8 @@ export default defineLazyEventHandler(async () => {
             if (event.event === 'on_chat_model_stream') {
               if (isAIMessageChunk(event.data.chunk)) {
                 const aiMessageChunk = event.data.chunk as AIMessageChunk
-                if (aiMessageChunk.tool_call_chunks?.length && aiMessageChunk.tool_call_chunks[0].args) {
-                  const toolChunk =  aiMessageChunk.tool_call_chunks[0].args
-                  // we can filter the toolChunk to exclude the {response:... but it depends on
-                  // how the model tokenizes and introduces overhead
-                  const part = formatDataStreamPart('text', toolChunk)
+                if (aiMessageChunk.content) {
+                  const part = formatDataStreamPart('text', aiMessageChunk.content as string)
                   controller.enqueue(encoder.encode(part))
                 }
               }
@@ -279,7 +316,7 @@ export default defineLazyEventHandler(async () => {
             }
           }
         } finally {
-          console.log('events', set)
+          // console.log('events', set)
           controller.close()
         }
       },
