@@ -31,6 +31,7 @@ import {
 import { getHotelSearchTool, } from "../utils/hotelSearchTool";
 import { getWeatherForecastTool } from "../utils/weatherSearchTool";
 import { getHotelDetailsTool } from "../utils/hotelDetailsTool";
+import { getSightseeingSearchTool } from "../utils/sightseeingSearchTool";
 
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
@@ -41,15 +42,15 @@ const toolTag = 'tool-out'
 type AIMsg = { role: string; content: string; name: string; toolsToCall?: string }
 
 const weatherForecastTool = getWeatherForecastTool()
-
 const hotelSearchTool = getHotelSearchTool()
-
 const hotelDetailsTool = getHotelDetailsTool()
+const sightseeingSearchTool = getSightseeingSearchTool()
 
 const toolsByName = new Map<string, StructuredToolInterface>()
 toolsByName.set(weatherForecastTool.name, weatherForecastTool)
 toolsByName.set(hotelSearchTool.name, hotelSearchTool)
 toolsByName.set(hotelDetailsTool.name, hotelDetailsTool)
+toolsByName.set(sightseeingSearchTool.name, sightseeingSearchTool)
 
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
@@ -154,8 +155,15 @@ async function sightseeingAdvisor(state: typeof AgentState.State): Promise<Comma
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["travelAdvisor", "hotelAdvisor", "weatherAdvisor"];
-  const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor');
-  const aiMsg = {"role": "ai", "content": response.response, "name": "sightseeingAdvisor"};
+  const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [sightseeingSearchTool]);
+  const aiMsg: AIMsg = {
+    role: "ai", 
+    content: response.response, 
+    name: "sightseeingAdvisor"
+  }
+  if (response.toolsToCall) {
+    aiMsg.toolsToCall = response.toolsToCall
+  }
   let goto = response.goto;
   if (goto === "finish") {
       goto = "human";
