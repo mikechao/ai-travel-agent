@@ -1,5 +1,8 @@
 import { DynamicStructuredTool } from "@langchain/core/tools"
 import { z } from "zod"
+import { URL } from 'url'
+
+const runtimeConfig = useRuntimeConfig()
 
 const hotelSearchTool = new DynamicStructuredTool({
   name: 'hotelSearchTool',
@@ -12,10 +15,16 @@ const hotelSearchTool = new DynamicStructuredTool({
       .default(10)
       .describe(`Length of the radius in miles from the provided lat, long pair to filter results.`)
   }),
-  func: async (input: { lat: number; long: number; searchQuery: string; radius?: number }) => {
-    const { lat, long, searchQuery,  radius} = input
+  func: async ({ lat, long, searchQuery, radius = 10 }: { lat: number; long: number; searchQuery: string; radius?: number }) => {
     console.log(`hotelSearchTool called with lat: ${lat}, long: ${long}, searchQuery: ${searchQuery}, radius: ${radius}`)
-
+    const locationSearchURL = new URL('https://api.content.tripadvisor.com/api/v1/location/search')
+    locationSearchURL.searchParams.set('key', `${runtimeConfig.tripAdvisorAPIKey}`)
+    locationSearchURL.searchParams.set('searchQuery', searchQuery)
+    locationSearchURL.searchParams.set('category', 'hotels')
+    locationSearchURL.searchParams.set('latLong', `${lat},${long}`)
+    locationSearchURL.searchParams.set('radius', radius.toString())
+    locationSearchURL.searchParams.set('radiusUnit', 'mi')
+    console.log('locationSearchURL', locationSearchURL.toString())
     return "DoubleTree by Hilton Hotel Berkeley Marina. 200 Marina Blvd, Berkeley, CA 94710"
   }
 })
