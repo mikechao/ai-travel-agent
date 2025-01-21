@@ -13,7 +13,7 @@ const hotelSearchTool = new DynamicStructuredTool({
   description: 'Used to search for hotels for the location the user has expressed an interest in',
   schema: z.object({
     lat : z.number().describe('The Latitude in decimal degree of the location to search for hotels'),
-    long: z.number().describe('The Longitude in decimal degree of the location to search for hotelsr'),
+    long: z.number().describe('The Longitude in decimal degree of the location to search for hotels'),
     searchQuery: z.string().describe('Text to use for searching based on the name of the location'),
     radius: z.number().optional()
       .default(10)
