@@ -94,8 +94,9 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
       [
         "system",
         "You are collaborating with other assistants." +
-        " Use the provided tools to progress towards answering the question." +
-        " You have access to the following tools: {tool_names}.\n"
+        " Use the provided tools, only if it is needed to progress towards answering the question." +
+        " If you have choosen a tool to use be sure to add it to the toolsToCall field. " +
+        " You have access to the following tools: \n{tool_names}.\n " 
       ],
       new MessagesPlaceholder("messages"),
     ]).partial({
@@ -377,7 +378,7 @@ return defineEventHandler(async webEvent => {
             if (event.data.output && (event.data.output as ToolMessage).content.length) {
               const content = (event.data.output as ToolMessage).content as string
               if (event.tags.includes(weathToolTag)) {
-                const json = JSON.stringify({ type: 'weather', content: content})
+                const json = `{"type":"weather","content":"${content}"}`
                 const part = `2:[${json}]\n`
                 controller.enqueue(part)
               }
