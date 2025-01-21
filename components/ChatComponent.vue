@@ -40,8 +40,6 @@ const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   onResponse: (response) => {
     // You can handle any specific response processing here if needed
     console.log('Response received:', response)
-    console.log('Response body:', response.body)
-    console.log('Response headers:', response.headers)
   },
   onFinish: (message) => {
     console.log('Chat finished:', message)
@@ -92,6 +90,12 @@ watch(data, (newData) => {
     if (newItem.length) {
       dataItems.value = [...dataItems.value, ...newItem]
     }
+  }
+})
+
+watch(dataItems, (newDataItem) => {
+  if (newDataItem) {
+    console.log('Data item:', newDataItem)
   }
 })
 
