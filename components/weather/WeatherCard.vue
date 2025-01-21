@@ -7,18 +7,9 @@ import WeatherInfo from './WeatherInfo.vue'
 const props = defineProps({
   place: Object
 })
-
-const emit = defineEmits(['delete-place'])
-
 const showDetail = ref(false)
-
-const removePlace = (placeName) => {
-  emit('delete-place', placeName)
-  showDetail.value = false
-}
 const place = props.place
 </script>
-
 <template>
   <div
     :class="place.current.is_day === 1 ? 'bg-day' : 'bg-night'"
@@ -60,7 +51,6 @@ const place = props.place
         <WeatherInfo
           :place="place"
           @close-info="showDetail = false"
-          @remove-place="removePlace(place.location.name)"
         />
       </div>
     </Transition>

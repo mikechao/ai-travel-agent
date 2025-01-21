@@ -10,9 +10,11 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', '@vesp/nuxt-fontawesome'],
   fontawesome: {
     icons: {
-      solid: ['arrow-right', 'location-dot', 'clock', 
-        'droplet', 'fan', 'sun', 'temperature-half', 'umbrella', 'wind',
-      'xmark'],
+      solid: [
+        'arrow-right', 'location-dot', 'clock', 
+        'droplet', 'fan', 'sun', 'temperature-half', 
+        'umbrella', 'wind','xmark'
+      ],
     }
   }
 })

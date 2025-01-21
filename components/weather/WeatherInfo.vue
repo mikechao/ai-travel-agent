@@ -56,12 +56,9 @@ const place = props.place
         <p>UV index</p>
       </div>
     </div>
-    <!-- Last update and delete -->
+    <!-- Last update -->
     <div class="flex justify-between items-center">
       <h3 class="text-slate-900/50">last update: {{ place.current.last_updated }}</h3>
-      <button @click="$emit('remove-place')">
-        <i class="fa-solid fa-trash"></i>
-      </button>
     </div>
   </div>
 </template>
