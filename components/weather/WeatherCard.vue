@@ -27,11 +27,11 @@ const place = props.place
     <!-- Location & time -->
     <div class="mb-2 flex justify-between items-center">
       <div class="flex items-center justify-center gap-2">
-        <i class="fa-solid fa-location-dot"></i>
+        <font-awesome icon="fa-solid fa-location-dot"/>
         <h1 class="text-3xl">{{ place.location.name }}</h1>
       </div>
       <div class="flex items-center justify-center gap-2">
-        <i class="fa-solid fa-clock"></i>
+         <font-awesome icon="fa-solid fa-clock"/>
         <h1 class="text-3xl">
           {{ new Date(place.location.localtime).getHours() }}:{{
             new Date(place.location.localtime).getMinutes()
@@ -68,7 +68,7 @@ const place = props.place
     <!-- forecast btn -->
     <div class="flex justify-end items-center gap-1 mt-10">
       <button @click="showDetail = true">
-        More <i class="fa-solid fa-arrow-right text-sm -mb-px"></i>
+         More <font-awesome icon="fa-solid fa-arrow-right" class="text-sm -mb-px"/>
       </button>
     </div>
   </div>

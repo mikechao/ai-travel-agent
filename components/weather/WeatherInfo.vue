@@ -12,26 +12,26 @@ const place = props.place
     <!-- Close button -->
     <div class="flex justify-end mb-10">
       <button @click="$emit('close-info')" class="p-1">
-        <i class="fa-solid fa-xmark text-xl"></i>
+        <font-awesome icon="fa-solid fa-xmark" class="text-xl"/>
       </button>
     </div>
 
     <div class="flex items-center justify-between gap-6 mb-20">
       <!-- Wind speed -->
       <div class="text-center flex-1">
-        <i class="fa-solid fa-wind mb text-2xl"></i>
+        <font-awesome icon="fa-solid fa-wind" size="2x" class="mb-1"/>
         <p class="text-xl font-bold">{{ place.current.wind_mph }} mp/h</p>
         <p>wind</p>
       </div>
       <!-- Humidity level -->
       <div class="text-center flex-1">
-        <i class="fa-solid fa-droplet mb text-2xl"></i>
+        <font-awesome icon="fa-solid fa-droplet" size="2x" class="mb-1"/>
         <p class="text-xl font-bold">{{ place.current.humidity }}%</p>
         <p>humidity</p>
       </div>
       <!-- Precipitation -->
       <div class="text-center flex-1">
-        <i class="fa-solid fa-umbrella mb text-2xl"></i>
+        <font-awesome icon="fa-solid fa-umbrella" size="2x" class="mb-1"/>
         <p class="text-xl font-bold">{{ place.current.precip_in }} in</p>
         <p>precipitation</p>
       </div>
@@ -39,19 +39,19 @@ const place = props.place
     <div class="flex items-center justify-between gap-6 mb-10">
       <!-- Wind direction -->
       <div class="text-center flex-1">
-        <i class="fa-solid fa-fan mb text-2xl"></i>
+        <font-awesome icon="fa-solid fa-fan" size="2x" class="mb-1"/>
         <p class="text-xl font-bold">{{ place.current.wind_dir }}</p>
         <p>direction</p>
       </div>
       <!-- Feels like -->
       <div class="text-center flex-1">
-        <i class="fa-solid fa-temperature-half mb text-2xl"></i>
+        <font-awesome icon="fa-solid fa-temperature-half" size="2x" class="mb-1"/>
         <p class="text-xl font-bold">{{ Math.round(place.current.feelslike_f) }}</p>
         <p>Feels</p>
       </div>
       <!-- UV -->
       <div class="text-center flex-1">
-        <i class="fa-solid fa-sun mb text-2xl"></i>
+        <font-awesome icon="fa-solid fa-sun" size="2x" class="mb-1"/>
         <p class="text-xl font-bold">{{ place.current.uv }}</p>
         <p>UV index</p>
       </div>
