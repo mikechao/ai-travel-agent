@@ -116,7 +116,7 @@ async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
       "If you need hotel recommendations, ask 'hotelAdvisor' named Penny Restmore for help. " +
       "If you need weather forecast and clothing to pack, ask 'weatherAdvisor named Petey the Pirate for help" +
       "If you have enough information to respond to the user, return 'finish'. " +
-      "Feel free to mention the other agents by name, but call them your colleagues or similar.";
+      "Feel free to mention the other agents by name, but call them your colleagues or a synonym.";
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[];
   const targetAgentNodes = ["sightseeingAdvisor", "hotelAdvisor", "weatherAdvisor"];
@@ -274,7 +274,6 @@ async function callTools(state: typeof AgentState.State): Promise<Command> {
   console.log('callTools')
   const lastMessage = state.messages[state.messages.length - 1] 
   const aiMsg = lastMessage as unknown as AIMsg
-  console.log('aiMsg', aiMsg)
   const tools: StructuredToolInterface[] = 
     (aiMsg.toolsToCall) ? 
       aiMsg.toolsToCall.split(',')
@@ -295,7 +294,7 @@ async function callTools(state: typeof AgentState.State): Promise<Command> {
       }
     })
   }
-
+  console.error(`No tools to call for ${state.sender} aiMsg ${aiMsg}`)
   return new Command({
     goto: state.sender
   })
@@ -339,7 +338,7 @@ return defineEventHandler(async webEvent => {
   const initMessage = {
     messages: [
       new SystemMessage({content:`Use the tools and agents you have to figure out what to ask the user.
-        Introduce yourself and give the user a summary of your skills and knowledge `})
+        Introduce yourself and give the user a summary of your skills and knowledge in a list format.`})
     ]
   }
   const input = isInitMessage(lastMessage) ? initMessage : new Command({resume: lastMessage.content})
