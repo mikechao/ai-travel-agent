@@ -1,7 +1,8 @@
 <script setup>
-defineProps({
+const props = defineProps({
   place: Object
 })
+const place = props.place
 </script>
 
 <template>
@@ -19,7 +20,7 @@ defineProps({
       <!-- Wind speed -->
       <div class="text-center flex-1">
         <i class="fa-solid fa-wind mb text-2xl"></i>
-        <p class="text-xl font-bold">{{ place.current.wind_kph }} km/h</p>
+        <p class="text-xl font-bold">{{ place.current.wind_mph }} mp/h</p>
         <p>wind</p>
       </div>
       <!-- Humidity level -->
@@ -31,7 +32,7 @@ defineProps({
       <!-- Precipitation -->
       <div class="text-center flex-1">
         <i class="fa-solid fa-umbrella mb text-2xl"></i>
-        <p class="text-xl font-bold">{{ place.current.precip_mm }} mm</p>
+        <p class="text-xl font-bold">{{ place.current.precip_in }} in</p>
         <p>precipitation</p>
       </div>
     </div>
@@ -45,7 +46,7 @@ defineProps({
       <!-- Feels like -->
       <div class="text-center flex-1">
         <i class="fa-solid fa-temperature-half mb text-2xl"></i>
-        <p class="text-xl font-bold">{{ Math.round(place.current.feelslike_c) }}</p>
+        <p class="text-xl font-bold">{{ Math.round(place.current.feelslike_f) }}</p>
         <p>Feels</p>
       </div>
       <!-- UV -->

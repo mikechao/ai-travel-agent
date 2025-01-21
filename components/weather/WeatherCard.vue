@@ -4,7 +4,7 @@ import BorderLine from './BorderLine.vue'
 import WeatherForecastDay from './WeatherForecastDay.vue'
 import WeatherInfo from './WeatherInfo.vue'
 
-defineProps({
+const props = defineProps({
   place: Object
 })
 
@@ -16,6 +16,7 @@ const removePlace = (placeName) => {
   emit('delete-place', placeName)
   showDetail.value = false
 }
+const place = props.place
 </script>
 
 <template>
@@ -42,7 +43,7 @@ const removePlace = (placeName) => {
     <!-- current weather -->
     <div class="text-center flex-1">
       <img :src="place.current.condition.icon" alt="icon" width="200" class="mx-auto -mb-10" />
-      <h1 class="text-9xl mb-2 -mr-4">{{ Math.round(place.current.temp_c) }}&deg;</h1>
+      <h1 class="text-9xl mb-2 -mr-4">{{ Math.round(place.current.temp_f) }}&deg;</h1>
       <p class="text-2xl">{{ place.current.condition.text }}</p>
     </div>
 
