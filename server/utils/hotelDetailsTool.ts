@@ -31,3 +31,5 @@ const hotelDetailsTool = new DynamicStructuredTool({
 
   }
 })
+
+export const getHotelDetailsTool = () => hotelDetailsTool
