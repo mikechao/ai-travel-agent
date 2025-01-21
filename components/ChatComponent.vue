@@ -69,8 +69,12 @@ watch(messages, () => {
   }, 0)
 })
 
-watch(data, (newData, oldData) => {
-  console.log('newData[0]', newData?.at(0))
+watch(data, (newData) => {
+ if (Array.isArray(newData)) {
+  newData.forEach((item) => {
+    console.log('item', item)
+  })
+ }
 
 })
 

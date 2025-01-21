@@ -378,8 +378,7 @@ return defineEventHandler(async webEvent => {
             if (event.data.output && (event.data.output as ToolMessage).content.length) {
               const content = (event.data.output as ToolMessage).content as string
               if (event.tags.includes(weathToolTag)) {
-                const json = `{"type":"weather","content":"${content}"}`
-                const part = `2:[${json}]\n`
+                const part = `2:[{"type":"weather","data":${content}}]\n`
                 controller.enqueue(part)
               }
             }
