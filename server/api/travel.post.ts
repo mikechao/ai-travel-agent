@@ -233,13 +233,7 @@ async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> 
 
   const messages = [{"role": "system", "content": systemPrompt}, ...state.messages] as BaseMessage[]
   const targetAgentNodes = ["travelAdvisor", "sightseeingAdvisor", "hotelAdvisor"];
-  let response;
-  if (state.sender === 'callTools') {
-    response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor')
-  } else {
-    response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool]);
-  }
-
+  const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool])
   const aiMsg: AIMsg = {
     role: "ai",
     content: response.response,
