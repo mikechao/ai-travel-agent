@@ -62,20 +62,37 @@ const messagesContainer = ref<HTMLDivElement | null>(null)
 
 // Scroll to bottom when new messages are added
 watch(messages, () => {
-  setTimeout(() => {
+  nextTick(() => {
     if (messagesContainer.value) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
     }
-  }, 0)
+  })
 })
 
-watch(data, (newData) => {
- if (Array.isArray(newData)) {
-  newData.forEach((item) => {
-    console.log('item', item)
-  })
- }
+interface DataItem {
+  id: string,
+  type: string,
+  data: string
+}
+const dataItems = ref<DataItem[]>([])
+const processedDataIds = new Set()
 
+watch(data, (newData) => {
+  if (Array.isArray(newData)) {
+    const newItem = newData.filter((item) => {
+      if (typeof item === 'object' && item !== null && 'id' in item) {
+        return !processedDataIds.has(item.id)
+      }
+      return false
+    }).map((item) => {
+      const dataItem = item as unknown as DataItem
+      processedDataIds.add(dataItem.id)
+      return dataItem
+    })
+    if (newItem.length) {
+      dataItems.value = [...dataItems.value, ...newItem]
+    }
+  }
 })
 
 const renderMessage = (content: string): string => {
