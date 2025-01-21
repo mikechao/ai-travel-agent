@@ -17,7 +17,7 @@ const hotelDetailsTool = new DynamicStructuredTool({
     console.log('locationDetailsURL', locationDetailsURL.toString())
 
     try {
-      const response = $fetch(locationDetailsURL.toString(), {
+      const response = await $fetch(locationDetailsURL.toString(), {
         method: 'GET',
         headers: {
           'accept': 'application/json'
