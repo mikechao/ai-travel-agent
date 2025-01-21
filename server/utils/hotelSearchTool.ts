@@ -4,6 +4,10 @@ import { URL } from 'url'
 
 const runtimeConfig = useRuntimeConfig()
 
+interface LocationSearchResult {
+  data: any[],
+  error: any
+}
 const hotelSearchTool = new DynamicStructuredTool({
   name: 'hotelSearchTool',
   description: 'Used to search for hotels for the location the user has expressed an interest in',
@@ -25,7 +29,22 @@ const hotelSearchTool = new DynamicStructuredTool({
     locationSearchURL.searchParams.set('radius', radius.toString())
     locationSearchURL.searchParams.set('radiusUnit', 'mi')
     console.log('locationSearchURL', locationSearchURL.toString())
-    return "DoubleTree by Hilton Hotel Berkeley Marina. 200 Marina Blvd, Berkeley, CA 94710"
+    // https://tripadvisor-content-api.readme.io/reference/searchforlocations
+    const {data , error} = await $fetch<LocationSearchResult>(locationSearchURL.toString(), {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json'
+      }
+    })
+    if (error) {
+      console.error('error fetching location data', error)
+      // need to figure out how to handle errors in tools for langchain
+    }
+    if (!data.length) {
+      // not sure if this the right way to handle this
+      return "No hotels found"
+    }
+    return JSON.stringify(data)
   }
 })
 
