@@ -52,6 +52,10 @@ toolsByName.set(hotelSearchTool.name, hotelSearchTool)
 toolsByName.set(hotelDetailsTool.name, hotelDetailsTool)
 toolsByName.set(sightseeingSearchTool.name, sightseeingSearchTool)
 
+const weathToolTag = 'weather-tool'
+const toolTagsByToolName = new Map<string, string>()
+toolTagsByToolName.set(weatherForecastTool.name, weathToolTag)
+
 const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
   temperature: 0.6,
@@ -288,10 +292,16 @@ async function callTools(state: typeof AgentState.State): Promise<Command> {
     : []
 
   if (tools.length) {
+    const tags = [toolTag]
+    for (const tool of tools) {
+      if (toolTagsByToolName.get(tool.name)) {
+        tags.push(toolTagsByToolName.get(tool.name) as string)
+      }
+    }
     const modelWithTools = model.bindTools(tools)
     const result = await modelWithTools.invoke(state.messages)
     const toolNode = new ToolNode(tools)
-    const toolResults = await toolNode.invoke([...state.messages, result], {tags: [toolTag]})
+    const toolResults = await toolNode.invoke([...state.messages, result], {tags: tags})
     return new Command({
       goto: state.sender,
       update: {
@@ -352,10 +362,11 @@ return defineEventHandler(async webEvent => {
   const encoder = new TextEncoder()
 
   const config = {version: "v2" as const, configurable: {thread_id: sessionId},}
+  const tags = [modelTag, toolTag, weathToolTag]
   return new ReadableStream({
     async start(controller) {
       try {
-        for await (const event of graph.streamEvents(input, config, {includeTags: [modelTag, toolTag]})) {
+        for await (const event of graph.streamEvents(input, config, {includeTags: tags})) {
           if (event.event === 'on_chat_model_stream' && event.tags?.includes(modelTag)) {
             if (isAIMessageChunk(event.data.chunk)) {
               const aiMessageChunk = event.data.chunk as AIMessageChunk
@@ -371,7 +382,10 @@ return defineEventHandler(async webEvent => {
           if (event.event === 'on_tool_end' && event.tags?.includes(toolTag)) {
             if (event.data.output && (event.data.output as ToolMessage).content.length) {
               const content = (event.data.output as ToolMessage).content as string
-              console.log('on_tool_end content\n', Object.prototype.toString.call(content))
+              if (event.tags.includes(weathToolTag)) {
+                console.log('got some weather data')
+                console.dir(content)
+              }
               const testObj = {
                 banana: 'yes'
               }
