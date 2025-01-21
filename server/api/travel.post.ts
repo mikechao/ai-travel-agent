@@ -85,8 +85,9 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
   if (toolsToUse.length) {
     const outputSchema = z.object({
       response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
-      goto: z.enum(["finish", "callTools", ...targetAgentNodes])
+      goto: z.enum(["finish", "human", "callTools", ...targetAgentNodes])
         .describe(`The next agent to call, 'callTools' if a tool should be used 
+          or 'human' if you need more input from the user to complete the query 
           or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
       toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty')
     })
@@ -106,9 +107,11 @@ async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runN
   } else {
     const outputSchema = z.object({
       response: z.string().describe("A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user."),
-      goto: z.enum(["finish", ...targetAgentNodes])
+      goto: z.enum(["finish", "human", ...targetAgentNodes])
         .describe(`The next agent to call, 
-          or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
+          'finish' if the user's query has been resolved, 
+          or 'human' if you need more input from the user to complete the query. 
+          Must be one of the specified values.`),
       toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty')
     })
     return model.withStructuredOutput(outputSchema, {name: 'Response'}).invoke(messages, {tags: [modelTag], runName: runName })
@@ -295,7 +298,7 @@ async function callTools(state: typeof AgentState.State): Promise<Command> {
 
 const builder = new StateGraph(AgentState)
 .addNode("travelAdvisor", travelAdvisor, {
-  ends: ["sightseeingAdvisor", "hotelAdvisor", "weatherAdvisor"]
+  ends: ["human", "sightseeingAdvisor", "hotelAdvisor", "weatherAdvisor"]
 })
 .addNode("sightseeingAdvisor", sightseeingAdvisor, {
   ends: ["human", "travelAdvisor", "hotelAdvisor", "weatherAdvisor"]
