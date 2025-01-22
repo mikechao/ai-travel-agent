@@ -32,8 +32,7 @@ import { getHotelSearchTool, } from "../utils/hotelSearchTool";
 import { getWeatherForecastTool } from "../utils/weatherSearchTool";
 import { getHotelDetailsTool } from "../utils/hotelDetailsTool";
 import { getSightseeingSearchTool } from "../utils/sightseeingSearchTool";
-import { h } from "vue";
-import { renderToString } from 'vue/server-renderer'
+import { v4 as uuidv4 } from "uuid"
 
 export default defineLazyEventHandler(async () => {
 const runtimeConfig = useRuntimeConfig()
@@ -378,8 +377,9 @@ return defineEventHandler(async webEvent => {
           if (event.event === 'on_tool_end' && event.tags?.includes(toolTag)) {
             if (event.data.output && (event.data.output as ToolMessage).content.length) {
               const content = (event.data.output as ToolMessage).content as string
+              const id = uuidv4()
               if (event.tags.includes(weathToolTag)) {
-                const part = `8:[{"type":"weather","data":${content}}]\n`
+                const part = `8:[{"id":"${id}","type":"weather","data":${content}}]\n`
                 controller.enqueue(part)
               }
             }
