@@ -7,7 +7,11 @@ export default defineNuxtConfig({
     weatherAPIKey: '',
     tripAdvisorAPIKey: process.env.NUXT_TRIPADVISOR_API_KEY,
   },
-  modules: ['@nuxtjs/tailwindcss', '@vesp/nuxt-fontawesome'],
+  modules: [
+    '@nuxtjs/tailwindcss', 
+    '@vesp/nuxt-fontawesome',
+    '@nuxt/eslint'
+  ],
   fontawesome: {
     icons: {
       solid: [
