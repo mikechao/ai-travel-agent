@@ -28,7 +28,6 @@ import {
   ChatPromptTemplate, 
   MessagesPlaceholder 
 } from "@langchain/core/prompts";
-import { v4 as uuidv4 } from "uuid"
 import { getHotelSearchTool, } from "../utils/hotelSearchTool";
 import { getWeatherForecastTool } from "../utils/weatherSearchTool";
 import { getHotelDetailsTool } from "../utils/hotelDetailsTool";
@@ -355,9 +354,7 @@ return defineEventHandler(async webEvent => {
     ]
   }
   const input = isInitMessage(lastMessage) ? initMessage : new Command({resume: lastMessage.content})
-  
   const encoder = new TextEncoder()
-
   const config = {version: "v2" as const, configurable: {thread_id: sessionId},}
   const tags = [modelTag, toolTag, weathToolTag]
   return new ReadableStream({
@@ -379,9 +376,8 @@ return defineEventHandler(async webEvent => {
           if (event.event === 'on_tool_end' && event.tags?.includes(toolTag)) {
             if (event.data.output && (event.data.output as ToolMessage).content.length) {
               const content = (event.data.output as ToolMessage).content as string
-              const id = uuidv4()
               if (event.tags.includes(weathToolTag)) {
-                const part = `2:[{"id":"${id}","type":"weather","data":${content}}]\n`
+                const part = `8:[{"type":"weather","data":${content}}]\n`
                 controller.enqueue(part)
               }
             }
