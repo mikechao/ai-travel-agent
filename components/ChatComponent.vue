@@ -1,50 +1,15 @@
-<template>
-  <div class="chat-container flex flex-col h-screen max-w-2xl mx-auto p-4">
-    <div class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300 rounded" ref="messagesContainer">
-      <div v-for="message in messages" :key="message.id">
-        <div v-if="message.content.length > 0" :class="['mb-4 p-2 rounded', message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
-          <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
-          <div v-html="renderMessage(message.content)"></div>
-        </div>
-      </div>
-      <div v-if="dataItems.length > 0" class="mt-4 p-2 bg-blue-100 rounded">
-        <component
-          v-for="(item, index) in dataItems"
-          :key="index"
-          :is="getComponentType(item)"
-          v-bind="getComponentProps(item)"
-          class="mt-2"
-        />
-      </div>
-    </div>
-    <form @submit.prevent="handleSubmit" class="flex gap-2">
-      <input
-        v-model="input"
-        placeholder="Type your message..."
-        class="flex-grow p-2 border border-gray-300 rounded"
-        :disabled="isLoading"
-      />
-      <button
-        type="submit"
-        :disabled="isLoading"
-        class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-      >
-        Send
-      </button>
-    </form>
-  </div>
-</template>
+<!-- eslint-disable no-console -->
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import { useChat } from '@ai-sdk/vue'
-import { v4 as uuidv4 } from "uuid"
+import { v4 as uuidv4 } from 'uuid'
+import { ref, watch } from 'vue'
 
 const WeatherCard = defineAsyncComponent(() => import('~/components/weather/WeatherCard.vue'))
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   api: '/api/travel',
   body: computed(() => ({
-    sessionId: sessionId,
+    sessionId,
     messages: messages.value.length > 0 ? [messages.value[messages.value.length - 1]] : [],
   })),
   onResponse: (response) => {
@@ -57,13 +22,13 @@ const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   onError: (error) => {
     console.error('error', error)
   },
-  
+
 })
 
 onMounted(() => {
   // use append with empty content to trigger api endpoint call
   const initData = { init: true }
-  append({id: uuidv4(), content: '', role: 'system', data: JSON.stringify(initData)})
+  append({ id: uuidv4(), content: '', role: 'system', data: JSON.stringify(initData) })
 })
 
 const messagesContainer = ref<HTMLDivElement | null>(null)
@@ -78,8 +43,8 @@ watch(messages, () => {
 })
 
 interface DataItem {
-  id: string,
-  type: string,
+  id: string
+  type: string
   data: string
 }
 const dataItems = ref<DataItem[]>([])
@@ -103,7 +68,7 @@ watch(data, (newData) => {
   }
 })
 
-const getComponentType = (item: DataItem) => {
+function getComponentType(item: DataItem) {
   switch (item.type) {
     case 'weather':
       return WeatherCard
@@ -112,7 +77,7 @@ const getComponentType = (item: DataItem) => {
   }
 }
 
-const getComponentProps = (item: DataItem) => {
+function getComponentProps(item: DataItem) {
   switch (item.type) {
     case 'weather':
       return { place: item.data }
@@ -121,15 +86,52 @@ const getComponentProps = (item: DataItem) => {
   }
 }
 
-const renderMessage = (content: string): string => {
+function renderMessage(content: string): string {
   // console.log('renderMessage', content)
   const result = content.replaceAll(`{"response":"`, '')
-    .replace(/","goto":.*?}/g, '')
+    .replace(/","goto":.*?\}/g, '')
     .replaceAll(`\\n`, '<br/>')
   // console.log('result', result)
   return result
 }
 </script>
+
+<template>
+  <div class="chat-container flex flex-col h-screen max-w-2xl mx-auto p-4">
+    <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300 rounded">
+      <div v-for="message in messages" :key="message.id">
+        <div v-if="message.content.length > 0" class="mb-4 p-2 rounded" :class="[message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
+          <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
+          <div v-html="renderMessage(message.content)" />
+        </div>
+      </div>
+      <div v-if="dataItems.length > 0" class="mt-4 p-2 bg-blue-100 rounded">
+        <component
+          :is="getComponentType(item)"
+          v-for="(item, index) in dataItems"
+          :key="index"
+          v-bind="getComponentProps(item)"
+          class="mt-2"
+        />
+      </div>
+    </div>
+    <form class="flex gap-2" @submit.prevent="handleSubmit">
+      <input
+        v-model="input"
+        placeholder="Type your message..."
+        class="flex-grow p-2 border border-gray-300 rounded"
+        :disabled="isLoading"
+      >
+      <button
+        type="submit"
+        :disabled="isLoading"
+        class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+      >
+        Send
+      </button>
+    </form>
+  </div>
+</template>
 
 <style scoped>
 .chat-container {
