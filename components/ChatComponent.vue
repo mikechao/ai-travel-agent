@@ -7,6 +7,15 @@
           <div v-html="renderMessage(message.content)"></div>
         </div>
       </div>
+      <div v-if="dataItems.length > 0" class="mt-4 p-2 bg-blue-100 rounded">
+        <component
+          v-for="(item, index) in dataItems"
+          :key="index"
+          :is="getComponentType(item)"
+          v-bind="getComponentProps(item)"
+          class="mt-2"
+        />
+      </div>
     </div>
     <form @submit.prevent="handleSubmit" class="flex gap-2">
       <input
@@ -30,6 +39,7 @@ import { ref, watch } from 'vue'
 import { useChat } from '@ai-sdk/vue'
 import { v4 as uuidv4 } from "uuid"
 
+const WeatherCard = defineAsyncComponent(() => import('~/components/weather/WeatherCard.vue'))
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   api: '/api/travel',
@@ -93,11 +103,23 @@ watch(data, (newData) => {
   }
 })
 
-watch(dataItems, (newDataItem) => {
-  if (newDataItem) {
-    console.log('Data item:', newDataItem)
+const getComponentType = (item: DataItem) => {
+  switch (item.type) {
+    case 'weather':
+      return WeatherCard
+    default:
+      return 'div'
   }
-})
+}
+
+const getComponentProps = (item: DataItem) => {
+  switch (item.type) {
+    case 'weather':
+      return { place: item.data }
+    default:
+      return {}
+  }
+}
 
 const renderMessage = (content: string): string => {
   // console.log('renderMessage', content)
