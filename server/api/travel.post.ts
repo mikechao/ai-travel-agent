@@ -380,11 +380,11 @@ return defineEventHandler(async webEvent => {
               const content = (event.data.output as ToolMessage).content as string
               if (event.tags.includes(weathToolTag)) {
                 const props = {place: content}
-                const WeatherCard = await import('~/components/weather/WeatherCard.vue')
-                const component = h(WeatherCard, props)
-                const html = await renderToString(component)
-                const part = formatDataStreamPart('text', html)
-                controller.enqueue(encoder.encode(part))
+                // const WeatherCard = await import('~/components/weather/WeatherCard.vue')
+                // const component = h(WeatherCard, props)
+                // const html = await renderToString(component)
+                // const part = formatDataStreamPart('text', html)
+                // controller.enqueue(encoder.encode(part))
                 // const part = `8:[{"type":"weather","data":${content}}]\n`
                 // controller.enqueue(part)
               }

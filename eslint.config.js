@@ -6,6 +6,6 @@ export default antfu({
   stylistic: {
     indent: 2,
     quotes: 'single',
-    semi: false
-  }
+    semi: false,
+  },
 })
