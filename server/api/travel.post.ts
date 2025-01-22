@@ -61,6 +61,7 @@ const model = new ChatOpenAI({
   model: 'gpt-4o-mini',
   temperature: 0.6,
   apiKey: runtimeConfig.openaiAPIKey,
+  streaming: true
 })
 
 const checkpointer = PostgresSaver.fromConnString(
