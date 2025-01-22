@@ -39,7 +39,7 @@ import { ref, watch } from 'vue'
 import { useChat } from '@ai-sdk/vue'
 import { v4 as uuidv4 } from "uuid"
 
-const WeatherCard = defineAsyncComponent(() => import('~/components/weather/WeatherCard.server.vue'))
+const WeatherCard = defineAsyncComponent(() => import('~/components/weather/WeatherCard.vue'))
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   api: '/api/travel',

@@ -3,11 +3,6 @@ import { defineNuxtConfig } from 'nuxt/config'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-  // turn on server components
-  // https://nuxt.com/docs/guide/directory-structure/components#server-components
-  experimental: {
-    componentIslands: true,
-  },
   devtools: { enabled: true },
   runtimeConfig: {
     openaiAPIKey: '',

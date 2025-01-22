@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue'
-import BorderLine from './BorderLine.server.vue'
-import WeatherForecastDay from './WeatherForecastDay.server.vue'
-import WeatherInfo from './WeatherInfo.server.vue'
+import BorderLine from './BorderLine.vue'
+import WeatherForecastDay from './WeatherForecastDay.vue'
+import WeatherInfo from './WeatherInfo.vue'
 
 const props = defineProps({
   place: Object,
