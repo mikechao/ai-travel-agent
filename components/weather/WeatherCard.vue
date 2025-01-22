@@ -5,11 +5,12 @@ import WeatherForecastDay from './WeatherForecastDay.vue'
 import WeatherInfo from './WeatherInfo.vue'
 
 const props = defineProps({
-  place: Object
+  place: Object,
 })
 const showDetail = ref(false)
 const place = props.place
 </script>
+
 <template>
   <div
     :class="place.current.is_day === 1 ? 'bg-day' : 'bg-night'"
@@ -18,11 +19,13 @@ const place = props.place
     <!-- Location & time -->
     <div class="mb-2 flex justify-between items-center">
       <div class="flex items-center justify-center gap-2">
-        <font-awesome icon="fa-solid fa-location-dot"/>
-        <h1 class="text-3xl">{{ place.location.name }}</h1>
+        <font-awesome icon="fa-solid fa-location-dot" />
+        <h1 class="text-3xl">
+          {{ place.location.name }}
+        </h1>
       </div>
       <div class="flex items-center justify-center gap-2">
-         <font-awesome icon="fa-solid fa-clock"/>
+        <font-awesome icon="fa-solid fa-clock" />
         <h1 class="text-3xl">
           {{ new Date(place.location.localtime).getHours() }}:{{
             new Date(place.location.localtime).getMinutes()
@@ -33,9 +36,13 @@ const place = props.place
 
     <!-- current weather -->
     <div class="text-center flex-1">
-      <img :src="place.current.condition.icon" alt="icon" width="200" class="mx-auto -mb-10" />
-      <h1 class="text-9xl mb-2 -mr-4">{{ Math.round(place.current.temp_f) }}&deg;</h1>
-      <p class="text-2xl">{{ place.current.condition.text }}</p>
+      <img :src="place.current.condition.icon" alt="icon" width="200" class="mx-auto -mb-10">
+      <h1 class="text-9xl mb-2 -mr-4">
+        {{ Math.round(place.current.temp_f) }}&deg;
+      </h1>
+      <p class="text-2xl">
+        {{ place.current.condition.text }}
+      </p>
     </div>
 
     <BorderLine />
@@ -58,7 +65,7 @@ const place = props.place
     <!-- forecast btn -->
     <div class="flex justify-end items-center gap-1 mt-10">
       <button @click="showDetail = true">
-         More <font-awesome icon="fa-solid fa-arrow-right" class="text-sm -mb-px"/>
+        More <font-awesome icon="fa-solid fa-arrow-right" class="text-sm -mb-px" />
       </button>
     </div>
   </div>

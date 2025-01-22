@@ -1,6 +1,6 @@
 <script setup>
 const props = defineProps({
-  day: Object
+  day: Object,
 })
 const day = props.day
 </script>
@@ -17,7 +17,7 @@ const day = props.day
 
           <!-- icon -->
           <td class="w-1/3">
-            <img :src="day.day.condition.icon" alt="icon" width="30" class="mx-auto" />
+            <img :src="day.day.condition.icon" alt="icon" width="30" class="mx-auto">
           </td>
 
           <!-- high/low temp -->
