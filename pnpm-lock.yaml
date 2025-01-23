@@ -35,6 +35,9 @@ importers:
       ai:
         specifier: ^4.0.39
         version: 4.0.39(react@19.0.0)(zod@3.24.1)
+      consola:
+        specifier: ^3.4.0
+        version: 3.4.0
       duck-duck-scrape:
         specifier: ^2.2.7
         version: 2.2.7
@@ -9098,7 +9101,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.4(debug@4.4.0))
+      retry-axios: 2.6.0(axios@1.7.4)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -10890,7 +10893,7 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
-  retry-axios@2.6.0(axios@1.7.4(debug@4.4.0)):
+  retry-axios@2.6.0(axios@1.7.4):
     dependencies:
       axios: 1.7.4(debug@4.4.0)
 
