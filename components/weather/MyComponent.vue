@@ -5,6 +5,7 @@ const message = 'This is a raw HTML render example.'
 
 <template>
   <div>
+    <Icon name="line-md:my-location" />
     <h1>{{ title }}</h1>
     <p>{{ message }}</p>
   </div>

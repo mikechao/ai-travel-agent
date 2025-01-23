@@ -1,5 +1,5 @@
 /* eslint-disable node/prefer-global/process */
-import PluginVue from '@vitejs/plugin-vue'
+import vue from '@vitejs/plugin-vue'
 import { defineNuxtConfig } from 'nuxt/config'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -14,12 +14,18 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@vesp/nuxt-fontawesome',
     '@nuxt/eslint',
+    '@nuxt/icon',
   ],
   nitro: {
     rollupConfig: {
       plugins: [
-        PluginVue(),
+        vue(),
       ],
+    },
+  },
+  icon: {
+    serverBundle: {
+      collections: ['line-md'],
     },
   },
   fontawesome: {
