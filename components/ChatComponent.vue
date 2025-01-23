@@ -1,12 +1,14 @@
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
-import { useChat } from '@ai-sdk/vue'
+import type { JSONValue } from 'ai'
+import { type Message, useChat } from '@ai-sdk/vue'
 import { v4 as uuidv4 } from 'uuid'
-import { ref, watch } from 'vue'
+import { createSSRApp, ref, watch } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 
 const WeatherCard = defineAsyncComponent(() => import('~/components/weather/WeatherCard.vue'))
 const sessionId = uuidv4()
-const { messages, input, handleSubmit, isLoading, append, data } = useChat({
+const { messages, input, handleSubmit, isLoading, append } = useChat({
   api: '/api/travel',
   body: computed(() => ({
     sessionId,
@@ -47,37 +49,19 @@ interface DataItem {
   type: string
   data: string
 }
-const dataItems = ref<DataItem[]>([])
-const processedDataIds = new Set()
 
-watch(data, (newData) => {
-  if (Array.isArray(newData)) {
-    const newItem = newData.filter((item) => {
-      if (typeof item === 'object' && item !== null && 'id' in item) {
-        return !processedDataIds.has(item.id)
-      }
-      return false
-    }).map((item) => {
-      const dataItem = item as unknown as DataItem
-      processedDataIds.add(dataItem.id)
-      return dataItem
-    })
-    if (newItem.length) {
-      dataItems.value = [...dataItems.value, ...newItem]
-    }
-  }
-})
-
-function getComponentType(item: DataItem) {
+function getComponentType(jsonValue: JSONValue) {
+  const item = jsonValue as unknown as DataItem
   switch (item.type) {
     case 'weather':
       return WeatherCard
     default:
-      return 'div'
+      throw new Error('Unknown component type')
   }
 }
 
-function getComponentProps(item: DataItem) {
+function getComponentProps(jsonValue: JSONValue): Record<string, any> {
+  const item = jsonValue as unknown as DataItem
   switch (item.type) {
     case 'weather':
       return { place: item.data }
@@ -86,12 +70,10 @@ function getComponentProps(item: DataItem) {
   }
 }
 
-function renderMessage(content: string): string {
-  // console.log('renderMessage', content)
-  const result = content.replaceAll(`{"response":"`, '')
+function renderMessage(message: Message): string {
+  const result = message.content.replaceAll(`{"response":"`, '')
     .replace(/","goto":.*?\}/g, '')
     .replaceAll(`\\n`, '<br/>')
-  // console.log('result', result)
   return result
 }
 </script>
@@ -102,17 +84,17 @@ function renderMessage(content: string): string {
       <div v-for="message in messages" :key="message.id">
         <div v-if="message.content.length > 0" class="mb-4 p-2 rounded" :class="[message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
           <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
-          <div v-html="renderMessage(message.content)" />
+          <div v-html="renderMessage(message)" />
+          <div v-if="message.annotations">
+            <component
+              :is="getComponentType(item)"
+              v-for="(item, index) in message.annotations"
+              :key="index"
+              v-bind="getComponentProps(item)"
+              class="mt-2"
+            />
+          </div>
         </div>
-      </div>
-      <div v-if="dataItems.length > 0" class="mt-4 p-2 bg-blue-100 rounded">
-        <component
-          :is="getComponentType(item)"
-          v-for="(item, index) in dataItems"
-          :key="index"
-          v-bind="getComponentProps(item)"
-          class="mt-2"
-        />
       </div>
     </div>
     <form class="flex gap-2" @submit.prevent="handleSubmit">

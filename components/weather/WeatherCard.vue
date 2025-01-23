@@ -5,7 +5,10 @@ import WeatherForecastDay from './WeatherForecastDay.vue'
 import WeatherInfo from './WeatherInfo.vue'
 
 const props = defineProps({
-  place: Object,
+  place: {
+    type: Object,
+    required: true,
+  },
 })
 const showDetail = ref(false)
 const place = props.place
