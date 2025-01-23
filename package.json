@@ -11,10 +11,8 @@
     "postinstall": "nuxt prepare",
     "sbStart": "pnpm supabase start",
     "sbStop": "pnpm supabase stop",
-    "lint": "pnpm lint:eslint && pnpm lint:prettier",
-    "lint:eslint": "eslint .",
-    "lint:prettier": "prettier . --check",
-    "lintfix": "eslint . --fix && prettier --write --list-different ."
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@ai-sdk/vue": "^1.0.12",
