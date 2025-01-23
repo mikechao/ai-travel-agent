@@ -33,7 +33,10 @@ import {
   formatDataStreamPart,
 } from 'ai'
 import { v4 as uuidv4 } from 'uuid'
+import { createSSRApp, h } from 'vue'
+import { renderToString } from 'vue/server-renderer'
 import { z } from 'zod'
+import MyComponent from '~/components/weather/MyComponent.vue'
 import { getHotelDetailsTool } from '../utils/hotelDetailsTool'
 import { getHotelSearchTool } from '../utils/hotelSearchTool'
 import { getSightseeingSearchTool } from '../utils/sightseeingSearchTool'
@@ -382,6 +385,13 @@ export default defineLazyEventHandler(async () => {
                 const content = (event.data.output as ToolMessage).content as string
                 const id = uuidv4()
                 if (event.tags.includes(weathToolTag)) {
+                  const { default: MyComponent } = await import('~/components/weather/MyComponent.vue')
+                  const app = createSSRApp({
+                    render: () => h(MyComponent),
+                  })
+                  const html = await renderToString(app)
+                  const test = formatDataStreamPart('text', html)
+                  controller.enqueue(encoder.encode(test))
                   // change the 8 to 2 will make send it to data from useChat on the client side
                   const part = `8:[{"id":"${id}","type":"weather","data":${content}}]\n`
                   controller.enqueue(part)
