@@ -16,6 +16,15 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@primevue/nuxt-module',
   ],
+  css: [
+    './assets/styles/tailwind.css',
+    './assets/styles/base.css',
+  ],
+  primevue: {
+    options: {
+      theme: 'none',
+    },
+  },
   vite: {
     optimizeDeps: {
       include: ['@ai-sdk/vue', 'uuid'],
