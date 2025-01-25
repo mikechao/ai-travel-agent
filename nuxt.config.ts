@@ -1,5 +1,4 @@
 /* eslint-disable node/prefer-global/process */
-import vue from '@vitejs/plugin-vue'
 import { defineNuxtConfig } from 'nuxt/config'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -15,10 +14,18 @@ export default defineNuxtConfig({
     '@vesp/nuxt-fontawesome',
     '@nuxt/eslint',
     '@nuxt/icon',
+    '@primevue/nuxt-module',
   ],
   vite: {
     optimizeDeps: {
       include: ['@ai-sdk/vue', 'uuid'],
+    },
+  },
+  postcss: {
+    plugins: {
+      'postcss-import': {},
+      'tailwindcss': {},
+      'autoprefixer': {},
     },
   },
   icon: {
