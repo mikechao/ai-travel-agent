@@ -4,7 +4,7 @@ import type { JSONValue } from 'ai'
 import { type Message, useChat } from '@ai-sdk/vue'
 import { v4 as uuidv4 } from 'uuid'
 
-const WeatherCard = defineAsyncComponent(() => import('~/components/weather/WeatherCard.vue'))
+const WeatherCard = defineAsyncComponent(() => import('../components/weather/WeatherCard.vue'))
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   api: '/api/travel',
