@@ -16,11 +16,9 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/icon',
   ],
-  nitro: {
-    rollupConfig: {
-      plugins: [
-        vue(),
-      ],
+  vite: {
+    optimizeDeps: {
+      include: ['@ai-sdk/vue', 'uuid'],
     },
   },
   icon: {
