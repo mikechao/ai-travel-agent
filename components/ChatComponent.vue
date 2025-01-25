@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 const WeatherCard = defineAsyncComponent(() => import('~/components/weather/WeatherCard.vue'))
 const sessionId = uuidv4()
-const { messages, input, handleSubmit, isLoading, append } = useChat({
+const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   api: '/api/travel',
   body: computed(() => ({
     sessionId,
@@ -40,6 +40,12 @@ watch(messages, () => {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
     }
   })
+})
+
+watch(data, (newData) => {
+  if (newData) {
+    console.log('Got newData of lenght', newData.length)
+  }
 })
 
 interface DataItem {
