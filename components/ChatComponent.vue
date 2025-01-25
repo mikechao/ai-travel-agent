@@ -48,12 +48,6 @@ watch(data, (newData) => {
   }
 })
 
-interface DataItem {
-  id: string
-  type: string
-  data: string
-}
-
 function getComponentType(jsonValue: JSONValue) {
   const item = jsonValue as unknown as DataItem
   switch (item.type) {
