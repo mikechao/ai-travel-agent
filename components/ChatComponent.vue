@@ -3,10 +3,12 @@
 import type { JSONValue } from 'ai'
 import { type Message, useChat } from '@ai-sdk/vue'
 import { v4 as uuidv4 } from 'uuid'
+import { useDataItemStore } from '~/stores/dataItemStore'
 
 const WeatherCard = defineAsyncComponent(() => import('../components/weather/WeatherCard.vue'))
+const dataItemStore = useDataItemStore()
 const sessionId = uuidv4()
-const { messages, input, handleSubmit, isLoading, append, data } = useChat({
+const { messages, input, handleSubmit, isLoading, append, data, setData } = useChat({
   api: '/api/travel',
   body: computed(() => ({
     sessionId,
@@ -43,8 +45,13 @@ watch(messages, () => {
 })
 
 watch(data, (newData) => {
-  if (newData) {
+  if (newData && newData.length) {
     console.log('Got newData of lenght', newData.length)
+    const lastData = newData[newData.length - 1] as unknown as DataItem
+    dataItemStore.add(lastData)
+    console.log('lastData', lastData)
+    const dataWithoutLast = newData.slice(0, newData.length - 1)
+    setData(dataWithoutLast)
   }
 })
 
