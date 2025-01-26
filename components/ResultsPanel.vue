@@ -29,7 +29,7 @@ function getComponentProps(item: DataItem): Record<string, any> {
 </script>
 
 <template>
-  <div v-if="dataItems">
+  <div v-if="dataItems && dataItems.length">
     <div v-for="(item, index) of dataItems" :key="index">
       <component
         :is="getComponentType(item)"
