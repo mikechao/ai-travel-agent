@@ -90,15 +90,6 @@ function renderMessage(message: Message): string {
         <div v-if="message.content.length > 0" class="mb-4 p-2 rounded" :class="[message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
           <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
           <div v-html="renderMessage(message)" />
-          <div v-if="message.annotations">
-            <component
-              :is="getComponentType(item)"
-              v-for="(item, index) in message.annotations"
-              :key="index"
-              v-bind="getComponentProps(item)"
-              class="mt-2"
-            />
-          </div>
         </div>
       </div>
     </div>
