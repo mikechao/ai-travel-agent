@@ -57,6 +57,9 @@ export default defineNuxtConfig({
         'wind',
         'xmark',
       ],
+      regular: [
+        'paper-plane',
+      ],
     },
   },
 })
