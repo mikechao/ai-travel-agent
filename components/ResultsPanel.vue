@@ -7,6 +7,8 @@ import WeatherCard from './weather/WeatherCard.vue'
 const dataItemStore = useDataItemStore()
 const { dataItems } = storeToRefs(dataItemStore)
 
+const displayWeather = ref(false)
+
 const weatherMenuItem: MenuItem = {
   label: 'Weather',
   icon: './weather-icon.jpg',
@@ -24,9 +26,21 @@ const settingMenuItem: MenuItem = {
 }
 const menuItems: Ref<MenuItem[]> = ref([weatherMenuItem, settingMenuItem])
 
+const procssedDataItems = new Set()
+
 watch(dataItems, (newDataItems) => {
-  console.log('got newDataItems in ResultsPanel', newDataItems)
+  console.log('got newDataItems.length in ResultsPanel', newDataItems.length)
+  for (const dataItem of newDataItems) {
+    if (!procssedDataItems.has(dataItem.id)) {
+      processDataItem(dataItem)
+      procssedDataItems.add(dataItem.id)
+    }
+  }
 })
+
+function processDataItem(dataItem: DataItem) {
+
+}
 
 function getComponentType(item: DataItem) {
   switch (item.type) {
