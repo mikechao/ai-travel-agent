@@ -13,7 +13,6 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@vesp/nuxt-fontawesome',
     '@nuxt/eslint',
-    '@nuxt/icon',
     '@primevue/nuxt-module',
     '@pinia/nuxt',
   ],
@@ -41,11 +40,6 @@ export default defineNuxtConfig({
       'postcss-import': {},
       'tailwindcss': {},
       'autoprefixer': {},
-    },
-  },
-  icon: {
-    serverBundle: {
-      collections: ['line-md'],
     },
   },
   fontawesome: {
