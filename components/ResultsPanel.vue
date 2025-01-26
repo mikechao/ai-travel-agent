@@ -13,8 +13,11 @@ const displayWeather = ref(false)
 const weatherMenuItem: MenuItem = {
   label: 'Weather',
   icon: './weather-icon.jpg',
+  disabled: true,
   command(_event: MenuItemCommandEvent) {
-    displayWeather.value = true
+    if (weatherData.value) {
+      displayWeather.value = true
+    }
   },
 }
 
@@ -30,7 +33,6 @@ const menuItems: Ref<MenuItem[]> = ref([weatherMenuItem, settingMenuItem])
 const processedDataItemIds = new Set()
 
 watch(() => dataItemStore.dataItems, (newDataItems) => {
-  console.log('got newDataItems.length in ResultsPanel', newDataItems.length)
   for (const dataItem of newDataItems) {
     if (!processedDataItemIds.has(dataItem.id)) {
       processDataItem(dataItem)
@@ -43,6 +45,7 @@ function processDataItem(dataItem: DataItem) {
   switch (dataItem.type) {
     case 'weather': {
       weatherData.value = dataItem.data
+      weatherMenuItem.disabled = false
       displayWeather.value = true
       break
     }
@@ -52,8 +55,6 @@ function processDataItem(dataItem: DataItem) {
 }
 
 function onDockItemClick(event: MouseEvent, item: MenuItem) {
-  console.log('onDockItemClick!!!!!!!')
-  console.log('item', Object.prototype.toString.call(item))
   if (item.command) {
     item.command({ originalEvent: event, item })
   }
@@ -71,10 +72,8 @@ function onDockItemClick(event: MouseEvent, item: MenuItem) {
         </a>
       </template>
     </Dock>
-    <Dialog v-model:visible="displayWeather" header="Weather" :breakpoints="{ '960px': '50vw' }" :style="{ width: '40vw' }" :maximizable="true">
-      <template #container>
-        <WeatherCard :place="weatherData" />
-      </template>
+    <Dialog v-model:visible="displayWeather" header="Weather" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '40vw' }" :maximizable="true">
+      <WeatherCard :place="weatherData" />
     </Dialog>
   </div>
 </template>
