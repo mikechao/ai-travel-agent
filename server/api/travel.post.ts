@@ -94,7 +94,8 @@ export default defineLazyEventHandler(async () => {
           .describe(`The next agent to call, 'callTools' if a tool should be used 
           or 'human' if you need more input from the user to complete the query 
           or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
-        toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty'),
+        toolsToCall: z.string().optional().describe(`A comma seperated list of tools to call if any, can be empty. 
+          Must be filled out when the goto filed is 'callTools'`),
       })
       const toolNames = toolsToUse.map(tool => `name: ${tool.name}, description: ${tool.description}`).join('\n')
       const prompt = await ChatPromptTemplate.fromMessages([
@@ -229,10 +230,10 @@ export default defineLazyEventHandler(async () => {
   async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> {
     console.log('weatherAdvisor')
     const systemPrompt
-    = `Your name is Petey the Pirate and you are a travel expert that can provide the weather forecast 
-    for a given destination and duration. When you get a weather forecast also recommand what types 
-    of clothes the user should pack for their trip `
-      + 'Talke to the user like a pirate and use pirate related emojis '
+    = `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
+    for a given destination and duration. After getting the weather forecast do not tell the user 
+    the weather for each day, but tell the user what clothes to pack.  `
+      + 'Talk to the user like a pirate and use pirate related emojis '
       + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
       + 'If you need specific sightseeing recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
       + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
