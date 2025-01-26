@@ -82,9 +82,11 @@ function renderMessage(message: Message): string {
       <Button
         type="submit"
         label="Send"
-        icon-class="ic--baseline-send"
+        icon="pi pi-send"
         icon-pos="right"
         :loading="isLoading"
+        raised
+        rounded
         class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
       />
     </form>
