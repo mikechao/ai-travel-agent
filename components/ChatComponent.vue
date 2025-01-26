@@ -86,7 +86,6 @@ function renderMessage(message: Message): string {
         :loading="isLoading"
         raised
         rounded
-        class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
       >
         <template #icon>
           <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
