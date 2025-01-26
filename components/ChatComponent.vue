@@ -1,6 +1,7 @@
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
 import { type Message, useChat } from '@ai-sdk/vue'
+import { Form, type FormSubmitEvent } from '@primevue/forms'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import { v4 as uuidv4 } from 'uuid'
@@ -61,6 +62,10 @@ function renderMessage(message: Message): string {
     .replaceAll(`\\n`, '<br/>')
   return result
 }
+
+function formSubmit(_event: FormSubmitEvent) {
+  handleSubmit()
+}
 </script>
 
 <template>
@@ -73,7 +78,7 @@ function renderMessage(message: Message): string {
         </div>
       </div>
     </div>
-    <form class="flex gap-2" @submit.prevent="handleSubmit">
+    <Form class="flex gap-2" @submit="formSubmit">
       <InputText
         v-model="input"
         type="text"
@@ -93,7 +98,7 @@ function renderMessage(message: Message): string {
           <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
         </template>
       </Button>
-    </form>
+    </Form>
   </div>
 </template>
 
