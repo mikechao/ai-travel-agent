@@ -17,7 +17,7 @@ const weatherMenuItem: MenuItem = {
 
 const settingMenuItem: MenuItem = {
   label: 'Settings',
-  icon: 'https://primefaces.org/cdn/primevue/images/dock/finder.svg',
+  icon: './settings-icon.jpg',
   command(event: MenuItemCommandEvent) {
     console.log('event inside settingsMenuItem', event)
   },
