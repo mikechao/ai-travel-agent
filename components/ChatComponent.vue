@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { type Message, useChat } from '@ai-sdk/vue'
 import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
 import { v4 as uuidv4 } from 'uuid'
 import { useDataItemStore } from '~/stores/dataItemStore'
 
@@ -73,12 +74,13 @@ function renderMessage(message: Message): string {
       </div>
     </div>
     <form class="flex gap-2" @submit.prevent="handleSubmit">
-      <input
+      <InputText
         v-model="input"
+        type="text"
         placeholder="Type your message..."
-        class="flex-grow p-2 border border-gray-300 rounded"
+        variant="filled"
         :disabled="isLoading"
-      >
+      />
       <Button
         type="submit"
         label="Send"
