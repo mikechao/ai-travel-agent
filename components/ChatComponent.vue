@@ -1,6 +1,7 @@
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
 import { type Message, useChat } from '@ai-sdk/vue'
+import Button from 'primevue/button'
 import { v4 as uuidv4 } from 'uuid'
 import { useDataItemStore } from '~/stores/dataItemStore'
 
@@ -78,13 +79,14 @@ function renderMessage(message: Message): string {
         class="flex-grow p-2 border border-gray-300 rounded"
         :disabled="isLoading"
       >
-      <button
+      <Button
         type="submit"
-        :disabled="isLoading"
+        label="Send"
+        icon-class="ic--baseline-send"
+        icon-pos="right"
+        :loading="isLoading"
         class="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
-      >
-        Send
-      </button>
+      />
     </form>
   </div>
 </template>
@@ -153,5 +155,13 @@ button {
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+.ic--baseline-send {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%233aa675' d='M2.01 21L23 12L2.01 3L2 10l15 2l-15 2z'/%3E%3C/svg%3E");
 }
 </style>
