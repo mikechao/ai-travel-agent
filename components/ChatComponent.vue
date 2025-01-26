@@ -46,10 +46,10 @@ watch(messages, () => {
 
 watch(data, (newData) => {
   if (newData && newData.length) {
-    console.log('Got newData of lenght', newData.length)
+    // this gets invoked a lot and it is a stream
+    // of data so we can't really modifiy it
     const lastData = newData[newData.length - 1] as unknown as DataItem
     dataItemStore.add(lastData)
-    console.log('lastData', lastData)
     const dataWithoutLast = newData.slice(0, newData.length - 1)
     setData(dataWithoutLast)
   }
