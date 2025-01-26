@@ -1,11 +1,9 @@
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
-import type { JSONValue } from 'ai'
 import { type Message, useChat } from '@ai-sdk/vue'
 import { v4 as uuidv4 } from 'uuid'
 import { useDataItemStore } from '~/stores/dataItemStore'
 
-const WeatherCard = defineAsyncComponent(() => import('../components/weather/WeatherCard.vue'))
 const dataItemStore = useDataItemStore()
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
@@ -54,26 +52,6 @@ watch(data, (newData) => {
     dataItemStore.add(lastData)
   }
 })
-
-function getComponentType(jsonValue: JSONValue) {
-  const item = jsonValue as unknown as DataItem
-  switch (item.type) {
-    case 'weather':
-      return WeatherCard
-    default:
-      throw new Error('Unknown component type')
-  }
-}
-
-function getComponentProps(jsonValue: JSONValue): Record<string, any> {
-  const item = jsonValue as unknown as DataItem
-  switch (item.type) {
-    case 'weather':
-      return { place: item.data }
-    default:
-      return {}
-  }
-}
 
 function renderMessage(message: Message): string {
   const result = message.content.replaceAll(`{"response":"`, '')
