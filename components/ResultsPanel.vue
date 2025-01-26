@@ -7,6 +7,14 @@ import WeatherCard from './weather/WeatherCard.vue'
 const dataItemStore = useDataItemStore()
 const { dataItems } = storeToRefs(dataItemStore)
 
+const weatherMenuItem: MenuItem = {
+  label: 'Weather',
+  icon: './weather-icon.jpg',
+  command(event: MenuItemCommandEvent) {
+    console.log('event inside weatherMenuItem', event)
+  },
+}
+
 const settingMenuItem: MenuItem = {
   label: 'Settings',
   icon: 'https://primefaces.org/cdn/primevue/images/dock/finder.svg',
@@ -14,7 +22,7 @@ const settingMenuItem: MenuItem = {
     console.log('event inside settingsMenuItem', event)
   },
 }
-const menuItems: Ref<MenuItem[]> = ref([settingMenuItem])
+const menuItems: Ref<MenuItem[]> = ref([weatherMenuItem, settingMenuItem])
 
 watch(dataItems, (newDataItems) => {
   console.log('got newDataItems in ResultsPanel', newDataItems)
@@ -38,7 +46,7 @@ function getComponentProps(item: DataItem): Record<string, any> {
   }
 }
 
-function onDockItemClick(event: MouseEvent, item :MenuItem) {
+function onDockItemClick(event: MouseEvent, item: MenuItem) {
   console.log('onDockItemClick!!!!!!!')
   console.log('item', Object.prototype.toString.call(item))
   if (item.command) {
