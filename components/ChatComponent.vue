@@ -2,8 +2,10 @@
 <script setup lang="ts">
 import { type Message, useChat } from '@ai-sdk/vue'
 import { Form, type FormSubmitEvent } from '@primevue/forms'
+import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
+import Panel from 'primevue/panel'
 import { v4 as uuidv4 } from 'uuid'
 import { useDataItemStore } from '~/stores/dataItemStore'
 
@@ -69,44 +71,52 @@ function formSubmit(_event: FormSubmitEvent) {
 </script>
 
 <template>
-  <div class="chat-container flex flex-col h-screen max-w-2xl mx-auto p-4">
-    <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300 rounded">
-      <div v-for="message in messages" :key="message.id">
-        <div v-if="message.content.length > 0" class="mb-4 p-2 rounded" :class="[message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
-          <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
-          <div v-html="renderMessage(message)" />
+  <Panel class="w-full h-screen">
+    <template #header>
+      <div class="flex items-center gap-2">
+        <Avatar image="./chatAvatar.webp" shape="circle" />
+        <span class="font-bold">AI Travel Agent Chat</span>
+      </div>
+    </template>
+    <div class="chat-container flex flex-col h-screen max-w-2xl mx-auto p-4">
+      <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300 rounded">
+        <div v-for="message in messages" :key="message.id">
+          <div v-if="message.content.length > 0" class="mb-4 p-2 rounded" :class="[message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
+            <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
+            <div v-html="renderMessage(message)" />
+          </div>
         </div>
       </div>
+      <Form class="flex gap-2" @submit="formSubmit">
+        <InputText
+          v-model="input"
+          type="text"
+          placeholder="Type your message..."
+          variant="filled"
+          :disabled="isLoading"
+        />
+        <Button
+          type="submit"
+          label="Send"
+          icon-pos="right"
+          :loading="isLoading"
+          raised
+          rounded
+        >
+          <template #icon>
+            <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
+          </template>
+        </Button>
+      </Form>
     </div>
-    <Form class="flex gap-2" @submit="formSubmit">
-      <InputText
-        v-model="input"
-        type="text"
-        placeholder="Type your message..."
-        variant="filled"
-        :disabled="isLoading"
-      />
-      <Button
-        type="submit"
-        label="Send"
-        icon-pos="right"
-        :loading="isLoading"
-        raised
-        rounded
-      >
-        <template #icon>
-          <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
-        </template>
-      </Button>
-    </Form>
-  </div>
+  </Panel>
 </template>
 
 <style scoped>
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 80vh;
   max-width: 600px;
   margin: 0 auto;
   padding: 1rem;
