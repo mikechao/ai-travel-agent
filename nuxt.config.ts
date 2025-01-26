@@ -28,7 +28,12 @@ export default defineNuxtConfig({
   },
   vite: {
     optimizeDeps: {
-      include: ['@ai-sdk/vue', 'uuid'],
+      include: [
+        '@ai-sdk/vue',
+        'uuid',
+        'primevue/tooltip',
+        'primevue/dock',
+      ],
     },
   },
   postcss: {

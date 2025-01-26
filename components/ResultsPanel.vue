@@ -1,9 +1,12 @@
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
+import type { MenuItem } from 'primevue/menuitem'
+import Dock from 'primevue/dock'
 import WeatherCard from './weather/WeatherCard.vue'
 
 const dataItemStore = useDataItemStore()
 const { dataItems } = storeToRefs(dataItemStore)
+const menuItems: Ref<MenuItem[]> = ref([])
 
 watch(dataItems, (newDataItems) => {
   console.log('got newDataItems in ResultsPanel', newDataItems)
@@ -29,17 +32,9 @@ function getComponentProps(item: DataItem): Record<string, any> {
 </script>
 
 <template>
-  <div v-if="dataItems && dataItems.length">
-    <div v-for="(item, index) of dataItems" :key="index">
-      <component
-        :is="getComponentType(item)"
-        :key="item.id"
-        v-bind="getComponentProps(item)"
-        class="mt-2"
-      />
-    </div>
-  </div>
-  <div v-else>
-    <h1>Show some UI results here</h1>
-  </div>
+  <Dock :model="menuItems" position="left">
+    <template #itemicon="{ item }">
+      <img v-tooltip.top="typeof item.label === 'function' ? item.label() : item.label" :alt="typeof item.label === 'function' ? item.label() : item.label" :src="item.icon" style="width: 100%">
+    </template>
+  </Dock>
 </template>
