@@ -8,7 +8,7 @@ import { useDataItemStore } from '~/stores/dataItemStore'
 const WeatherCard = defineAsyncComponent(() => import('../components/weather/WeatherCard.vue'))
 const dataItemStore = useDataItemStore()
 const sessionId = uuidv4()
-const { messages, input, handleSubmit, isLoading, append, data, setData } = useChat({
+const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   api: '/api/travel',
   body: computed(() => ({
     sessionId,
@@ -48,10 +48,10 @@ watch(data, (newData) => {
   if (newData && newData.length) {
     // this gets invoked a lot and it is a stream
     // of data so we can't really modifiy it
+    // as it is part of ai-sdk/vue
+    // this is guarded against in the dataItemStore
     const lastData = newData[newData.length - 1] as unknown as DataItem
     dataItemStore.add(lastData)
-    const dataWithoutLast = newData.slice(0, newData.length - 1)
-    setData(dataWithoutLast)
   }
 })
 
