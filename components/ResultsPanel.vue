@@ -1,19 +1,20 @@
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
 import type { MenuItem, MenuItemCommandEvent } from 'primevue/menuitem'
+import Dialog from 'primevue/dialog'
 import Dock from 'primevue/dock'
 import WeatherCard from './weather/WeatherCard.vue'
 
 const dataItemStore = useDataItemStore()
-const { dataItems } = storeToRefs(dataItemStore)
 
+const weatherData = ref()
 const displayWeather = ref(false)
 
 const weatherMenuItem: MenuItem = {
   label: 'Weather',
   icon: './weather-icon.jpg',
-  command(event: MenuItemCommandEvent) {
-    console.log('event inside weatherMenuItem', event)
+  command(_event: MenuItemCommandEvent) {
+    displayWeather.value = true
   },
 }
 
@@ -26,37 +27,27 @@ const settingMenuItem: MenuItem = {
 }
 const menuItems: Ref<MenuItem[]> = ref([weatherMenuItem, settingMenuItem])
 
-const procssedDataItems = new Set()
+const processedDataItemIds = new Set()
 
-watch(dataItems, (newDataItems) => {
+watch(() => dataItemStore.dataItems, (newDataItems) => {
   console.log('got newDataItems.length in ResultsPanel', newDataItems.length)
   for (const dataItem of newDataItems) {
-    if (!procssedDataItems.has(dataItem.id)) {
+    if (!processedDataItemIds.has(dataItem.id)) {
       processDataItem(dataItem)
-      procssedDataItems.add(dataItem.id)
+      processedDataItemIds.add(dataItem.id)
     }
   }
-})
+}, { deep: true })
 
 function processDataItem(dataItem: DataItem) {
-
-}
-
-function getComponentType(item: DataItem) {
-  switch (item.type) {
-    case 'weather':
-      return WeatherCard
+  switch (dataItem.type) {
+    case 'weather': {
+      weatherData.value = dataItem.data
+      displayWeather.value = true
+      break
+    }
     default:
-      throw new Error('Unknown component type')
-  }
-}
-
-function getComponentProps(item: DataItem): Record<string, any> {
-  switch (item.type) {
-    case 'weather':
-      return { place: item.data }
-    default:
-      return {}
+      console.error(`Unknown DataItem type ${dataItem.type}`)
   }
 }
 
@@ -80,6 +71,11 @@ function onDockItemClick(event: MouseEvent, item: MenuItem) {
         </a>
       </template>
     </Dock>
+    <Dialog v-model:visible="displayWeather" header="Weather" :breakpoints="{ '960px': '50vw' }" :style="{ width: '40vw' }" :maximizable="true">
+      <template #container>
+        <WeatherCard :place="weatherData" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
