@@ -7,6 +7,8 @@ import WeatherCard from './weather/WeatherCard.vue'
 
 const dataItemStore = useDataItemStore()
 
+const dockKey = ref(newDockKey())
+
 const weatherData = ref()
 const displayWeather = ref(false)
 
@@ -46,6 +48,7 @@ function processDataItem(dataItem: DataItem) {
     case 'weather': {
       weatherData.value = dataItem.data
       weatherMenuItem.disabled = false
+      dockKey.value = newDockKey()
       displayWeather.value = true
       break
     }
@@ -61,11 +64,15 @@ function onDockItemClick(event: MouseEvent, item: MenuItem) {
 
   event.preventDefault()
 }
+
+function newDockKey() {
+  return Math.random() * 10000
+}
 </script>
 
 <template>
   <div class="dock-window">
-    <Dock :model="menuItems" position="left">
+    <Dock :key="dockKey" :model="menuItems" position="left">
       <template #item="{ item }">
         <a v-tooltip.top="item.label" href="#" class="p-dock-item-link" @click="onDockItemClick($event, item)">
           <img :alt="typeof item.label === 'string' ? item.label : ''" :src="item.icon" style="width: 100%">
