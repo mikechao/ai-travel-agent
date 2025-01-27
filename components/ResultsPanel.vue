@@ -3,8 +3,8 @@
 import type { MenuItem, MenuItemCommandEvent } from 'primevue/menuitem'
 import Dialog from 'primevue/dialog'
 import Dock from 'primevue/dock'
-import WeatherCard from './weather/WeatherCard.vue'
 import LocationList from './LocationList.vue'
+import WeatherCard from './weather/WeatherCard.vue'
 
 const dataItemStore = useDataItemStore()
 
@@ -27,7 +27,7 @@ const weatherMenuItem: MenuItem = {
   },
 }
 
-const locationsMenuItem: MenuItem ={
+const locationsMenuItem: MenuItem = {
   label: 'Locations',
   icon: './locations-icon.webp',
   disabled: true,
@@ -35,7 +35,7 @@ const locationsMenuItem: MenuItem ={
     if (locationsData.value) {
       displayLocations.value = true
     }
-  }
+  },
 }
 
 const settingMenuItem: MenuItem = {
@@ -72,7 +72,7 @@ function processDataItem(dataItem: DataItem) {
       locationsMenuItem.disabled = false
       dockKey.value = newDockKey()
       displayLocations.value = true
-      break;
+      break
     }
     default:
       console.error(`Unknown DataItem type ${dataItem.type}`)
@@ -105,7 +105,7 @@ function newDockKey() {
       <WeatherCard :place="weatherData" />
     </Dialog>
     <Dialog v-model:visible="displayLocations" header="List of Locations" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
-      <LocationList :locations="locationsData"/>
+      <LocationList :locations="locationsData" />
     </Dialog>
   </div>
 </template>
