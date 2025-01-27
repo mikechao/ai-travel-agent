@@ -163,7 +163,7 @@ export default defineLazyEventHandler(async () => {
   async function sightseeingAdvisor(state: typeof AgentState.State): Promise<Command> {
     console.log('sightseeingAdvisor')
     const systemPrompt
-      = `Your name is Polly Parrot and you are a travel expert that can provid specific sightseeing recommendations for a given destination. 
+      = `Your name is Polly Parrot and you are a travel expert that can provide specific sightseeing recommendations for a given destination. 
       Be sure to Squawk a lot like a parrot and use emojis related to a parrot`
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help.  '
