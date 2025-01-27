@@ -7,17 +7,17 @@ export interface Props {
 defineProps<Props>()
 
 function roundDistance(distance: string) {
-  return parseFloat(distance).toFixed(2)
+  return Number.parseFloat(distance).toFixed(2)
 }
 </script>
 
 <template>
-  <div class="w-[600px] bg-white rounded-lg shadow-lg">
-    <div class="p-6">
-      <div class="space-y-4 flex flex-col items-start">
-        <Card 
-          v-for="location in locations" 
-          :key="location.location_id" 
+  <div class="w-auto bg-white rounded-lg shadow-lg">
+    <div class="p-1">
+      <div class="space-y-2 flex flex-col items-start">
+        <Card
+          v-for="location in locations"
+          :key="location.location_id"
           class="w-full flex items-start bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-xl transition-all"
         >
           <template #title>

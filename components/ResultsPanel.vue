@@ -104,7 +104,7 @@ function newDockKey() {
     <Dialog v-model:visible="displayWeather" header="Weather" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '40vw' }" :maximizable="true">
       <WeatherCard :place="weatherData" />
     </Dialog>
-    <Dialog v-model:visible="displayLocations" header="List of Locations" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
+    <Dialog v-model:visible="displayLocations" header="List of Hotel Locations" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
       <LocationList :locations="locationsData" />
     </Dialog>
   </div>
