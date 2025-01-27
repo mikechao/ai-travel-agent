@@ -60,9 +60,11 @@ export default defineLazyEventHandler(async () => {
 
   const weathToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
+  const hotelSearchTag = 'hotel-search'
   const toolTagsByToolName = new Map<string, string>()
   toolTagsByToolName.set(weatherForecastTool.name, weathToolTag)
   toolTagsByToolName.set(hotelDetailsTool.name, hotelDetailsTag)
+  toolTagsByToolName.set(hotelSearchTool.name, hotelSearchTag)
 
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
@@ -391,8 +393,12 @@ export default defineLazyEventHandler(async () => {
                   const part = `2:[{"id":"${id}","type":"weather","data":${content}}]\n`
                   controller.enqueue(part)
                 }
-                else if (event.tags.includes(hotelDetailsTag)) {
+                if (event.tags.includes(hotelDetailsTag)) {
                   const part = `2:[{"id":"${id}","type":"hotel-details","data":${content}}]\n`
+                  controller.enqueue(part)
+                }
+                if (event.tags.includes(hotelSearchTag)) {
+                  const part = `2:[{"id":"${id}","type":"hotel-search","data":${content}}]\n`
                   controller.enqueue(part)
                 }
               }
