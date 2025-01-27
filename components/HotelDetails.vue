@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import Accordion from 'primevue/accordion'
-import AccordionContent from 'primevue/accordioncontent'
-import AccordionHeader from 'primevue/accordionheader'
-import AccordionPanel from 'primevue/accordionpanel'
 import Button from 'primevue/button'
 import Popover from 'primevue/popover'
 
@@ -15,8 +11,15 @@ const subratings = Object.values(props.hotel.subratings)
 
 const amen = ref()
 
-const showAmen = (event) => {
+const showAmen = (event: UIEvent) => {
   amen.value.toggle(event)
+}
+
+const subratingsPop = ref()
+
+const showSubratings = (event: UIEvent) => {
+  console.log('event', Object.prototype.toString.call(event))
+  subratingsPop.value.toggle(event)
 }
 </script>
 
@@ -25,7 +28,7 @@ const showAmen = (event) => {
     <div class="w-[250px] h-[200px]">
       <img src="https://tools-api.webcrumbs.org/image-placeholder/250/200/city/1" alt="NYC Skyline" class="w-[250px] h-[200px] object-cover rounded-l-lg">
     </div>
-    <div class="flex-1 p2">
+    <div class="flex-1 p-2 flex flex-col">
       <div class="flex items-center mt-2">
         <img :src="hotel.rating_image_url">
       </div>
@@ -33,25 +36,11 @@ const showAmen = (event) => {
         <p>Based on <span class="font-medium"> {{ hotel.num_reviews }}</span> reviews</p>
         <p>{{ hotel.ranking_data.ranking_string }}</p>
         <p>Price {{ hotel.price_level }}</p>
+      </div>
+      <div class="flex flex-row gap-1 mt-auto items-start justify-center">
         <Button as="a" label="Visit Web Site" :href="hotel.web_url" target="_blank" rel="noopener" size="small" />
-        <Button type="button" label="Amenities" @click="showAmen" size="small"/>
-        <Accordion value="0">
-          <AccordionPanel value="1">
-            <AccordionHeader>Additional Ratings</AccordionHeader>
-            <AccordionContent>
-              <DataTable :value="subratings" class="w-auto">
-                <Column field="localized_name" header="Name" />
-                <Column header="Rating">
-                  <template #body="slotProps">
-                    <img
-                      :src="slotProps.data.rating_image_url"
-                    >
-                  </template>
-                </Column>
-              </DataTable>
-            </AccordionContent>
-          </AccordionPanel>
-        </Accordion>
+        <Button type="button" label="Additional Ratings" @click="showSubratings" size="small" />
+        <Button type="button" label="Amenities" @click="showAmen" size="small" />
         <Popover ref="amen">
           <div>
             <span class="font-medium block mb-2">Amenities</span>
@@ -61,6 +50,18 @@ const showAmen = (event) => {
               </div>
             </div>
           </div>
+        </Popover>
+        <Popover ref="subratingsPop">
+          <DataTable :value="subratings" class="w-auto">
+              <Column field="localized_name" header="Name" />
+              <Column header="Rating">
+                <template #body="slotProps">
+                  <img
+                    :src="slotProps.data.rating_image_url"
+                  >
+                </template>
+              </Column>
+            </DataTable>
         </Popover>
       </div>
     </div>
