@@ -94,6 +94,7 @@ function formSubmit(_event: FormSubmitEvent) {
           placeholder="Type your message..."
           variant="filled"
           :disabled="isLoading"
+          class="flex-1 shadow-lg rounded-full"
         />
         <Button
           v-ripple
@@ -157,12 +158,5 @@ function formSubmit(_event: FormSubmitEvent) {
 .input-form {
   display: flex;
   gap: 0.5rem;
-}
-
-input {
-  flex-grow: 1;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
 }
 </style>
