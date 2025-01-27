@@ -4,7 +4,8 @@
       <div class="p-6">
         <h1 class="text-3xl font-title text-neutral-950 border-b border-neutral-300 pb-4 mb-6">
           List of Locations
-        </h1> <ul class="space-y-6">
+        </h1>
+        <ul class="space-y-6">
           <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
@@ -19,7 +20,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 1
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 2
@@ -33,7 +35,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 2
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 3
@@ -47,7 +50,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 3
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 4
@@ -61,7 +65,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 4
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 5
@@ -75,7 +80,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 5
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 6
@@ -89,7 +95,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 6
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 7
@@ -103,7 +110,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 7
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 8
@@ -117,7 +125,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 8
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 9
@@ -131,7 +140,8 @@
                 <span class="material-symbols-outlined text-neutral-700 mr-1">location_on</span> Address: Example street, City 9
               </p>
             </div>
-          </li><li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
+          </li>
+          <li class="flex items-start p-6 bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-lg transition-all">
             <div class="flex-shrink-0 mr-4">
               <div class="w-[50px] h-[50px] rounded-full bg-primary-500 text-primary-50 flex items-center justify-center font-bold">
                 10
@@ -218,9 +228,6 @@ b,
 strong {
   font-weight: bolder;
 }
-code,
-kbd,
-pre,
 samp {
   font-family:
     ui-monospace,
@@ -260,18 +267,6 @@ button,
 input,
 optgroup,
 select,
-textarea {
-  color: inherit;
-  font-family: inherit;
-  font-feature-settings: inherit;
-  font-size: 100%;
-  font-variation-settings: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  margin: 0;
-  padding: 0;
-}
 button,
 select {
   text-transform: none;
@@ -311,21 +306,6 @@ progress {
 summary {
   display: list-item;
 }
-blockquote,
-dd,
-dl,
-figure,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-hr,
-p,
-pre {
-  margin: 0;
-}
 fieldset {
   margin: 0;
 }
@@ -340,42 +320,13 @@ ul {
   margin: 0;
   padding: 0;
 }
-dialog {
-  padding: 0;
-}
-textarea {
-  resize: vertical;
-}
 input::placeholder,
-textarea::placeholder {
-  color: #9ca3af;
-  opacity: 1;
-}
 [role='button'],
 button {
   cursor: pointer;
 }
 :disabled {
   cursor: default;
-}
-audio,
-canvas,
-embed,
-iframe,
-img,
-object,
-svg,
-video {
-  display: block;
-  vertical-align: middle;
-}
-img,
-video {
-  height: auto;
-  max-width: 100%;
-}
-[hidden] {
-  display: none;
 }
 *,
 :after,
