@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HotelDetails } from '#components'
 import Accordion from 'primevue/accordion'
 import AccordionContent from 'primevue/accordioncontent'
 import AccordionHeader from 'primevue/accordionheader'
@@ -8,7 +9,13 @@ import Button from 'primevue/button'
 export interface Props {
   hotel: Hotel
 }
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const subratings = Object.values(props.hotel.subratings)
+const columns = [
+  { field: 'localized_name', header: 'Name' },
+  { field: 'rating_image_url', header: 'Rating' },
+]
 </script>
 
 <template>
@@ -29,12 +36,16 @@ defineProps<Props>()
           <AccordionPanel value="1">
             <AccordionHeader>Additional Ratings</AccordionHeader>
             <AccordionContent>
-              <div v-for="subrating of hotel.subratings" :key="subrating.name" class="flex items-center mt-2">
-                <p class="mr-2">
-                  {{ subrating.localized_name }}
-                </p>
-                <img :src="subrating.rating_image_url">
-              </div>
+              <DataTable :value="subratings" class="w-auto">
+                <Column field="localized_name" header="Name" />
+                <Column header="Rating">
+                  <template #body="slotProps">
+                    <img
+                      :src="slotProps.data.rating_image_url"
+                    >
+                  </template>
+                </Column>
+              </DataTable>
             </AccordionContent>
           </AccordionPanel>
         </Accordion>

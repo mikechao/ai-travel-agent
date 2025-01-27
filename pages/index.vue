@@ -265,8 +265,6 @@ const json = `{
 }`
 
 const hotel = JSON.parse(json) as Hotel
-// eslint-disable-next-line no-console
-console.log('here')
 </script>
 
 <template>
