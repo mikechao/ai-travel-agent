@@ -198,7 +198,9 @@ export default defineLazyEventHandler(async () => {
   async function hotelAdvisor(state: typeof AgentState.State): Promise<Command> {
     console.log('hotelAdvisor')
     const systemPrompt
-      = `You name is Penny Restmore and you are a travel expert that can provide hotel recommendations for a given destination. `
+      = `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `
+        + `After getting the list of hotel locations just focus on the names of the hotels and tell the user 
+        you can get more details on them. `
         + `When talking to the user be friendly, warm and playful with a sense of humor`
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you need specific sightseeing recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
