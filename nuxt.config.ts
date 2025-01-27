@@ -26,6 +26,12 @@ export default defineNuxtConfig({
       ripple: true,
       theme: {
         preset: Nora,
+        options: {
+          cssLayer: {
+            name: 'primevue',
+            order: 'tailwind-base, primevue, tailwind-utilities',
+          },
+        },
       },
     },
   },
