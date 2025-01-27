@@ -93,7 +93,7 @@ function newDockKey() {
 </script>
 
 <template>
-  <div class="dock-window">
+  <div>
     <Dock :key="dockKey" :model="menuItems" position="left">
       <template #item="{ item }">
         <a v-tooltip.top="item.label" href="#" class="p-dock-item-link" @click="onDockItemClick($event, item)">
@@ -111,12 +111,5 @@ function newDockKey() {
 </template>
 
 <style scoped>
-.dock-window {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background-image: url('https://primefaces.org/cdn/primevue/images/dock/window.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-}
+
 </style>

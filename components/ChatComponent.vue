@@ -116,6 +116,10 @@ function formSubmit(_event: FormSubmitEvent) {
 </template>
 
 <style scoped>
+.p-panel {
+  background: transparent;
+}
+
 .chat-container {
   display: flex;
   flex-direction: column;
