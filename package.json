@@ -24,6 +24,7 @@
     "@nuxtjs/tailwindcss": "6.13.1",
     "@pinia/nuxt": "0.9.0",
     "@primevue/forms": "^4.2.5",
+    "@primevue/themes": "^4.2.5",
     "@vesp/nuxt-fontawesome": "1.2.0",
     "ai": "^4.0.39",
     "consola": "^3.4.0",
