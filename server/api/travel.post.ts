@@ -135,7 +135,8 @@ export default defineLazyEventHandler(async () => {
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
         + 'If you have enough information to respond to the user, return \'finish\'. '
-        + 'Feel free to mention the other agents by name, but call them your colleagues or a synonym.'
+        + `Feel free to mention the other agents by name, but call them your colleagues or a synonym
+         like partner, coworker, buddy, associate.`
 
     const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor']
