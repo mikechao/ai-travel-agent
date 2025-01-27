@@ -96,12 +96,14 @@ function formSubmit(_event: FormSubmitEvent) {
           :disabled="isLoading"
         />
         <Button
+          v-ripple
           type="submit"
           label="Send"
           icon-pos="right"
           :loading="isLoading"
           raised
           rounded
+          class="ripple-box"
         >
           <template #icon>
             <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
@@ -162,19 +164,5 @@ input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
 }
 </style>
