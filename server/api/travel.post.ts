@@ -59,8 +59,10 @@ export default defineLazyEventHandler(async () => {
   toolsByName.set(sightseeingSearchTool.name, sightseeingSearchTool)
 
   const weathToolTag = 'weather-tool'
+  const hotelDetailsTag = 'hotel-details'
   const toolTagsByToolName = new Map<string, string>()
   toolTagsByToolName.set(weatherForecastTool.name, weathToolTag)
+  toolTagsByToolName.set(hotelDetailsTool.name, hotelDetailsTag)
 
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
@@ -362,7 +364,7 @@ export default defineLazyEventHandler(async () => {
     const input = isInitMessage(lastMessage) ? initMessage : new Command({ resume: lastMessage.content })
     const encoder = new TextEncoder()
     const config = { version: 'v2' as const, configurable: { thread_id: sessionId } }
-    const tags = [modelTag, toolTag, weathToolTag]
+    const tags = [modelTag, toolTag, weathToolTag, hotelDetailsTag]
     return new ReadableStream({
       async start(controller) {
         try {
@@ -387,6 +389,10 @@ export default defineLazyEventHandler(async () => {
                   // 2 will send it to data from useChat
                   // 8 will send it to message.annotations on the client side
                   const part = `2:[{"id":"${id}","type":"weather","data":${content}}]\n`
+                  controller.enqueue(part)
+                }
+                else if (event.tags.includes(hotelDetailsTag)) {
+                  const part = `2:[{"id":"${id}","type":"hotel-details","data":${content}}]\n`
                   controller.enqueue(part)
                 }
               }
