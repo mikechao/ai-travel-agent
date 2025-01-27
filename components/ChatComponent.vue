@@ -78,8 +78,8 @@ function formSubmit(_event: FormSubmitEvent) {
         <span class="font-bold">AI Travel Agent Chat</span>
       </div>
     </template>
-    <div class="chat-container flex flex-col h-screen max-w-2xl mx-auto p-4">
-      <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300 rounded">
+    <div class="chat-container flex flex-col h-screen max-w-2xl mx-auto">
+      <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300 shadow-lg">
         <div v-for="message in messages" :key="message.id">
           <div v-if="message.content.length > 0" class="mb-4 p-2 rounded" :class="[message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
             <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
@@ -132,7 +132,6 @@ function formSubmit(_event: FormSubmitEvent) {
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid #ccc;
   border-radius: 4px;
   margin-bottom: 1rem;
 }
