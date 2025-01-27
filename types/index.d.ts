@@ -9,7 +9,7 @@ declare global {
 
   interface Address {
     street1: string
-    street2?: string
+    street2: string
     city: string
     state: string
     country: string
@@ -18,7 +18,7 @@ declare global {
   }
 
   /**
-   * Representation of the response from the TripAdvisor API
+   * Representation of the response from the TripAdvisor Location Search API
    * @see https://tripadvisor-content-api.readme.io/reference/searchforlocations
    */
   interface Location {
@@ -28,4 +28,95 @@ declare global {
     bearing: string
     address_obj: Address
   }
+
+  interface Hotel extends Location {
+    description: string
+    /**
+     * Link to the POI detail page on Tripadvisor. Link is localized to the correct domain if a language other than English is requested.
+     */
+    web_url: string
+    ancestors: Ancestor[]
+    latitude?: string
+    longitude?: string
+    timezone: string
+    phone?: string
+    write_review: string
+    ranking_data: RankingData
+    rating: string
+    rating_image_url: string
+    num_reviews: string
+    review_rating_count: ReviewRatingCount
+    subratings: { [key: string]: Subrating }
+    photo_count: string
+    see_all_photos: string
+    price_level: string
+    hours: Hours
+    amenities: string[]
+    parent_brand: string
+    brand: string
+    category: Category
+    subcategory: Category[]
+    styles: string[]
+    neighborhood_info: any[]
+    trip_types: TripType[]
+    awards: any[]
+  }
+
+  /**
+   * Ancestors describe where the POI or destination lives within the Tripadvisor destination or geo hierarchy.
+   * From this, you can derive the city where a POI is located, as well as state/province/region and country.
+   */
+  interface Ancestor {
+    level: string
+    name: string
+    location_id: string
+    abbrv?: string
+  }
+
+  interface RankingData {
+    geo_location_id: string
+    ranking_string: string
+    geo_location_name: string
+    ranking_out_of: string
+    ranking: string
+  }
+
+  interface ReviewRatingCount {
+    [key: string]: string
+  }
+
+  interface Subrating {
+    name: string
+    localized_name: string
+    rating_image_url: string
+    value: string
+  }
+
+  interface Period {
+    open: {
+      day: number
+      time: string
+    }
+    close: {
+      day: number
+      time: string
+    }
+  }
+
+  interface Hours {
+    periods: Period[]
+    weekday_text: string[]
+  }
+
+  interface TripType {
+    name: string
+    localized_name: string
+    value: string
+  }
+
+  interface Category {
+    name: string
+    localized_name: string
+  }
+
 }
