@@ -14,11 +14,12 @@ function roundDistance(distance: string) {
 <template>
   <div class="w-[600px] bg-white rounded-lg shadow-lg">
     <div class="p-6">
-      <h1 class="text-3xl font-title text-neutral-950 border-b border-neutral-300 pb-4 mb-6">
-        List of Locations
-      </h1>
-      <div class="space-y-4">
-        <Card v-for="location in locations" :key="location.location_id" class="flex items-start bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-xl transition-all">
+      <div class="space-y-4 flex flex-col items-start">
+        <Card 
+          v-for="location in locations" 
+          :key="location.location_id" 
+          class="w-full flex items-start bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-xl transition-all"
+        >
           <template #title>
             <p class="text-lg font-semibold text-neutral-950 mb-1">
               {{ location.name }}

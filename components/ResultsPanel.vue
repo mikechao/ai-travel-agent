@@ -12,6 +12,9 @@ const dockKey = ref(newDockKey())
 const weatherData = ref()
 const displayWeather = ref(false)
 
+const locationsData = ref()
+const displayLocations = ref(false)
+
 const weatherMenuItem: MenuItem = {
   label: 'Weather',
   icon: './weather-icon.jpg',
@@ -23,6 +26,17 @@ const weatherMenuItem: MenuItem = {
   },
 }
 
+const locationsMenuItem: MenuItem ={
+  label: 'Locations',
+  icon: './locations-icon.webp',
+  disabled: true,
+  command(_event: MenuItemCommandEvent) {
+    if (locationsData.value) {
+      displayLocations.value = true
+    }
+  }
+}
+
 const settingMenuItem: MenuItem = {
   label: 'Settings',
   icon: './settings-icon.jpg',
@@ -30,7 +44,7 @@ const settingMenuItem: MenuItem = {
     console.log('event inside settingsMenuItem', event)
   },
 }
-const menuItems: Ref<MenuItem[]> = ref([weatherMenuItem, settingMenuItem])
+const menuItems: Ref<MenuItem[]> = ref([locationsMenuItem, weatherMenuItem, settingMenuItem])
 
 const processedDataItemIds = new Set()
 
@@ -51,6 +65,13 @@ function processDataItem(dataItem: DataItem) {
       dockKey.value = newDockKey()
       displayWeather.value = true
       break
+    }
+    case 'hotel-search': {
+      locationsData.value = dataItem.data
+      locationsMenuItem.disabled = false
+      dockKey.value = newDockKey()
+      displayLocations.value = true
+      break;
     }
     default:
       console.error(`Unknown DataItem type ${dataItem.type}`)
@@ -81,6 +102,9 @@ function newDockKey() {
     </Dock>
     <Dialog v-model:visible="displayWeather" header="Weather" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '40vw' }" :maximizable="true">
       <WeatherCard :place="weatherData" />
+    </Dialog>
+    <Dialog v-model:visible="displayLocations" header="List of Locations" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
+      <HotelSearchResult :locations="locationsData"/>
     </Dialog>
   </div>
 </template>

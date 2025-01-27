@@ -17,6 +17,10 @@ declare global {
     address_string: string
   }
 
+  /**
+   * Representation of the response from the TripAdvisor API
+   * @see https://tripadvisor-content-api.readme.io/reference/searchforlocations
+   */
   interface Location {
     location_id: string
     name: string
