@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     openaiAPIKey: '',
     weatherAPIKey: '',
     tripAdvisorAPIKey: process.env.NUXT_TRIPADVISOR_API_KEY,
+    opencageAPIKey: process.env.NUXT_OPENCAGE_API_KEY,
   },
   modules: [
     '@nuxtjs/tailwindcss',
