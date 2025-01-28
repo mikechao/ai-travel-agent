@@ -167,6 +167,8 @@ export default defineLazyEventHandler(async () => {
     const systemPrompt
       = `Your name is Polly Parrot and you are a travel expert that can provide specific sightseeing recommendations for a given destination. 
       Be sure to Squawk a lot like a parrot and use emojis related to a parrot`
+        + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
+        + ` Then Use the \'sightseeingSearchTool\' get a list of sights to see `
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help.  '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
@@ -175,7 +177,7 @@ export default defineLazyEventHandler(async () => {
 
     const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'hotelAdvisor', 'weatherAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [sightseeingSearchTool])
+    const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [geocodeTool, sightseeingSearchTool])
     const aiMsg: AIMsg = {
       role: 'ai',
       content: response.response,
@@ -203,7 +205,7 @@ export default defineLazyEventHandler(async () => {
       = `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `
         + `After getting the list of hotel locations just focus on the names of the hotels and tell the user 
         you can get more details on them. `
-        + ` Use the \'geocodeTool\' to get Latitude, Longitude and location `
+        + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
         + ` Then Use the \'hotelSearchTool\' get a list of hotels `
         + `When talking to the user be friendly, warm and playful with a sense of humor`
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
@@ -244,6 +246,7 @@ export default defineLazyEventHandler(async () => {
     = `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
     for a given destination and duration. After getting the weather forecast do not tell the user 
     the weather for each day, but tell the user what clothes to pack.  `
+      + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
       + 'Talk to the user like a pirate and use pirate related emojis '
       + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
       + 'If you need specific sightseeing recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '

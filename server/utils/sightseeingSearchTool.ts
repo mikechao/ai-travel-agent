@@ -12,8 +12,7 @@ interface LocationSearchResult {
 
 const sightseeingSearchTool = new DynamicStructuredTool({
   name: 'sightseeingSearchTool',
-  description: `Used to search for sightseeing locations that the user is interested in. 
-   Data provided by Tripadvisor Content API`,
+  description: `Used to search for sights to see given Latitude and Longitude and location`,
   schema: z.object({
     lat: z.number().describe('The Latitude in decimal degree of the location to search for sightseeing locations'),
     long: z.number().describe('The Longitude in decimal degree of the location to search for sightseeing locations'),
