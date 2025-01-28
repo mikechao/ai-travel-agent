@@ -41,11 +41,11 @@ function showSubratings(event: UIEvent) {
       </template>
     </Galleria>
     <div class="flex-1 p-2 flex flex-col">
-      <div class="flex items-center mt-2">
+      <div class="flex flex-row items-center mt-2">
         <img :src="hotel.rating_image_url">
+        <p>Based on <span class="font-medium"> {{ hotel.num_reviews }}</span> reviews</p>
       </div>
       <div class="items-center ml-2">
-        <p>Based on <span class="font-medium"> {{ hotel.num_reviews }}</span> reviews</p>
         <p>{{ hotel.ranking_data.ranking_string }}</p>
         <p>Price {{ hotel.price_level }}</p>
       </div>
