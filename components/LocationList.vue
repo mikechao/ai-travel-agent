@@ -16,6 +16,10 @@ async function fetchDetails(location: Location) {
   locationIsLoading.value.set(location.location_id, false)
 }
 
+function getHotel(location: Location) {
+  return locationDetails.value.get(location.location_id) as Hotel
+}
+
 function roundDistance(distance: string) {
   return Number.parseFloat(distance).toFixed(2)
 }
@@ -48,7 +52,7 @@ function roundDistance(distance: string) {
             </div>
             <Button type="button" label="Details" size="small" :loading="locationIsLoading.get(location.location_id)" @click="fetchDetails(location)" />
             <div v-if="locationDetails.get(location.location_id)">
-              <p>Some details about {{ location.name }}</p>
+              <HotelDetails :hotel="getHotel(location)" />
             </div>
           </template>
         </Card>
