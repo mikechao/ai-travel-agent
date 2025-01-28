@@ -6,6 +6,16 @@ export interface Props {
 }
 defineProps<Props>()
 
+const locationDetails = ref(new Map<string, Hotel>())
+const locationIsLoading = ref(new Map<string, boolean>())
+async function fetchDetails(location: Location) {
+  locationIsLoading.value.set(location.location_id, true)
+  const data = await $fetch(`/api/location/details?locationId=${location.location_id}`)
+  const hotel = data as Hotel
+  locationDetails.value.set(hotel.location_id, hotel)
+  locationIsLoading.value.set(location.location_id, false)
+}
+
 function roundDistance(distance: string) {
   return Number.parseFloat(distance).toFixed(2)
 }
@@ -35,6 +45,10 @@ function roundDistance(distance: string) {
                 <font-awesome icon="fa-solid fa-location-dot" class="mr-2 rounded-full" />
                 <span class="text-neutral-700 mr-1">Address: {{ location.address_obj.address_string }}</span>
               </p>
+            </div>
+            <Button type="button" label="Details" size="small" :loading="locationIsLoading.get(location.location_id)" @click="fetchDetails(location)" />
+            <div v-if="locationDetails.get(location.location_id)">
+              <p>Some details about {{ location.name }}</p>
             </div>
           </template>
         </Card>
