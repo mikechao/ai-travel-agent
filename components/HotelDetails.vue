@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
+import Galleria from 'primevue/galleria'
 import Popover from 'primevue/popover'
 
 export interface Props {
@@ -7,7 +8,17 @@ export interface Props {
 }
 const props = defineProps<Props>()
 
+const { data }   = await useFetch(`/api/photos?locationId=${props.hotel.location_id}`)
+
 const subratings = Object.values(props.hotel.subratings)
+
+const imageUrls = [] as string[]
+
+if (Array.isArray(data.value)) {
+  for (const value of data.value) {
+    imageUrls.push(value)
+  }
+}
 
 const amen = ref()
 
@@ -25,9 +36,11 @@ const showSubratings = (event: UIEvent) => {
 
 <template>
   <div class="w-[600px] bg-white shadow-md rounded-lg flex">
-    <div class="w-[250px] h-[200px]">
-      <img src="https://tools-api.webcrumbs.org/image-placeholder/250/200/city/1" alt="NYC Skyline" class="w-[250px] h-[200px] object-cover rounded-l-lg">
-    </div>
+    <Galleria :value="imageUrls" :num-visible="1" :circular="true" containerStyle="width: 250px; height: 200px;" :showItemNavigators="true" :showThumbnails="false">
+      <template #item="slotProps">
+          <img :src="slotProps.item" style="object-fit: cover; display: block;" />
+      </template>
+    </Galleria>
     <div class="flex-1 p-2 flex flex-col">
       <div class="flex items-center mt-2">
         <img :src="hotel.rating_image_url">
