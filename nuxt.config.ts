@@ -67,6 +67,8 @@ export default defineNuxtConfig({
         'xmark',
         'gear',
         'route',
+        'chevron-down',
+        'chevron-up',
       ],
       regular: [
         'paper-plane',

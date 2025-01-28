@@ -14,7 +14,6 @@ async function fetchDetails(location: Location) {
   if (!locationDetails.value.has(location.location_id)) {
     locationIsLoading.value.set(location.location_id, true)
     const data = await $fetch(`/api/location/details?locationId=${location.location_id}`)
-    console.log('data', data)
     const hotel = data as Hotel
     locationDetails.value.set(hotel.location_id, hotel)
     hideLocationDetails.value.set(location.location_id, false)
@@ -62,8 +61,34 @@ function roundDistance(distance: string) {
               </p>
             </div>
             <div class="mt-1 mb-1">
-              <Button type="button" label="Show Details" size="small" rounded raised :loading="locationIsLoading.get(location.location_id)" class="mr-1" @click="fetchDetails(location)" />
-              <Button type="button" label="Hide Details" size="small" rounded raised @click="hideDetails(location)" />
+              <Button
+                type="button"
+                label="Show Details"
+                icon-pos="right"
+                size="small"
+                rounded
+                raised
+                :loading="locationIsLoading.get(location.location_id)"
+                class="mr-1"
+                @click="fetchDetails(location)"
+              >
+                <template #icon>
+                  <font-awesome icon="fa-solid fa-chevron-down" class="p-button-icon-right" />
+                </template>
+              </Button>
+              <Button
+                type="button"
+                label="Hide Details"
+                size="small"
+                icon-pos="right"
+                rounded
+                raised
+                @click="hideDetails(location)"
+              >
+                <template #icon>
+                  <font-awesome icon="fa-solid fa-chevron-up" class="p-button-icon-right" />
+                </template>
+              </Button>
             </div>
             <div v-if="locationDetails.get(location.location_id) && !hideLocationDetails.get(location.location_id)">
               <HotelDetails :hotel="getHotel(location)" />
