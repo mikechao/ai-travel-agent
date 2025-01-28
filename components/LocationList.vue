@@ -8,13 +8,16 @@ defineProps<Props>()
 
 const locationDetails = ref(new Map<string, Hotel>())
 const locationIsLoading = ref(new Map<string, boolean>())
+
 async function fetchDetails(location: Location) {
-  locationIsLoading.value.set(location.location_id, true)
-  const data = await $fetch(`/api/location/details?locationId=${location.location_id}`)
-  console.log('data', data)
-  const hotel = data as Hotel
-  locationDetails.value.set(hotel.location_id, hotel)
-  locationIsLoading.value.set(location.location_id, false)
+  if (!locationDetails.value.has(location.location_id)) {
+    locationIsLoading.value.set(location.location_id, true)
+    const data = await $fetch(`/api/location/details?locationId=${location.location_id}`)
+    console.log('data', data)
+    const hotel = data as Hotel
+    locationDetails.value.set(hotel.location_id, hotel)
+    locationIsLoading.value.set(location.location_id, false)
+  }
 }
 
 function getHotel(location: Location) {
