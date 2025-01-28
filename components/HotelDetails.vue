@@ -8,7 +8,7 @@ export interface Props {
 }
 const props = defineProps<Props>()
 
-const { data } = await useFetch(`/api/photos?locationId=${props.hotel.location_id}`)
+const { data } = await useFetch(`/api/location/photos?locationId=${props.hotel.location_id}`)
 
 const subratings = Object.values(props.hotel.subratings)
 
