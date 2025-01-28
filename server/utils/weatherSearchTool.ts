@@ -6,7 +6,7 @@ const runtimeConfig = useRuntimeConfig()
 
 const weatherForecastTool = new DynamicStructuredTool({
   name: 'weatherForecastTool',
-  description: 'Use to forecast the weather for the location the user has expressed an interest in',
+  description: 'Use to forecast the weather given Latitude and Longitude',
   schema: z.object({
     lat: z.number().describe('The Latitude in decimal degree of the location to get forecast for'),
     long: z.number().describe('The Longitude in decimal degree of the location to get forecast for'),

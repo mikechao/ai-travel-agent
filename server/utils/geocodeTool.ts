@@ -15,8 +15,8 @@ const geocodeTool = new DynamicStructuredTool({
     const { location } = input
     consola.info(`geocodeTool call for ${location}`)
     const result = await opencage.geocode({ q: `${location}`, key: `${runtimeConfig.opencageAPIKey}` })
-    consola.info(`Result: ${result}`)
-    return result.geometry
+    consola.info('Result:', result)
+    return JSON.stringify(result.geometry)
   },
 })
 
