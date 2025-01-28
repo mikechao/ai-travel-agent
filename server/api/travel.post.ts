@@ -51,12 +51,14 @@ export default defineLazyEventHandler(async () => {
   const hotelSearchTool = getHotelSearchTool()
   const hotelDetailsTool = getHotelDetailsTool()
   const sightseeingSearchTool = getSightseeingSearchTool()
+  const geocodeTool = getGeocodeTool()
 
   const toolsByName = new Map<string, StructuredToolInterface>()
   toolsByName.set(weatherForecastTool.name, weatherForecastTool)
   toolsByName.set(hotelSearchTool.name, hotelSearchTool)
   toolsByName.set(hotelDetailsTool.name, hotelDetailsTool)
   toolsByName.set(sightseeingSearchTool.name, sightseeingSearchTool)
+  toolsByName.set(geocodeTool.name, geocodeTool)
 
   const weathToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
@@ -248,7 +250,7 @@ export default defineLazyEventHandler(async () => {
 
     const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'hotelAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [weatherForecastTool])
+    const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [geocodeTool, weatherForecastTool])
     const aiMsg: AIMsg = {
       role: 'ai',
       content: response.response,
