@@ -8,7 +8,7 @@ export interface Props {
 }
 const props = defineProps<Props>()
 
-const { data }   = await useFetch(`/api/photos?locationId=${props.hotel.location_id}`)
+const { data } = await useFetch(`/api/photos?locationId=${props.hotel.location_id}`)
 
 const subratings = Object.values(props.hotel.subratings)
 
@@ -22,23 +22,22 @@ if (Array.isArray(data.value)) {
 
 const amen = ref()
 
-const showAmen = (event: UIEvent) => {
+function showAmen(event: UIEvent) {
   amen.value.toggle(event)
 }
 
 const subratingsPop = ref()
 
-const showSubratings = (event: UIEvent) => {
-  console.log('event', Object.prototype.toString.call(event))
+function showSubratings(event: UIEvent) {
   subratingsPop.value.toggle(event)
 }
 </script>
 
 <template>
   <div class="w-[600px] bg-white shadow-md rounded-lg flex">
-    <Galleria :value="imageUrls" :num-visible="1" :circular="true" containerStyle="width: 250px; height: 200px;" :showItemNavigators="true" :showThumbnails="false">
+    <Galleria :value="imageUrls" :num-visible="1" :circular="true" container-style="width: 250px; height: 200px;" :show-item-navigators="true" :show-thumbnails="false">
       <template #item="slotProps">
-          <img :src="slotProps.item" style="object-fit: cover; display: block;" />
+        <img :src="slotProps.item" style="object-fit: cover; display: block;">
       </template>
     </Galleria>
     <div class="flex-1 p-2 flex flex-col">
@@ -52,8 +51,8 @@ const showSubratings = (event: UIEvent) => {
       </div>
       <div class="flex flex-row gap-1 mt-auto items-start justify-center">
         <Button as="a" label="Visit Web Site" :href="hotel.web_url" target="_blank" rel="noopener" size="small" />
-        <Button type="button" label="Additional Ratings" @click="showSubratings" size="small" />
-        <Button type="button" label="Amenities" @click="showAmen" size="small" />
+        <Button type="button" label="Additional Ratings" size="small" @click="showSubratings" />
+        <Button type="button" label="Amenities" size="small" @click="showAmen" />
         <Popover ref="amen">
           <div>
             <span class="font-medium block mb-2">Amenities</span>
@@ -66,15 +65,15 @@ const showSubratings = (event: UIEvent) => {
         </Popover>
         <Popover ref="subratingsPop">
           <DataTable :value="subratings" class="w-auto">
-              <Column field="localized_name" header="Name" />
-              <Column header="Rating">
-                <template #body="slotProps">
-                  <img
-                    :src="slotProps.data.rating_image_url"
-                  >
-                </template>
-              </Column>
-            </DataTable>
+            <Column field="localized_name" header="Name" />
+            <Column header="Rating">
+              <template #body="slotProps">
+                <img
+                  :src="slotProps.data.rating_image_url"
+                >
+              </template>
+            </Column>
+          </DataTable>
         </Popover>
       </div>
     </div>
