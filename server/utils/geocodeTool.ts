@@ -14,9 +14,10 @@ const geocodeTool = new DynamicStructuredTool({
   func: async (input: { location: string }) => {
     const { location } = input
     consola.info(`geocodeTool call for ${location}`)
-    const result = await opencage.geocode({ q: `${location}`, key: `${runtimeConfig.opencageAPIKey}` })
-    consola.info('Result:', result)
-    return JSON.stringify(result.geometry)
+    const data = await opencage.geocode({ q: `${location}`, key: `${runtimeConfig.opencageAPIKey}` })
+    const place = data.results[0]
+    consola.log('place.geometry', place.geometry)
+    return JSON.stringify(place.geometry)
   },
 })
 
