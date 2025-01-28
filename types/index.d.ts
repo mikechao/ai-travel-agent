@@ -41,7 +41,7 @@ declare global {
     timezone: string
     phone?: string
     write_review: string
-    ranking_data: RankingData
+    ranking_data?: RankingData
     rating: string
     rating_image_url: string
     num_reviews: string

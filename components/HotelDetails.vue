@@ -31,6 +31,13 @@ const subratingsPop = ref()
 function showSubratings(event: UIEvent) {
   subratingsPop.value.toggle(event)
 }
+
+function getRankingString() {
+  if (props.hotel.ranking_data) {
+    return props.hotel.ranking_data.ranking_string
+  }
+  return 'No rankings'
+}
 </script>
 
 <template>
@@ -46,7 +53,7 @@ function showSubratings(event: UIEvent) {
         <p>Based on <span class="font-medium"> {{ hotel.num_reviews }}</span> reviews</p>
       </div>
       <div class="items-center ml-2">
-        <p>{{ hotel.ranking_data.ranking_string }}</p>
+        <p>{{ getRankingString() }}</p>
         <p>Price {{ hotel.price_level }}</p>
       </div>
       <div class="flex flex-row gap-1 mt-auto items-start justify-start">
