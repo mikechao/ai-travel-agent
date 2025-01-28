@@ -50,8 +50,8 @@ function showSubratings(event: UIEvent) {
         <p>Price {{ hotel.price_level }}</p>
       </div>
       <div class="flex flex-row gap-1 mt-auto items-start justify-start">
-        <Button type="button" label="Additional Ratings" size="small" @click="showSubratings" />
-        <Button type="button" label="Amenities" size="small" @click="showAmen" />
+        <Button type="button" label="Additional Ratings" size="small" rounded raised @click="showSubratings" />
+        <Button type="button" label="Amenities" size="small" rounded raised @click="showAmen" />
         <Popover ref="amen">
           <div>
             <span class="font-medium block mb-2">Amenities</span>
