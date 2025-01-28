@@ -8,6 +8,7 @@ defineProps<Props>()
 
 const locationDetails = ref(new Map<string, Hotel>())
 const locationIsLoading = ref(new Map<string, boolean>())
+const hideLocationDetails = ref(new Map<string, boolean>())
 
 async function fetchDetails(location: Location) {
   if (!locationDetails.value.has(location.location_id)) {
@@ -16,12 +17,18 @@ async function fetchDetails(location: Location) {
     console.log('data', data)
     const hotel = data as Hotel
     locationDetails.value.set(hotel.location_id, hotel)
+    hideLocationDetails.value.set(location.location_id, false)
     locationIsLoading.value.set(location.location_id, false)
   }
+  hideLocationDetails.value.set(location.location_id, false)
 }
 
 function getHotel(location: Location) {
   return locationDetails.value.get(location.location_id) as Hotel
+}
+
+function hideDetails(location: Location) {
+  hideLocationDetails.value.set(location.location_id, true)
 }
 
 function roundDistance(distance: string) {
@@ -56,9 +63,9 @@ function roundDistance(distance: string) {
             </div>
             <div class="mt-1 mb-1">
               <Button type="button" label="Show Details" size="small" rounded raised :loading="locationIsLoading.get(location.location_id)" class="mr-1" @click="fetchDetails(location)" />
-              <Button type="button" label="Hide Details" size="small" rounded raised />
+              <Button type="button" label="Hide Details" size="small" rounded raised @click="hideDetails(location)" />
             </div>
-            <div v-if="locationDetails.get(location.location_id)">
+            <div v-if="locationDetails.get(location.location_id) && !hideLocationDetails.get(location.location_id)">
               <HotelDetails :hotel="getHotel(location)" />
             </div>
           </template>
