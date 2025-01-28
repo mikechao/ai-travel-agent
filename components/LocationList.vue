@@ -54,7 +54,10 @@ function roundDistance(distance: string) {
                 <span class="text-neutral-700 mr-1">Address: {{ location.address_obj.address_string }}</span>
               </p>
             </div>
-            <Button type="button" label="Details" size="small" :loading="locationIsLoading.get(location.location_id)" @click="fetchDetails(location)" />
+            <ButtonGroup class="mt-1 mb-1">
+              <Button type="button" label="Show Details" size="small" rounded raised :loading="locationIsLoading.get(location.location_id)" @click="fetchDetails(location)" />
+              <Button type="button" label="Hide Details" size="small" rounded raised />
+            </ButtonGroup>
             <div v-if="locationDetails.get(location.location_id)">
               <HotelDetails :hotel="getHotel(location)" />
             </div>
