@@ -34,7 +34,7 @@ function showSubratings(event: UIEvent) {
 </script>
 
 <template>
-  <div class="w-[600px] bg-white shadow-md rounded-lg flex">
+  <div class="w-fit bg-white shadow-lg rounded-lg flex">
     <Galleria :value="imageUrls" :num-visible="1" :circular="true" container-style="width: 250px; height: 200px;" :show-item-navigators="true" :show-thumbnails="false">
       <template #item="slotProps">
         <img :src="slotProps.item" style="object-fit: cover; display: block;">
