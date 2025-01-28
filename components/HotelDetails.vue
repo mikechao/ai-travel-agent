@@ -49,8 +49,7 @@ function showSubratings(event: UIEvent) {
         <p>{{ hotel.ranking_data.ranking_string }}</p>
         <p>Price {{ hotel.price_level }}</p>
       </div>
-      <div class="flex flex-row gap-1 mt-auto items-start justify-center">
-        <Button as="a" label="Visit Web Site" :href="hotel.web_url" target="_blank" rel="noopener" size="small" />
+      <div class="flex flex-row gap-1 mt-auto items-start justify-start">
         <Button type="button" label="Additional Ratings" size="small" @click="showSubratings" />
         <Button type="button" label="Amenities" size="small" @click="showAmen" />
         <Popover ref="amen">
@@ -75,6 +74,10 @@ function showSubratings(event: UIEvent) {
             </Column>
           </DataTable>
         </Popover>
+      </div>
+      <div class="flex flex-row gap-1 mt-1 items-start justify-start">
+        <Button as="a" label="Visit Web Site" :href="hotel.web_url" target="_blank" rel="noopener" size="small" variant="link" />
+        <Button as="a" label="More photos" :href="hotel.see_all_photos" target="_blank" rel="noopener" size="small" variant="link" />
       </div>
     </div>
   </div>
