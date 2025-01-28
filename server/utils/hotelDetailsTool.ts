@@ -7,7 +7,7 @@ const runtimeConfig = useRuntimeConfig()
 
 const hotelDetailsTool = new DynamicStructuredTool({
   name: 'hotelDetailsTool',
-  description: 'Used to get additional details about a hotel',
+  description: 'Used to get additional details about a hotel, needs location_id frrom hotelSearchTool',
   schema: z.object({
     locationId: z.string().describe('The location_id from previous results of the tool named hotelSearchTool'),
   }),

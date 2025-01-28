@@ -203,6 +203,8 @@ export default defineLazyEventHandler(async () => {
       = `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `
         + `After getting the list of hotel locations just focus on the names of the hotels and tell the user 
         you can get more details on them. `
+        + ` Use the \'geocodeTool\' to get Latitude, Longitude and location `
+        + ` Then Use the \'hotelSearchTool\' get a list of hotels `
         + `When talking to the user be friendly, warm and playful with a sense of humor`
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you need specific sightseeing recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
@@ -212,7 +214,7 @@ export default defineLazyEventHandler(async () => {
 
     const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'weatherAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'hotelAdvisor', [hotelSearchTool, hotelDetailsTool])
+    const response = await callLLM(messages, targetAgentNodes, 'hotelAdvisor', [geocodeTool, hotelSearchTool, hotelDetailsTool])
 
     const aiMsg: AIMsg = {
       role: 'ai',
