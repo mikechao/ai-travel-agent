@@ -27,9 +27,9 @@ const weatherMenuItem: MenuItem = {
   },
 }
 
-const locationsMenuItem: MenuItem = {
-  label: 'Locations',
-  icon: './locations-icon.webp',
+const hotelsMenuItem: MenuItem = {
+  label: 'Hotels',
+  icon: './hotel.png',
   disabled: true,
   command(_event: MenuItemCommandEvent) {
     if (locationsData.value) {
@@ -45,7 +45,7 @@ const settingMenuItem: MenuItem = {
     console.log('event inside settingsMenuItem', event)
   },
 }
-const menuItems: Ref<MenuItem[]> = ref([locationsMenuItem, weatherMenuItem, settingMenuItem])
+const menuItems: Ref<MenuItem[]> = ref([hotelsMenuItem, weatherMenuItem, settingMenuItem])
 
 const processedDataItemIds = new Set()
 
@@ -69,7 +69,7 @@ function processDataItem(dataItem: DataItem) {
     }
     case 'hotel-search': {
       locationsData.value = dataItem.data
-      locationsMenuItem.disabled = false
+      hotelsMenuItem.disabled = false
       dockKey.value = newDockKey()
       displayLocations.value = true
       break
