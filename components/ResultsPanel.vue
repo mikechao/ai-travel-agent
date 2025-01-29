@@ -111,6 +111,28 @@ function onDockItemClick(event: MouseEvent, item: MenuItem) {
 function newDockKey() {
   return Math.random() * 10000
 }
+
+const baseZIndex = 5000
+const weatherZIndex = ref(baseZIndex)
+const hotelsZIndex = ref(baseZIndex)
+const sightsZIndex = ref(baseZIndex)
+
+let currentZIndex = baseZIndex
+
+function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
+  currentZIndex += 1
+  switch (type) {
+    case 'weather':
+      weatherZIndex.value = currentZIndex
+      break
+    case 'hotels':
+      hotelsZIndex.value = currentZIndex
+      break
+    case 'sights':
+      sightsZIndex.value = currentZIndex
+      break
+  }
+}
 </script>
 
 <template>
@@ -122,13 +144,69 @@ function newDockKey() {
         </a>
       </template>
     </Dock>
-    <Dialog v-model:visible="displayWeather" header="Weather" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '40vw' }" :maximizable="true">
+    <Dialog
+      v-model:visible="displayWeather"
+      :auto-z-index="false"
+      :base-z-index="weatherZIndex"
+      :modal="false"
+      header="Weather"
+      position="left"
+      :keep-in-view-port="true"
+      :breakpoints="{ '960px': '50vw' }"
+      :style="{ width: '40vw' }"
+      :maximizable="true"
+      :pt="{
+        mask: {
+          style: {
+            zIndex: weatherZIndex,
+          },
+        },
+      }"
+      @click="updateZIndex('weather')"
+    >
       <WeatherCard :place="weatherData" />
     </Dialog>
-    <Dialog v-model:visible="displayHotels" header="List of Hotel Locations" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
+    <Dialog
+      v-model:visible="displayHotels"
+      :auto-z-index="false"
+      :base-z-index="hotelsZIndex"
+      :modal="false"
+      header="List of Hotel Locations"
+      position="left"
+      :keep-in-view-port="true"
+      :breakpoints="{ '960px': '50vw' }"
+      :style="{ width: '620px' }"
+      :maximizable="true"
+      :pt="{
+        mask: {
+          style: {
+            zIndex: hotelsZIndex,
+          },
+        },
+      }"
+      @click="updateZIndex('hotels')"
+    >
       <LocationList :locations="hotelsData" />
     </Dialog>
-    <Dialog v-model:visible="displaySights" header="List of Sights to See" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
+    <Dialog
+      v-model:visible="displaySights"
+      :auto-z-index="false"
+      :base-z-index="sightsZIndex"
+      header="List of Sights to See"
+      position="left"
+      :keep-in-view-port="true"
+      :breakpoints="{ '960px': '50vw' }"
+      :style="{ width: '620px' }"
+      :maximizable="true"
+      :pt="{
+        mask: {
+          style: {
+            zIndex: hotelsZIndex,
+          },
+        },
+      }"
+      @click="updateZIndex('sights')"
+    >
       <LocationList :locations="sightseeingData" />
     </Dialog>
   </div>
