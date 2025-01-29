@@ -19,12 +19,21 @@ const displayHotels = ref(false)
 const sightseeingData = ref()
 const displaySights = ref(false)
 
+const baseZIndex = 5000
+const weatherZIndex = ref(baseZIndex)
+const hotelsZIndex = ref(baseZIndex)
+const sightsZIndex = ref(baseZIndex)
+
+let currentZIndex = baseZIndex
+
 const weatherMenuItem: MenuItem = {
   label: 'Weather',
   icon: './weather-icon.jpg',
   disabled: true,
   command(_event: MenuItemCommandEvent) {
     if (weatherData.value) {
+      currentZIndex += 1
+      weatherZIndex.value = currentZIndex
       displayWeather.value = true
     }
   },
@@ -36,6 +45,8 @@ const hotelsMenuItem: MenuItem = {
   disabled: true,
   command(_event: MenuItemCommandEvent) {
     if (hotelsData.value) {
+      currentZIndex += 1
+      hotelsZIndex.value = currentZIndex
       displayHotels.value = true
     }
   },
@@ -47,6 +58,8 @@ const sightseeingMenuItem: MenuItem = {
   disabled: true,
   command(_event: MenuItemCommandEvent) {
     if (sightseeingData.value) {
+      currentZIndex += 1
+      sightsZIndex.value = currentZIndex
       displaySights.value = true
     }
   },
@@ -78,6 +91,8 @@ function processDataItem(dataItem: DataItem) {
       weatherData.value = dataItem.data
       weatherMenuItem.disabled = false
       dockKey.value = newDockKey()
+      currentZIndex += 1
+      weatherZIndex.value = currentZIndex
       displayWeather.value = true
       break
     }
@@ -85,6 +100,8 @@ function processDataItem(dataItem: DataItem) {
       hotelsData.value = dataItem.data
       hotelsMenuItem.disabled = false
       dockKey.value = newDockKey()
+      currentZIndex += 1
+      hotelsZIndex.value = currentZIndex
       displayHotels.value = true
       break
     }
@@ -92,6 +109,8 @@ function processDataItem(dataItem: DataItem) {
       sightseeingData.value = dataItem.data
       sightseeingMenuItem.disabled = false
       dockKey.value = newDockKey()
+      currentZIndex += 1
+      sightsZIndex.value = currentZIndex
       displaySights.value = true
       break
     }
@@ -111,13 +130,6 @@ function onDockItemClick(event: MouseEvent, item: MenuItem) {
 function newDockKey() {
   return Math.random() * 10000
 }
-
-const baseZIndex = 5000
-const weatherZIndex = ref(baseZIndex)
-const hotelsZIndex = ref(baseZIndex)
-const sightsZIndex = ref(baseZIndex)
-
-let currentZIndex = baseZIndex
 
 function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
   currentZIndex += 1
