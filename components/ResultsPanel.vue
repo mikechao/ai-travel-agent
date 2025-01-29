@@ -3,8 +3,7 @@
 import type { MenuItem, MenuItemCommandEvent } from 'primevue/menuitem'
 import Dialog from 'primevue/dialog'
 import Dock from 'primevue/dock'
-import HotelList from './HotelList.vue'
-import SightsList from './SightsList.vue'
+import LocationList from './LocationList.vue'
 import WeatherCard from './weather/WeatherCard.vue'
 
 const dataItemStore = useDataItemStore()
@@ -127,10 +126,10 @@ function newDockKey() {
       <WeatherCard :place="weatherData" />
     </Dialog>
     <Dialog v-model:visible="displayHotels" header="List of Hotel Locations" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
-      <HotelList :locations="hotelsData" />
+      <LocationList :locations="hotelsData" />
     </Dialog>
     <Dialog v-model:visible="displaySights" header="List of Sights to See" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
-      <SightsList :locations="sightseeingData" />
+      <LocationList :locations="sightseeingData" />
     </Dialog>
   </div>
 </template>
