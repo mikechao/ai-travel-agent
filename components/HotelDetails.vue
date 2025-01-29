@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { HotelDetails } from '#components'
 import Button from 'primevue/button'
 import Galleria from 'primevue/galleria'
 import Popover from 'primevue/popover'
