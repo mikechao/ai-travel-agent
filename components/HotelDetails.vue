@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { HotelDetails } from '#components'
 import Button from 'primevue/button'
 import Galleria from 'primevue/galleria'
 import Popover from 'primevue/popover'
@@ -10,8 +11,6 @@ const props = defineProps<Props>()
 
 const { data } = await useFetch(`/api/location/photos?locationId=${props.hotel.location_id}`)
 
-const subratings = Object.values(props.hotel.subratings)
-
 const imageUrls = [] as string[]
 
 if (Array.isArray(data.value)) {
@@ -20,6 +19,9 @@ if (Array.isArray(data.value)) {
   }
 }
 
+const website = computed(() => (props.hotel.website) ? props.hotel.website : props.hotel.web_url)
+const linksMarginTop = computed(() => (props.hotel.subratings && props.hotel.amenities) ? 'mt-1' : 'mt-auto')
+
 const amen = ref()
 
 function showAmen(event: UIEvent) {
@@ -27,6 +29,7 @@ function showAmen(event: UIEvent) {
 }
 
 const subratingsPop = ref()
+const subratings = (props.hotel.subratings) ? Object.values(props.hotel.subratings) : []
 
 function showSubratings(event: UIEvent) {
   subratingsPop.value.toggle(event)
@@ -56,7 +59,7 @@ function getRankingString() {
         <p>{{ getRankingString() }}</p>
         <p>Price {{ hotel.price_level }}</p>
       </div>
-      <div class="flex flex-row gap-1 mt-auto items-start justify-start">
+      <div v-if="hotel.subratings && hotel.amenities" class="flex flex-row gap-1 mt-auto items-start justify-start">
         <Button type="button" label="Additional Ratings" size="small" rounded raised @click="showSubratings" />
         <Button type="button" label="Amenities" size="small" rounded raised @click="showAmen" />
         <Popover ref="amen">
@@ -82,8 +85,8 @@ function getRankingString() {
           </DataTable>
         </Popover>
       </div>
-      <div class="flex flex-row gap-1 mt-1 items-start justify-start">
-        <Button as="a" label="Visit Web Site" :href="hotel.web_url" target="_blank" rel="noopener" size="small" variant="link" />
+      <div class="flex flex-row gap-1 items-start justify-start" :class="linksMarginTop">
+        <Button as="a" label="Visit Web Site" :href="website" target="_blank" rel="noopener" size="small" variant="link" />
         <Button as="a" label="More photos" :href="hotel.see_all_photos" target="_blank" rel="noopener" size="small" variant="link" />
       </div>
     </div>

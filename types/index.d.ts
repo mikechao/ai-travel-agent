@@ -46,12 +46,12 @@ declare global {
     rating_image_url: string
     num_reviews: string
     review_rating_count: ReviewRatingCount
-    subratings: { [key: string]: Subrating }
+    subratings?: { [key: string]: Subrating }
     photo_count: string
     see_all_photos: string
     price_level: string
     hours: Hours
-    amenities: string[]
+    amenities?: string[]
     parent_brand: string
     brand: string
     category: Category
@@ -60,6 +60,7 @@ declare global {
     neighborhood_info: any[]
     trip_types: TripType[]
     awards: any[]
+    website?: string
   }
 
   /**
