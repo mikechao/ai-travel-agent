@@ -12,7 +12,7 @@ import { useDataItemStore } from '~/stores/dataItemStore'
 const dataItemStore = useDataItemStore()
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
-  api: '/api/travel',
+  api: '/api/test',
   body: computed(() => ({
     sessionId,
     messages: messages.value.length > 0 ? [messages.value[messages.value.length - 1]] : [],
@@ -71,7 +71,14 @@ function formSubmit(_event: FormSubmitEvent) {
 </script>
 
 <template>
-  <Panel class="w-full h-screen">
+  <Panel
+    class="w-full h-full flex flex-col shadow-lg border border-gray-500"
+    :pt="{
+      root: { class: 'h-full' },
+      header: { class: 'p-2' },
+      content: { class: 'flex-1' },
+    }"
+  >
     <template #header>
       <div class="flex items-center gap-2">
         <Avatar image="./chatAvatar.webp" shape="circle" />

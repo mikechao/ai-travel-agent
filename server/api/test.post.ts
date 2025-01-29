@@ -1,3 +1,5 @@
+import { formatDataStreamPart } from 'ai'
+
 // just a simple test endpoint that will return some text
 export default defineLazyEventHandler(async () => {
   const text1 = `
@@ -26,19 +28,21 @@ and black suspenders nods and smiles<br/>
   function delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
-
+  const encoder = new TextEncoder()
   return defineEventHandler(async (_webEvent) => {
     return new ReadableStream({
       async start(controller) {
         for (const chunk of text1.split(' ')) {
           // simluate some delay
           await delay(50)
-          controller.enqueue(`${chunk} `)
+          const part = formatDataStreamPart('text', chunk)
+          controller.enqueue(encoder.encode(part))
         }
         for (const chunk of text2.split(' ')) {
           // simluate some delay
           await delay(50)
-          controller.enqueue(`${chunk} `)
+          const part = formatDataStreamPart('text', chunk)
+          controller.enqueue(encoder.encode(part))
         }
         controller.close() // Close the stream when done
       },
