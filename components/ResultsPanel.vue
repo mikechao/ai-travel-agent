@@ -46,7 +46,7 @@ const sightseeingMenuItem: MenuItem = {
   label: 'Sights',
   icon: './sightseeing.png',
   disabled: true,
-  commond(_event: MenuItemCommandEvent) {
+  command(_event: MenuItemCommandEvent) {
     if (sightseeingData.value) {
       displaySights.value = true
     }
