@@ -29,7 +29,7 @@ declare global {
     address_obj: Address
   }
 
-  interface Hotel extends Location {
+  interface LocationDetails extends Location {
     description: string
     /**
      * Link to the POI detail page on Tripadvisor. Link is localized to the correct domain if a language other than English is requested.

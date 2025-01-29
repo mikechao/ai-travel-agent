@@ -4,7 +4,7 @@ import Galleria from 'primevue/galleria'
 import Popover from 'primevue/popover'
 
 export interface Props {
-  hotel: Hotel
+  hotel: LocationDetails
 }
 const props = defineProps<Props>()
 

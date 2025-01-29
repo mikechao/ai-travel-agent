@@ -6,7 +6,7 @@ export interface Props {
 }
 defineProps<Props>()
 
-const locationDetails = ref(new Map<string, Hotel>())
+const locationDetails = ref(new Map<string, LocationDetails>())
 const locationIsLoading = ref(new Map<string, boolean>())
 const hideLocationDetails = ref(new Map<string, boolean>())
 
@@ -14,7 +14,7 @@ async function fetchDetails(location: Location) {
   if (!locationDetails.value.has(location.location_id)) {
     locationIsLoading.value.set(location.location_id, true)
     const data = await $fetch(`/api/location/details?locationId=${location.location_id}`)
-    const hotel = data as Hotel
+    const hotel = data as LocationDetails
     locationDetails.value.set(hotel.location_id, hotel)
     hideLocationDetails.value.set(location.location_id, false)
     locationIsLoading.value.set(location.location_id, false)
@@ -23,7 +23,7 @@ async function fetchDetails(location: Location) {
 }
 
 function getHotel(location: Location) {
-  return locationDetails.value.get(location.location_id) as Hotel
+  return locationDetails.value.get(location.location_id) as LocationDetails
 }
 
 function hideDetails(location: Location) {
