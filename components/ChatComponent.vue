@@ -79,8 +79,8 @@ function formSubmit(_event: FormSubmitEvent) {
       </div>
     </template>
     <template #default>
-      <div class="chat-container flex flex-col max-w-2xl mx-auto">
-        <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300 shadow-lg">
+      <div class="chat-container flex flex-col max-w-2xl mx-auto shadow-lg">
+        <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-4 p-4 border border-gray-300">
           <div v-for="message in messages" :key="message.id">
             <div v-if="message.content.length > 0" class="mb-4 p-2 rounded" :class="[message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
               <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
@@ -106,7 +106,7 @@ function formSubmit(_event: FormSubmitEvent) {
           :loading="isLoading"
           raised
           rounded
-          class="ripple-box"
+          class="ripple-box shadow-lg"
         >
           <template #icon>
             <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
@@ -128,7 +128,6 @@ function formSubmit(_event: FormSubmitEvent) {
   height: 80vh;
   max-width: 600px;
   margin: 0 auto;
-  padding: 1rem;
 }
 
 .messages {

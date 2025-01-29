@@ -41,7 +41,7 @@ function getRankingString() {
 </script>
 
 <template>
-  <div class="w-fit bg-white shadow-lg rounded-lg flex">
+  <div class="w-fit bg-primary-100 border border-primary-300 shadow-lg rounded-lg flex">
     <Galleria :value="imageUrls" :num-visible="1" :circular="true" container-style="width: 250px; height: 200px;" :show-item-navigators="true" :show-thumbnails="false">
       <template #item="slotProps">
         <img :src="slotProps.item" style="object-fit: cover; display: block;">
@@ -50,7 +50,7 @@ function getRankingString() {
     <div class="flex-1 p-2 flex flex-col">
       <div class="flex flex-row items-center mt-2">
         <img :src="hotel.rating_image_url">
-        <p>Based on <span class="font-medium"> {{ hotel.num_reviews }}</span> reviews</p>
+        <p><span class="font-medium"> {{ hotel.num_reviews }}</span> reviews</p>
       </div>
       <div class="items-center ml-2">
         <p>{{ getRankingString() }}</p>

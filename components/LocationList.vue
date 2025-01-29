@@ -42,7 +42,7 @@ function roundDistance(distance: string) {
         <Card
           v-for="location in locations"
           :key="location.location_id"
-          class="w-full flex items-start bg-neutral-50 border border-neutral-200 rounded-md shadow-md hover:shadow-xl transition-all"
+          class="w-full flex items-start bg-primary-50 border border-primary-200 rounded-md shadow-md hover:shadow-xl transition-all"
         >
           <template #title>
             <p class="text-lg font-semibold text-neutral-950 mb-1">
@@ -60,7 +60,7 @@ function roundDistance(distance: string) {
                 <span class="text-neutral-700 mr-1">Address: {{ location.address_obj.address_string }}</span>
               </p>
             </div>
-            <div class="mt-1 mb-1">
+            <div class="mt-1 mb-2">
               <Button
                 type="button"
                 label="Show Details"
