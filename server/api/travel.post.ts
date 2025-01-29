@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 import { getHotelDetailsTool } from '../utils/hotelDetailsTool'
 import { getHotelSearchTool } from '../utils/hotelSearchTool'
+import { getSightsDetailsTool } from '../utils/sightsDetailsTool'
 import { getSightseeingSearchTool } from '../utils/sightseeingSearchTool'
 import { getWeatherForecastTool } from '../utils/weatherSearchTool'
 
@@ -52,6 +53,7 @@ export default defineLazyEventHandler(async () => {
   const hotelDetailsTool = getHotelDetailsTool()
   const sightseeingSearchTool = getSightseeingSearchTool()
   const geocodeTool = getGeocodeTool()
+  const sightsDetailsTool = getSightsDetailsTool()
 
   const toolsByName = new Map<string, StructuredToolInterface>()
   toolsByName.set(weatherForecastTool.name, weatherForecastTool)
@@ -59,16 +61,19 @@ export default defineLazyEventHandler(async () => {
   toolsByName.set(hotelDetailsTool.name, hotelDetailsTool)
   toolsByName.set(sightseeingSearchTool.name, sightseeingSearchTool)
   toolsByName.set(geocodeTool.name, geocodeTool)
+  toolsByName.set(sightsDetailsTool.name, sightsDetailsTool)
 
   const weathToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
   const hotelSearchTag = 'hotel-search'
   const sightSearchTag = 'sight-search'
+  const sighDetailTag = 'sight-details'
   const toolTagsByToolName = new Map<string, string>()
   toolTagsByToolName.set(weatherForecastTool.name, weathToolTag)
   toolTagsByToolName.set(hotelDetailsTool.name, hotelDetailsTag)
   toolTagsByToolName.set(hotelSearchTool.name, hotelSearchTag)
   toolTagsByToolName.set(sightseeingSearchTool.name, sightSearchTag)
+  toolTagsByToolName.set(sightsDetailsTool.name, sighDetailTag)
 
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
@@ -171,6 +176,7 @@ export default defineLazyEventHandler(async () => {
       Be sure to Squawk a lot like a parrot and use emojis related to a parrot`
         + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
         + ` Then Use the \'sightseeingSearchTool\' get a list of sights to see `
+        + ` Use the \'sightsDetailsTool\' to get more details about the sight to see `
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help.  '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
@@ -179,7 +185,7 @@ export default defineLazyEventHandler(async () => {
 
     const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'hotelAdvisor', 'weatherAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [geocodeTool, sightseeingSearchTool])
+    const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [geocodeTool, sightseeingSearchTool, sightsDetailsTool])
     const aiMsg: AIMsg = {
       role: 'ai',
       content: response.response,
