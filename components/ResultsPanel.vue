@@ -13,8 +13,11 @@ const dockKey = ref(newDockKey())
 const weatherData = ref()
 const displayWeather = ref(false)
 
-const locationsData = ref()
-const displayLocations = ref(false)
+const hotelsData = ref()
+const displayHotels = ref(false)
+
+const sightseeingData = ref()
+const displaySights = ref(false)
 
 const weatherMenuItem: MenuItem = {
   label: 'Weather',
@@ -32,8 +35,19 @@ const hotelsMenuItem: MenuItem = {
   icon: './hotel.png',
   disabled: true,
   command(_event: MenuItemCommandEvent) {
-    if (locationsData.value) {
-      displayLocations.value = true
+    if (hotelsData.value) {
+      displayHotels.value = true
+    }
+  },
+}
+
+const sightseeingMenuItem: MenuItem = {
+  label: 'Sights',
+  icon: './sightseeing.png',
+  disabled: true,
+  commond(_event: MenuItemCommandEvent) {
+    if (sightseeingData.value) {
+      displaySights.value = true
     }
   },
 }
@@ -45,7 +59,7 @@ const settingMenuItem: MenuItem = {
     console.log('event inside settingsMenuItem', event)
   },
 }
-const menuItems: Ref<MenuItem[]> = ref([hotelsMenuItem, weatherMenuItem, settingMenuItem])
+const menuItems: Ref<MenuItem[]> = ref([sightseeingMenuItem, hotelsMenuItem, weatherMenuItem, settingMenuItem])
 
 const processedDataItemIds = new Set()
 
@@ -68,10 +82,10 @@ function processDataItem(dataItem: DataItem) {
       break
     }
     case 'hotel-search': {
-      locationsData.value = dataItem.data
+      hotelsData.value = dataItem.data
       hotelsMenuItem.disabled = false
       dockKey.value = newDockKey()
-      displayLocations.value = true
+      displayHotels.value = true
       break
     }
     default:
@@ -104,8 +118,8 @@ function newDockKey() {
     <Dialog v-model:visible="displayWeather" header="Weather" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '40vw' }" :maximizable="true">
       <WeatherCard :place="weatherData" />
     </Dialog>
-    <Dialog v-model:visible="displayLocations" header="List of Hotel Locations" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
-      <LocationList :locations="locationsData" />
+    <Dialog v-model:visible="displayHotels" header="List of Hotel Locations" position="left" :keep-in-view-port="true" :breakpoints="{ '960px': '50vw' }" :style="{ width: '620px' }" :maximizable="true">
+      <LocationList :locations="hotelsData" />
     </Dialog>
   </div>
 </template>
