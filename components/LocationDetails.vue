@@ -65,11 +65,20 @@ function getRankingString() {
         <Popover ref="amen">
           <div>
             <span class="font-medium block mb-2">Amenities</span>
-            <div class="grid grid-cols-3 sm:grid-cols-3 gap-2">
-              <div v-for="(amenity, index) in hotel.amenities" :key="index" class="p-2 bg-gray-100 rounded-lg">
-                <p>{{ amenity }}</p>
+            <ScrollPanel
+              style="width: 100%; height: 200px"
+              :pt="{
+                barY: {
+                  class: 'bg-primary',
+                },
+              }"
+            >
+              <div class="grid grid-cols-3 sm:grid-cols-3 gap-2">
+                <div v-for="(amenity, index) in hotel.amenities" :key="index" class="p-2 bg-gray-100 rounded-lg">
+                  <p>{{ amenity }}</p>
+                </div>
               </div>
-            </div>
+            </ScrollPanel>
           </div>
         </Popover>
         <Popover ref="subratingsPop">
