@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type {
   AIMessageChunk,
   BaseMessage,
@@ -32,6 +31,7 @@ import { ChatOpenAI } from '@langchain/openai'
 import {
   formatDataStreamPart,
 } from 'ai'
+import consola from 'consola'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 import { getHotelDetailsTool } from '../utils/hotelDetailsTool'
@@ -140,7 +140,7 @@ export default defineLazyEventHandler(async () => {
   }
 
   async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
-    console.log('travelAdvisor')
+    consola.info('travelAdvisor')
     const systemPrompt
       = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
        Be sure to bark a lot and use dog related emojis `
@@ -159,7 +159,7 @@ export default defineLazyEventHandler(async () => {
     if (goto === 'finish') {
       goto = 'human'
     }
-    console.log('goto', goto)
+    consola.info('goto', goto)
     return new Command({
       goto,
       update: {
@@ -170,7 +170,7 @@ export default defineLazyEventHandler(async () => {
   }
 
   async function sightseeingAdvisor(state: typeof AgentState.State): Promise<Command> {
-    console.log('sightseeingAdvisor')
+    consola.info('sightseeingAdvisor')
     const systemPrompt
       = `Your name is Polly Parrot and you are a travel expert that can provide specific sightseeing recommendations for a given destination. 
       Be sure to Squawk a lot like a parrot and use emojis related to a parrot`
@@ -208,7 +208,7 @@ export default defineLazyEventHandler(async () => {
   }
 
   async function hotelAdvisor(state: typeof AgentState.State): Promise<Command> {
-    console.log('hotelAdvisor')
+    consola.info('hotelAdvisor')
     const systemPrompt
       = `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `
         + `After getting the list of hotel locations just focus on the names of the hotels and tell the user 
@@ -249,7 +249,7 @@ export default defineLazyEventHandler(async () => {
   }
 
   async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> {
-    console.log('weatherAdvisor')
+    consola.info('weatherAdvisor')
     const systemPrompt
     = `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
     for a given destination and duration. After getting the weather forecast do not tell the user 
@@ -276,7 +276,7 @@ export default defineLazyEventHandler(async () => {
     if (goto === 'finish') {
       goto = 'human'
     }
-    console.log('goto', goto)
+    consola.info('goto', goto)
     return new Command({
       goto,
       update: {
@@ -287,7 +287,7 @@ export default defineLazyEventHandler(async () => {
   }
 
   function humanNode(state: typeof AgentState.State): Command {
-    console.log('humanNode')
+    consola.info('humanNode')
     const userInput: string = interrupt('Ready for user input.')
 
     return new Command({
@@ -304,7 +304,7 @@ export default defineLazyEventHandler(async () => {
   }
 
   async function callTools(state: typeof AgentState.State): Promise<Command> {
-    console.log('callTools')
+    consola.info('callTools')
     const lastMessage = state.messages[state.messages.length - 1]
     const aiMsg = lastMessage as unknown as AIMsg
     const tools: StructuredToolInterface[]
@@ -369,10 +369,10 @@ export default defineLazyEventHandler(async () => {
   return defineEventHandler(async (webEvent) => {
     const body = await readBody(webEvent)
     const { messages, sessionId } = body
-    console.log('\nReceived request sessionId', sessionId)
+    consola.info('\nReceived request sessionId', sessionId)
 
     const lastMessage: VercelChatMessage = messages[0]
-    console.log('lastMessage', lastMessage.content)
+    consola.info('lastMessage', lastMessage.content)
 
     const initMessage = {
       messages: [
