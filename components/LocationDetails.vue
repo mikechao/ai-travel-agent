@@ -57,7 +57,9 @@ function getRankingString() {
       </div>
       <div class="items-center ml-2">
         <p>{{ getRankingString() }}</p>
-        <p>Price {{ hotel.price_level }}</p>
+        <p v-if="hotel.price_level">
+          Price {{ hotel.price_level }}
+        </p>
       </div>
       <div v-if="hotel.subratings && hotel.amenities" class="flex flex-row gap-1 mt-auto items-start justify-start">
         <Button type="button" label="Additional Ratings" size="small" rounded raised @click="showSubratings" />
