@@ -121,6 +121,10 @@ function processDataItem(dataItem: DataItem) {
 }
 
 function onDockItemClick(event: MouseEvent, item: MenuItem) {
+  if (item.disabled) {
+    event.preventDefault()
+    return
+  }
   if (item.command) {
     item.command({ originalEvent: event, item })
   }
