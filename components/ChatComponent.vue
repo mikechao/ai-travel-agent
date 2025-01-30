@@ -81,8 +81,8 @@ function formSubmit(_event: FormSubmitEvent) {
   >
     <template #header>
       <div class="flex items-center gap-2">
-        <Avatar image="./chatAvatar.webp" shape="circle" />
-        <span class="font-bold">AI Travel Agent Chat</span>
+        <Avatar image="./chatAvatar.webp" shape="circle" size="large" />
+        <span class="font-bold text-xl">AI Travel Agent Chat</span>
       </div>
     </template>
     <template #default>
