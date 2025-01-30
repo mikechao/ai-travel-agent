@@ -151,7 +151,7 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
   <div>
     <Dock :key="dockKey" :model="menuItems" position="left">
       <template #item="{ item }">
-        <a v-tooltip.top="item.label" href="#" class="p-dock-item-link" @click="onDockItemClick($event, item)">
+        <a v-tooltip.top="item.label" href="javascript:void(0);" class="p-dock-item-link" @click="onDockItemClick($event, item)">
           <img :alt="typeof item.label === 'string' ? item.label : ''" :src="item.icon" style="width: 100%">
         </a>
       </template>
@@ -174,7 +174,7 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
           },
         },
       }"
-      @click="updateZIndex('weather')"
+      @mousedown="updateZIndex('weather')"
     >
       <WeatherCard :place="weatherData" />
     </Dialog>
@@ -196,7 +196,7 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
           },
         },
       }"
-      @click="updateZIndex('hotels')"
+      @mousedown="updateZIndex('hotels')"
     >
       <LocationList :locations="hotelsData" />
     </Dialog>
@@ -213,11 +213,11 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
       :pt="{
         mask: {
           style: {
-            zIndex: hotelsZIndex,
+            zIndex: sightsZIndex,
           },
         },
       }"
-      @click="updateZIndex('sights')"
+      @mousedown="updateZIndex('sights')"
     >
       <LocationList :locations="sightseeingData" />
     </Dialog>
