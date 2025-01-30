@@ -12,6 +12,8 @@ const locationDetails = ref(new Map<string, LocationDetails>())
 const locationIsLoading = ref(new Map<string, boolean>())
 const hideLocationDetails = ref(new Map<string, boolean>())
 
+const buttonStates = ref(new Map<string, boolean>()) // true = showing details
+
 async function fetchDetails(location: Location) {
   if (!locationDetails.value.has(location.location_id)) {
     locationIsLoading.value.set(location.location_id, true)
@@ -34,6 +36,17 @@ function hideDetails(location: Location) {
 
 function roundDistance(distance: string) {
   return Number.parseFloat(distance).toFixed(2)
+}
+
+function toggleDetails(location: Location) {
+  const isShowing = buttonStates.value.get(location.location_id)
+  if (!isShowing) {
+    fetchDetails(location)
+  }
+  else {
+    hideDetails(location)
+  }
+  buttonStates.value.set(location.location_id, !isShowing)
 }
 </script>
 
@@ -65,30 +78,21 @@ function roundDistance(distance: string) {
             <div class="mt-1 mb-2">
               <Button
                 type="button"
-                label="Show Details"
+                :label="buttonStates.get(location.location_id) ? 'Hide Details' : 'Show Details'"
                 icon-pos="right"
                 size="small"
                 rounded
                 raised
                 :loading="locationIsLoading.get(location.location_id)"
-                class="mr-1"
-                @click="fetchDetails(location)"
+                @click="toggleDetails(location)"
               >
                 <template #icon>
-                  <font-awesome icon="fa-solid fa-chevron-down" class="p-button-icon-right" />
-                </template>
-              </Button>
-              <Button
-                type="button"
-                label="Hide Details"
-                size="small"
-                icon-pos="right"
-                rounded
-                raised
-                @click="hideDetails(location)"
-              >
-                <template #icon>
-                  <font-awesome icon="fa-solid fa-chevron-up" class="p-button-icon-right" />
+                  <font-awesome
+                    :icon="buttonStates.get(location.location_id)
+                      ? 'fa-solid fa-chevron-up'
+                      : 'fa-solid fa-chevron-down'"
+                    class="p-button-icon-right"
+                  />
                 </template>
               </Button>
             </div>
