@@ -16,15 +16,15 @@ async function fetchDetails(location: Location) {
   if (!locationDetails.value.has(location.location_id)) {
     locationIsLoading.value.set(location.location_id, true)
     const data = await $fetch(`/api/location/details?locationId=${location.location_id}`)
-    const hotel = data as LocationDetails
-    locationDetails.value.set(hotel.location_id, hotel)
+    const details = data as LocationDetails
+    locationDetails.value.set(details.location_id, details)
     hideLocationDetails.value.set(location.location_id, false)
     locationIsLoading.value.set(location.location_id, false)
   }
   hideLocationDetails.value.set(location.location_id, false)
 }
 
-function getHotel(location: Location) {
+function getLocation(location: Location) {
   return locationDetails.value.get(location.location_id) as LocationDetails
 }
 
@@ -93,7 +93,7 @@ function roundDistance(distance: string) {
               </Button>
             </div>
             <div v-if="locationDetails.get(location.location_id) && !hideLocationDetails.get(location.location_id)">
-              <LocationDetails :hotel="getHotel(location)" />
+              <LocationDetails :location="getLocation(location)" />
             </div>
           </template>
         </Card>
