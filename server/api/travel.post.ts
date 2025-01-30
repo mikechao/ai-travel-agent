@@ -35,6 +35,7 @@ import consola from 'consola'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 import { getHotelDetailsTool } from '../utils/hotelDetailsTool'
+import { getHotelReviewsTool } from '../utils/hotelReviewsTool'
 import { getHotelSearchTool } from '../utils/hotelSearchTool'
 import { getSightsDetailsTool } from '../utils/sightsDetailsTool'
 import { getSightseeingSearchTool } from '../utils/sightseeingSearchTool'
@@ -54,6 +55,7 @@ export default defineLazyEventHandler(async () => {
   const sightseeingSearchTool = getSightseeingSearchTool()
   const geocodeTool = getGeocodeTool()
   const sightsDetailsTool = getSightsDetailsTool()
+  const hotelReviewsTool = getHotelReviewsTool()
 
   const toolsByName = new Map<string, StructuredToolInterface>()
   toolsByName.set(weatherForecastTool.name, weatherForecastTool)
@@ -62,6 +64,7 @@ export default defineLazyEventHandler(async () => {
   toolsByName.set(sightseeingSearchTool.name, sightseeingSearchTool)
   toolsByName.set(geocodeTool.name, geocodeTool)
   toolsByName.set(sightsDetailsTool.name, sightsDetailsTool)
+  toolsByName.set(hotelReviewsTool.name, hotelReviewsTool)
 
   const weathToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
@@ -211,10 +214,10 @@ export default defineLazyEventHandler(async () => {
     consola.info('hotelAdvisor')
     const systemPrompt
       = `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `
-        + `After getting the list of hotel locations just focus on the names of the hotels and tell the user 
-        you can get more details on them. `
         + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
-        + ` Then Use the \'hotelSearchTool\' get a list of hotels `
+        + ` Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, 
+          tell the user you can get more details or a summary of reviews by other humans `
+        + ' The \'hotelReviewsTool\' can give you reviews provided by other people for you to summerize for the user '
         + `When talking to the user be friendly, warm and playful with a sense of humor`
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you need specific sightseeing recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
@@ -224,7 +227,7 @@ export default defineLazyEventHandler(async () => {
 
     const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'weatherAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'hotelAdvisor', [geocodeTool, hotelSearchTool, hotelDetailsTool])
+    const response = await callLLM(messages, targetAgentNodes, 'hotelAdvisor', [geocodeTool, hotelSearchTool, hotelDetailsTool, hotelReviewsTool])
 
     const aiMsg: AIMsg = {
       role: 'ai',
