@@ -159,7 +159,6 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
     </Dock>
     <Dialog
       v-model:visible="displayWeather"
-      :auto-z-index="false"
       :base-z-index="weatherZIndex"
       :modal="false"
       position="left"
@@ -188,7 +187,6 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
     </Dialog>
     <Dialog
       v-model:visible="displayHotels"
-      :auto-z-index="false"
       :base-z-index="hotelsZIndex"
       :modal="false"
       position="left"
@@ -217,7 +215,6 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
     </Dialog>
     <Dialog
       v-model:visible="displaySights"
-      :auto-z-index="false"
       :base-z-index="sightsZIndex"
       position="left"
       :keep-in-view-port="true"
