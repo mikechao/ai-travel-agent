@@ -173,6 +173,9 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
             zIndex: weatherZIndex,
           },
         },
+        header: {
+          class: 'px-4 py-2',
+        },
       }"
       @mousedown.stop="updateZIndex('weather')"
     >
@@ -199,6 +202,9 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
             zIndex: hotelsZIndex,
           },
         },
+        header: {
+          class: 'px-4 py-2',
+        },
       }"
       @mousedown.stop="updateZIndex('hotels')"
     >
@@ -224,6 +230,9 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
             zIndex: sightsZIndex,
           },
         },
+        header: {
+          class: 'px-4 py-2',
+        },
       }"
       @mousedown.stop="updateZIndex('sights')"
     >
@@ -238,5 +247,4 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
 </template>
 
 <style scoped>
-
 </style>
