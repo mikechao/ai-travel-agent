@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
-import Galleria from 'primevue/galleria'
 import Popover from 'primevue/popover'
+
+const props = defineProps<Props>()
+
+const Galleria = defineAsyncComponent(() => import('primevue/galleria'))
 
 export interface Props {
   hotel: LocationDetails
 }
-const props = defineProps<Props>()
-
 const { data } = await useFetch(`/api/location/photos?locationId=${props.hotel.location_id}`)
 
 const imageUrls = [] as string[]
