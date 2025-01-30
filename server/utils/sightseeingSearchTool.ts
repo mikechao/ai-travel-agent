@@ -12,11 +12,11 @@ interface LocationSearchResult {
 
 const sightseeingSearchTool = new DynamicStructuredTool({
   name: 'sightseeingSearchTool',
-  description: `Used to search for sights to see given Latitude and Longitude and location`,
+  description: `Used to search for sights or attractions to see given Latitude and Longitude and location`,
   schema: z.object({
     lat: z.number().describe('The Latitude in decimal degree of the location to search for sightseeing locations'),
     long: z.number().describe('The Longitude in decimal degree of the location to search for sightseeing locations'),
-    searchQuery: z.string().describe('Text to use for searching based on the name of the location'),
+    searchQuery: z.string().describe('Text to use for searching based on the name of the location or attractions '),
     radius: z.number().optional().default(10).describe(`Length of the radius in miles from the provided lat, long pair to filter results.`),
   }),
   func: async ({ lat, long, searchQuery, radius = 10 }: { lat: number, long: number, searchQuery: string, radius?: number }) => {

@@ -39,6 +39,7 @@ import { getHotelReviewsTool } from '../utils/hotelReviewsTool'
 import { getHotelSearchTool } from '../utils/hotelSearchTool'
 import { getSightsDetailsTool } from '../utils/sightsDetailsTool'
 import { getSightseeingSearchTool } from '../utils/sightseeingSearchTool'
+import { getSightsReviewsTool } from '../utils/sightsReviewTool'
 import { getWeatherForecastTool } from '../utils/weatherSearchTool'
 
 export default defineLazyEventHandler(async () => {
@@ -56,6 +57,7 @@ export default defineLazyEventHandler(async () => {
   const geocodeTool = getGeocodeTool()
   const sightsDetailsTool = getSightsDetailsTool()
   const hotelReviewsTool = getHotelReviewsTool()
+  const sightsReviewsTool = getSightsReviewsTool()
 
   const toolsByName = new Map<string, StructuredToolInterface>()
   toolsByName.set(weatherForecastTool.name, weatherForecastTool)
@@ -65,6 +67,7 @@ export default defineLazyEventHandler(async () => {
   toolsByName.set(geocodeTool.name, geocodeTool)
   toolsByName.set(sightsDetailsTool.name, sightsDetailsTool)
   toolsByName.set(hotelReviewsTool.name, hotelReviewsTool)
+  toolsByName.set(sightsReviewsTool.name, sightsReviewsTool)
 
   const weathToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
@@ -175,11 +178,14 @@ export default defineLazyEventHandler(async () => {
   async function sightseeingAdvisor(state: typeof AgentState.State): Promise<Command> {
     consola.info('sightseeingAdvisor')
     const systemPrompt
-      = `Your name is Polly Parrot and you are a travel expert that can provide specific sightseeing recommendations for a given destination. 
+      = `Your name is Polly Parrot and you are a travel expert that can provide specific sightseeing or attractions 
+      recommendations for a given destination. 
       Be sure to Squawk a lot like a parrot and use emojis related to a parrot`
         + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
-        + ` Then Use the \'sightseeingSearchTool\' get a list of sights to see `
-        + ` Use the \'sightsDetailsTool\' to get more details about the sight to see `
+        + ` Then Use the \'sightseeingSearchTool\' get a list of sights or attractions to see, tell user the names only 
+        and you get them more details and a summary of reviews by other humans `
+        + ` Use the \'sightsDetailsTool\' to get more details about the sight or attraction to see `
+        + ` Use the \'sightsReviewsTool'\ to get reviews for a sight or attraction, then summerize it for the user `
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help.  '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
@@ -188,7 +194,7 @@ export default defineLazyEventHandler(async () => {
 
     const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'hotelAdvisor', 'weatherAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [geocodeTool, sightseeingSearchTool, sightsDetailsTool])
+    const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [geocodeTool, sightseeingSearchTool, sightsDetailsTool, sightsReviewsTool])
     const aiMsg: AIMsg = {
       role: 'ai',
       content: response.response,
