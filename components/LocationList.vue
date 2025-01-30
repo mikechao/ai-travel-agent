@@ -6,6 +6,8 @@ export interface Props {
 }
 defineProps<Props>()
 
+const LocationDetails = defineAsyncComponent(() => import('./LocationDetails.vue'))
+
 const locationDetails = ref(new Map<string, LocationDetails>())
 const locationIsLoading = ref(new Map<string, boolean>())
 const hideLocationDetails = ref(new Map<string, boolean>())
