@@ -162,7 +162,6 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
       :auto-z-index="false"
       :base-z-index="weatherZIndex"
       :modal="false"
-      header="Weather"
       position="left"
       :keep-in-view-port="true"
       :breakpoints="{ '960px': '50vw' }"
@@ -177,6 +176,11 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
       }"
       @mousedown.stop="updateZIndex('weather')"
     >
+      <template #header>
+        <span class="p-dialog-title">
+          <font-awesome icon="fa-solid fa-cloud-sun" class="mr-1" />Weather
+        </span>
+      </template>
       <WeatherCard :place="weatherData" />
     </Dialog>
     <Dialog
@@ -184,7 +188,6 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
       :auto-z-index="false"
       :base-z-index="hotelsZIndex"
       :modal="false"
-      header="List of Hotel Locations"
       position="left"
       :keep-in-view-port="true"
       :breakpoints="{ '960px': '50vw' }"
@@ -199,13 +202,17 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
       }"
       @mousedown.stop="updateZIndex('hotels')"
     >
+      <template #header>
+        <span class="p-dialog-title">
+          <font-awesome icon="fa-solid fa-hotel" class="mr-1" />Hotel Locations
+        </span>
+      </template>
       <LocationList :locations="hotelsData" />
     </Dialog>
     <Dialog
       v-model:visible="displaySights"
       :auto-z-index="false"
       :base-z-index="sightsZIndex"
-      header="List of Sights to See"
       position="left"
       :keep-in-view-port="true"
       :breakpoints="{ '960px': '50vw' }"
@@ -220,6 +227,11 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
       }"
       @mousedown.stop="updateZIndex('sights')"
     >
+      <template #header>
+        <span class="p-dialog-title">
+          <font-awesome icon="fa-solid fa-binoculars" class="mr-1" />Sights to See
+        </span>
+      </template>
       <LocationList :locations="sightseeingData" />
     </Dialog>
   </div>

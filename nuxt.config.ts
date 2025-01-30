@@ -70,6 +70,9 @@ export default defineNuxtConfig({
         'route',
         'chevron-down',
         'chevron-up',
+        'cloud-sun',
+        'hotel',
+        'binoculars',
       ],
       regular: [
         'paper-plane',
