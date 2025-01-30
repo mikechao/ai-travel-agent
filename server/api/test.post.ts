@@ -515,6 +515,8 @@ and black suspenders nods and smiles<br/>
       const id = uuidv4()
       return new ReadableStream({
         async start(controller) {
+          const text = formatDataStreamPart('text', 'Here is some weather for you')
+          controller.enqueue(encoder.encode(text))
           const part = `2:[{"id":"${id}","type":"weather","data":${weatherData}}]\n`
           controller.enqueue(part)
           controller.close()
@@ -526,6 +528,8 @@ and black suspenders nods and smiles<br/>
       const id = uuidv4()
       return new ReadableStream({
         async start(controller) {
+          const text = formatDataStreamPart('text', 'Here is some sights for you')
+          controller.enqueue(encoder.encode(text))
           const part = `2:[{"id":"${id}","type":"sight-search","data":${sightsData}}]\n`
           controller.enqueue(part)
           controller.close()
@@ -537,6 +541,8 @@ and black suspenders nods and smiles<br/>
       const id = uuidv4()
       return new ReadableStream({
         async start(controller) {
+          const text = formatDataStreamPart('text', 'Here is some hotels for you')
+          controller.enqueue(encoder.encode(text))
           const part = `2:[{"id":"${id}","type":"hotel-search","data":${hotelsData}}]\n`
           controller.enqueue(part)
           controller.close()
