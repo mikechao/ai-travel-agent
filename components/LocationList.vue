@@ -38,7 +38,7 @@ function roundDistance(distance: string) {
 </script>
 
 <template>
-  <div class="w-auto bg-white rounded-lg shadow-lg">
+  <div class="w-auto bg-surface-100">
     <div class="p-1">
       <div class="space-y-2 flex flex-col items-start">
         <Card
