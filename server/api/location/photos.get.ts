@@ -33,7 +33,7 @@ export default defineLazyEventHandler(() => {
       return sendNoContent(event, 204)
     }
 
-    const mediumUrls = data.map(item => item.images.medium.url)
-    return mediumUrls
+    const urls = data.map(item => item.images.large.url)
+    return urls
   })
 })
