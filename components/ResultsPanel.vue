@@ -175,7 +175,7 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
           },
         },
       }"
-      @mousedown="updateZIndex('weather')"
+      @mousedown.stop="updateZIndex('weather')"
     >
       <WeatherCard :place="weatherData" />
     </Dialog>
@@ -197,7 +197,7 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
           },
         },
       }"
-      @mousedown="updateZIndex('hotels')"
+      @mousedown.stop="updateZIndex('hotels')"
     >
       <LocationList :locations="hotelsData" />
     </Dialog>
@@ -218,7 +218,7 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
           },
         },
       }"
-      @mousedown="updateZIndex('sights')"
+      @mousedown.stop="updateZIndex('sights')"
     >
       <LocationList :locations="sightseeingData" />
     </Dialog>
