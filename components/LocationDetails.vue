@@ -45,7 +45,14 @@ function getRankingString() {
 
 <template>
   <div class="w-fit bg-primary-100 border border-primary-300 shadow-lg rounded-lg flex">
-    <Galleria :value="imageUrls" :num-visible="1" :circular="true" container-style="width: 250px; height: 200px;" :show-item-navigators="true" :show-thumbnails="false">
+    <Galleria
+      :value="imageUrls"
+      :num-visible="1"
+      :circular="true"
+      container-style="width: 250px; height: 200px;"
+      :show-item-navigators="true"
+      :show-thumbnails="false"
+    >
       <template #item="slotProps">
         <img :src="slotProps.item" style="object-fit: cover; display: block;">
       </template>
