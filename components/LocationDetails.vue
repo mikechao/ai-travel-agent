@@ -44,7 +44,7 @@ function getRankingString() {
 </script>
 
 <template>
-  <div class="w-fit bg-primary-100 border border-primary-300 shadow-lg rounded-lg flex">
+  <div class="w-full bg-primary-100 border border-primary-300 shadow-lg rounded-lg flex">
     <Galleria
       :value="imageUrls"
       :num-visible="1"
@@ -68,9 +68,27 @@ function getRankingString() {
           Price {{ location.price_level }}
         </p>
       </div>
-      <div v-if="location.subratings && location.amenities" class="flex flex-row gap-1 mt-auto items-start justify-start">
-        <Button type="button" label="Additional Ratings" size="small" rounded raised @click="showSubratings" />
-        <Button type="button" label="Amenities" size="small" rounded raised @click="showAmen" />
+      <div v-if="location.subratings && location.amenities" class="flex flex-col gap-1 mt-auto items-start justify-start">
+        <Button
+          type="button"
+          label="Additional Ratings"
+          size="small"
+          rounded
+          raised
+          @click="showSubratings"
+        />
+        <Button
+          type="button"
+          label="Amenities"
+          size="small"
+          rounded
+          raised
+          @click="showAmen"
+        >
+          <template #icon>
+            <img src="/amenities.webp" alt="Amenities" class="w-5 h-5 p-button-icon-right">
+          </template>
+        </Button>
         <Popover ref="amen">
           <div>
             <span class="font-medium block mb-2">Amenities</span>
