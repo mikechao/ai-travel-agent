@@ -173,7 +173,10 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
           },
         },
         header: {
-          class: 'px-4 py-2',
+          class: 'px-4 py-2 bg-surface-100',
+        },
+        content: {
+          class: 'bg-surface-100',
         },
       }"
       @mousedown.stop="updateZIndex('weather')"
@@ -201,7 +204,10 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
           },
         },
         header: {
-          class: 'px-4 py-2',
+          class: 'px-4 py-2 bg-surface-100',
+        },
+        content: {
+          class: 'bg-surface-100',
         },
       }"
       @mousedown.stop="updateZIndex('hotels')"
@@ -228,7 +234,10 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
           },
         },
         header: {
-          class: 'px-4 py-2',
+          class: 'px-4 py-2 bg-surface-100',
+        },
+        content: {
+          class: 'bg-surface-100',
         },
       }"
       @mousedown.stop="updateZIndex('sights')"
