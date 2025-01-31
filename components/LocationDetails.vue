@@ -39,14 +39,10 @@ function showSubratings(event: UIEvent) {
 
 const reviews: Ref<Review[]> = ref([])
 const isReviewsLoading = ref(false)
-const reviewsButton = ref()
 const displayReviews = ref(false)
 
 function showReviews(_event: UIEvent) {
   isReviewsLoading.value = true
-  // can't seem to use an async function and await the results of the fetch
-  // it causes   event.currentTarget to become null which is need for the
-  // toggle method
   $fetch<{ data: Review[] } >(`/api/location/reviews?locationId=${props.location.location_id}`)
     .then((data) => {
       reviews.value = data.data
@@ -95,7 +91,6 @@ function getRankingString() {
       </div>
       <div class="mt-1 mb-1">
         <Button
-          ref="reviewsButton"
           type="button"
           label="Reviews"
           size="small"
