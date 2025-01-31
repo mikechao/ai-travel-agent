@@ -26,7 +26,7 @@ let currentZIndex = baseZIndex
 
 const weatherMenuItem: MenuItem = {
   label: 'Weather',
-  icon: './weather-icon.jpg',
+  icon: './weather-icon.webp',
   disabled: true,
   command(_event: MenuItemCommandEvent) {
     if (weatherData.value) {
