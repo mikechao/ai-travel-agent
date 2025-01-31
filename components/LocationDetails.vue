@@ -10,6 +10,7 @@ const props = defineProps<Props>()
 
 const Galleria = defineAsyncComponent(() => import('primevue/galleria'))
 const LocationReviews = defineAsyncComponent(() => import('./LocationReviews.vue'))
+const LocationSubratings = defineAsyncComponent(() => import('./LocationSubratings.vue'))
 
 const { data } = await useFetch(`/api/location/photos?locationId=${props.location.location_id}`)
 
@@ -170,16 +171,7 @@ function getRankingString() {
           </div>
         </Popover>
         <Popover ref="subratingsPop">
-          <DataTable :value="subratings" class="w-auto">
-            <Column field="localized_name" header="Name" />
-            <Column header="Rating">
-              <template #body="slotProps">
-                <img
-                  :src="slotProps.data.rating_image_url"
-                >
-              </template>
-            </Column>
-          </DataTable>
+          <LocationSubratings :subratings="subratings" />
         </Popover>
       </div>
       <div class="flex flex-row gap-1 items-start justify-start" :class="linksMarginTop">
