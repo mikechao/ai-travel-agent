@@ -65,7 +65,7 @@ const sightseeingMenuItem: MenuItem = {
 
 const settingMenuItem: MenuItem = {
   label: 'Settings',
-  icon: './settings-icon.jpg',
+  icon: './settings-icon.webp',
   command(event: MenuItemCommandEvent) {
     console.log('event inside settingsMenuItem', event)
   },
