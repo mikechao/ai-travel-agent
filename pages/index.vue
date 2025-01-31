@@ -4,14 +4,16 @@ import SplitterPanel from 'primevue/splitterpanel'
 </script>
 
 <template>
-  <Splitter class="h-screen splitter">
-    <SplitterPanel class="flex" :size="50" :min-size="25">
-      <ResultsPanel class="w-full h-full" />
-    </SplitterPanel>
-    <SplitterPanel class="flex" :size="50" :min-size="25">
-      <ChatComponent class="w-full h-full" />
-    </SplitterPanel>
-  </Splitter>
+  <ClientOnly>
+    <Splitter class="h-screen splitter">
+      <SplitterPanel class="flex" :size="50" :min-size="25">
+        <ResultsPanel class="w-full h-full" />
+      </SplitterPanel>
+      <SplitterPanel class="flex" :size="50" :min-size="25">
+        <ChatComponent class="w-full h-full" />
+      </SplitterPanel>
+    </Splitter>
+  </ClientOnly>
 </template>
 
 <style scoped>
