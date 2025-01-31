@@ -170,7 +170,7 @@ function getRankingString() {
             </ScrollPanel>
           </div>
         </Popover>
-        <Popover ref="subratingsPop">
+        <Popover ref="subratingsPop" append-to="self">
           <LocationSubratings :subratings="subratings" />
         </Popover>
       </div>
