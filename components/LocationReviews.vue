@@ -77,8 +77,4 @@ function daysAgo(date: string) {
 </template>
 
 <style scoped>
-/* Ensure the content fits within the Popover */
-.p-scrollpanel {
-  max-height: 200px;
-}
 </style>
