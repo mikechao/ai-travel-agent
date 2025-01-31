@@ -17,7 +17,7 @@ import SplitterPanel from 'primevue/splitterpanel'
 <style scoped>
 .splitter {
   position: relative;
-  background-image: url('https://primefaces.org/cdn/primevue/images/dock/window.jpg');
+  background-image: url('/window.webp');
   background-repeat: no-repeat;
   background-size: cover;
 }
