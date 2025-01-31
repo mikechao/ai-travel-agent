@@ -113,6 +113,14 @@ function getRankingString() {
           :keep-in-view-port="true"
           :style="{ width: '50vw' }"
           header="Reviews"
+          :pt="{
+            header: {
+              class: 'px-3 py-1 bg-surface-100',
+            },
+            content: {
+              class: 'bg-surface-100 pb-2',
+            },
+          }"
         >
           <LocationReviews :reviews="reviews" />
         </Dialog>

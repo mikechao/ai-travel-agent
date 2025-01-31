@@ -34,7 +34,7 @@ function daysAgo(date: string) {
     }"
   >
     <template #item="slotProps">
-      <Card class="bg-surface-100 border border-surface-400 rounded-lg shadow-lg">
+      <Card class="bg-surface-200 border border-surface-400 rounded-lg shadow-lg">
         <template #title>
           <span class="font-semibold">{{ slotProps.data.title }}</span>
         </template>
