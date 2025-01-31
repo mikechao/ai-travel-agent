@@ -37,12 +37,12 @@ function showSubratings(event: UIEvent) {
   subratingsPop.value.toggle(event)
 }
 
-const reviewsPopover = ref()
 const reviews: Ref<Review[]> = ref([])
 const isReviewsLoading = ref(false)
 const reviewsButton = ref()
+const displayReviews = ref(false)
 
-function showReviews(event: UIEvent) {
+function showReviews(_event: UIEvent) {
   isReviewsLoading.value = true
   // can't seem to use an async function and await the results of the fetch
   // it causes   event.currentTarget to become null which is need for the
@@ -50,9 +50,9 @@ function showReviews(event: UIEvent) {
   $fetch<{ data: Review[] } >(`/api/location/reviews?locationId=${props.location.location_id}`)
     .then((data) => {
       reviews.value = data.data
+      isReviewsLoading.value = false
+      displayReviews.value = true
     })
-  isReviewsLoading.value = false
-  reviewsPopover.value.toggle(event)
 }
 
 function getRankingString() {
@@ -108,13 +108,14 @@ function getRankingString() {
             <font-awesome icon="fa-regular fa-thumbs-up" class="p-button-icon-right" />
           </template>
         </Button>
-        <Popover ref="reviewsPopover">
-          <template #default>
-            <div class="w-[500px] max-h-[80vh]">
-              <LocationReviews :reviews="reviews" />
-            </div>
-          </template>
-        </Popover>
+        <Dialog
+          v-model:visible="displayReviews"
+          :keep-in-view-port="true"
+          :style="{ width: '50vw' }"
+          header="Reviews"
+        >
+          <LocationReviews :reviews="reviews" />
+        </Dialog>
       </div>
       <div v-if="location.subratings && location.amenities" class="flex flex-col gap-1 mt-auto items-start justify-start">
         <Button
