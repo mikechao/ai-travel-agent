@@ -76,7 +76,11 @@ function getRankingString() {
           rounded
           raised
           @click="showSubratings"
-        />
+        >
+          <template #icon>
+            <font-awesome icon="fa-solid fa-circle-info" class="p-button-icon-right" />
+          </template>
+        </Button>
         <Button
           type="button"
           label="Amenities"

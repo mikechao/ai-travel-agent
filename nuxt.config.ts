@@ -73,6 +73,7 @@ export default defineNuxtConfig({
         'cloud-sun',
         'hotel',
         'binoculars',
+        'circle-info',
       ],
       regular: [
         'paper-plane',
