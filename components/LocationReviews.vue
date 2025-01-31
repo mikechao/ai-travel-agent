@@ -58,7 +58,7 @@ function daysAgo(date: string) {
         <template #footer>
           <Button
             as="a"
-            label="Read review"
+            label="Link to review"
             :href="slotProps.data.url"
             target="_blank"
             rel="noopener"
