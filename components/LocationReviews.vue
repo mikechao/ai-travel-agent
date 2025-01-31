@@ -16,7 +16,7 @@ defineProps({
     :num-scroll="1"
   >
     <template #item="slotProps">
-      <Card>
+      <Card class="bg-surface-100 border border-surface-400 rounded-lg shadow-lg">
         <template #title>
           <span>{{ slotProps.data.title }}</span>
         </template>
