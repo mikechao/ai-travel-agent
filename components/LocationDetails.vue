@@ -49,12 +49,17 @@ function getRankingString() {
       :value="imageUrls"
       :num-visible="1"
       :circular="true"
-      container-style="width: 250px; height: 200px;"
+      container-style="width: 250px;"
       :show-item-navigators="true"
       :show-thumbnails="false"
     >
       <template #item="slotProps">
-        <img :src="slotProps.item" style="object-fit: cover; display: block;">
+        <div class="h-[200px] flex items-center justify-center">
+          <img
+            :src="slotProps.item"
+            class="max-h-full w-full object-contain"
+          >
+        </div>
       </template>
     </Galleria>
     <div class="flex-1 p-2 flex flex-col">
@@ -67,6 +72,19 @@ function getRankingString() {
         <p v-if="location.price_level">
           Price {{ location.price_level }}
         </p>
+      </div>
+      <div class="mt-1 mb-1">
+        <Button
+          type="button"
+          label="Reviews"
+          size="small"
+          rounded
+          raised
+        >
+          <template #icon>
+            <font-awesome icon="fa-regular fa-thumbs-up" class="p-button-icon-right" />
+          </template>
+        </Button>
       </div>
       <div v-if="location.subratings && location.amenities" class="flex flex-col gap-1 mt-auto items-start justify-start">
         <Button

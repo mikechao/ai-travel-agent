@@ -78,6 +78,7 @@ export default defineNuxtConfig({
       ],
       regular: [
         'paper-plane',
+        'thumbs-up',
       ],
     },
   },
