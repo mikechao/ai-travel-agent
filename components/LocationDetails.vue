@@ -37,8 +37,20 @@ function showSubratings(event: UIEvent) {
 }
 
 const reviewsPopover = ref()
+const reviews: Ref<Review[]> = ref([])
+const isReviewsLoading = ref(false)
+const reviewsButton = ref()
 
-async function showReviews(event: UIEvent) {
+function showReviews(event: UIEvent) {
+  isReviewsLoading.value = true
+  // can't seem to use an async function and await the results of the fetch
+  // it causes   event.currentTarget to become null which is need for the
+  // toggle method
+  $fetch<{ data: Review[] } >(`/api/location/reviews?locationId=${props.location.location_id}`)
+    .then((data) => {
+      reviews.value = data.data
+    })
+  isReviewsLoading.value = false
   reviewsPopover.value.toggle(event)
 }
 
@@ -82,11 +94,13 @@ function getRankingString() {
       </div>
       <div class="mt-1 mb-1">
         <Button
+          ref="reviewsButton"
           type="button"
           label="Reviews"
           size="small"
           rounded
           raised
+          :loading="isReviewsLoading"
           @click="showReviews"
         >
           <template #icon>
@@ -95,7 +109,9 @@ function getRankingString() {
         </Button>
         <Popover ref="reviewsPopover">
           <template #default>
-            <LocationReviews :location-id="location.location_id" />
+            <div class="w-full h-64">
+              <LocationReviews :reviews="reviews" />
+            </div>
           </template>
         </Popover>
       </div>

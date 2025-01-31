@@ -1,37 +1,50 @@
 <script setup lang="ts">
 import Carousel from 'primevue/carousel'
 
-const props = defineProps({
-  locationId: {
-    type: String,
-    requiried: true,
+defineProps({
+  reviews: {
+    type: Array as PropType<Review[]>,
+    required: true,
   },
-})
-
-const reviews: Ref<Review[]> = ref([])
-
-onMounted(async () => {
-  const data = await $fetch(`/api/location/reviews?locationId=${props.locationId}`)
-  reviews.value = data as Review[]
 })
 </script>
 
 <template>
-  <Carousel :value="reviews" :num-visible="1" :num-scroll="1">
+  <Carousel
+    :value="reviews"
+    :num-visible="1"
+    :num-scroll="1"
+  >
     <template #item="slotProps">
       <Card>
-        <template #header>
-          <img alt="ratings" :src="slotProps.data.rating_image_url">
-        </template>
         <template #title>
           <span>{{ slotProps.data.title }}</span>
         </template>
+        <template #subtitle>
+          <img alt="ratings" :src="slotProps.data.rating_image_url">
+        </template>
         <template #content>
-          <p>
-            {{ slotProps.data.text }}
-          </p>
+          <ScrollPanel
+            class="w-full h-32"
+            :pt="{
+              barY: {
+                class: 'bg-primary',
+              },
+            }"
+          >
+            <p>
+              {{ slotProps.data.text }}
+            </p>
+          </ScrollPanel>
         </template>
       </Card>
     </template>
   </Carousel>
 </template>
+
+<style scoped>
+/* Ensure the content fits within the Popover */
+.p-scrollpanel {
+  max-height: 200px;
+}
+</style>
