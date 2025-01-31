@@ -27,6 +27,7 @@ function daysAgo(date: string) {
     :value="reviews"
     :num-visible="1"
     :num-scroll="1"
+    :circular="true"
   >
     <template #item="slotProps">
       <Card class="bg-surface-100 border border-surface-400 rounded-lg shadow-lg max-h-60 overflow-hidden">
