@@ -90,7 +90,7 @@ function getRankingString() {
           @click="showAmen"
         >
           <template #icon>
-            <img src="/amenities.webp" alt="Amenities" class="w-5 h-5 p-button-icon-right">
+            <font-awesome icon="fa-solid fa-list" class="p-button-icon-right" />
           </template>
         </Button>
         <Popover ref="amen">

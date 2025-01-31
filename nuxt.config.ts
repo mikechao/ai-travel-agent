@@ -74,6 +74,7 @@ export default defineNuxtConfig({
         'hotel',
         'binoculars',
         'circle-info',
+        'list',
       ],
       regular: [
         'paper-plane',
