@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     weatherAPIKey: '',
     tripAdvisorAPIKey: process.env.NUXT_TRIPADVISOR_API_KEY,
     opencageAPIKey: process.env.NUXT_OPENCAGE_API_KEY,
+    postgresURL: process.env.NUXT_POSTGRES_URL,
   },
   modules: [
     '@nuxtjs/tailwindcss',
