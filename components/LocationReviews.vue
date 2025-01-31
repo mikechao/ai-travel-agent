@@ -28,9 +28,13 @@ function daysAgo(date: string) {
     :num-visible="1"
     :num-scroll="1"
     :circular="true"
+    :pt="{
+      root: { class: 'max-w-full' },
+      content: { class: 'max-h-[70vh]' },
+    }"
   >
     <template #item="slotProps">
-      <Card class="bg-surface-100 border border-surface-400 rounded-lg shadow-lg max-h-60 overflow-hidden">
+      <Card class="bg-surface-100 border border-surface-400 rounded-lg shadow-lg">
         <template #title>
           <span class="font-semibold">{{ slotProps.data.title }}</span>
         </template>

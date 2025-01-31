@@ -110,7 +110,7 @@ function getRankingString() {
         </Button>
         <Popover ref="reviewsPopover">
           <template #default>
-            <div class="w-full h-64">
+            <div class="w-[500px] max-h-[80vh]">
               <LocationReviews :reviews="reviews" />
             </div>
           </template>
