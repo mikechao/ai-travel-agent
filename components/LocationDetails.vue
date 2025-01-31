@@ -99,6 +99,7 @@ function getRankingString() {
           type="button"
           label="Reviews"
           size="small"
+          icon-pos="right"
           rounded
           raised
           :loading="isReviewsLoading"
@@ -112,7 +113,6 @@ function getRankingString() {
           v-model:visible="displayReviews"
           :keep-in-view-port="true"
           :style="{ width: '50vw' }"
-          header="Reviews"
           :pt="{
             header: {
               class: 'px-3 py-1 bg-surface-100',
@@ -122,6 +122,11 @@ function getRankingString() {
             },
           }"
         >
+          <template #header>
+            <span class="p-dialog-title">
+              <font-awesome icon="fa-solid fa-comments" class="mr-1" />Reviews
+            </span>
+          </template>
           <LocationReviews :reviews="reviews" />
         </Dialog>
       </div>
