@@ -39,7 +39,7 @@ const weatherMenuItem: MenuItem = {
 
 const hotelsMenuItem: MenuItem = {
   label: 'Hotels',
-  icon: './hotel.png',
+  icon: './hotel.webp',
   disabled: true,
   command(_event: MenuItemCommandEvent) {
     if (hotelsData.value) {
