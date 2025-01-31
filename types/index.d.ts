@@ -120,4 +120,38 @@ declare global {
     localized_name: string
   }
 
+  interface UserLocation {
+    id: string | null
+  }
+
+  interface Avatar {
+    thumbnail: string
+    small: string
+    medium: string
+    large: string
+    original: string
+  }
+
+  interface User {
+    username: string
+    user_location: UserLocation
+    avatar: Avatar
+  }
+
+  interface Review {
+    id: number
+    lang: string
+    location_id: number
+    published_date: string
+    rating: number
+    helpful_votes: number
+    rating_image_url: string
+    url: string
+    text: string
+    title: string
+    trip_type: string
+    travel_date: string
+    user: User
+    subratings: { [key: string]: Subrating }
+  }
 }
