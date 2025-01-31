@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 import Popover from 'primevue/popover'
+import LocationReviews from './LocationReviews.vue'
 
 const props = defineProps<Props>()
 
@@ -33,6 +34,12 @@ const subratings = (props.location.subratings) ? Object.values(props.location.su
 
 function showSubratings(event: UIEvent) {
   subratingsPop.value.toggle(event)
+}
+
+const reviewsPopover = ref()
+
+async function showReviews(event: UIEvent) {
+  reviewsPopover.value.toggle(event)
 }
 
 function getRankingString() {
@@ -80,11 +87,17 @@ function getRankingString() {
           size="small"
           rounded
           raised
+          @click="showReviews"
         >
           <template #icon>
             <font-awesome icon="fa-regular fa-thumbs-up" class="p-button-icon-right" />
           </template>
         </Button>
+        <Popover ref="reviewsPopover">
+          <template #default>
+            <LocationReviews :location-id="location.location_id" />
+          </template>
+        </Popover>
       </div>
       <div v-if="location.subratings && location.amenities" class="flex flex-col gap-1 mt-auto items-start justify-start">
         <Button
