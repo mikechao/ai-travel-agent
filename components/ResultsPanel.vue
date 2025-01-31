@@ -52,7 +52,7 @@ const hotelsMenuItem: MenuItem = {
 
 const sightseeingMenuItem: MenuItem = {
   label: 'Sights',
-  icon: './sightseeing.png',
+  icon: './sightseeing.webp',
   disabled: true,
   command(_event: MenuItemCommandEvent) {
     if (sightseeingData.value) {
