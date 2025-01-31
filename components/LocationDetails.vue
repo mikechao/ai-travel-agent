@@ -105,7 +105,7 @@ function getRankingString() {
           @click="showReviews"
         >
           <template #icon>
-            <font-awesome icon="fa-regular fa-thumbs-up" class="p-button-icon-right" />
+            <font-awesome icon="fa-solid fa-comments" class="p-button-icon-right" />
           </template>
         </Button>
         <Dialog

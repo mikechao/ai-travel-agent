@@ -76,6 +76,7 @@ export default defineNuxtConfig({
         'binoculars',
         'circle-info',
         'list',
+        'comments',
       ],
       regular: [
         'paper-plane',
