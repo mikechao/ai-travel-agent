@@ -163,7 +163,7 @@ function getRankingString() {
               }"
             >
               <div class="grid grid-cols-3 sm:grid-cols-3 gap-2">
-                <div v-for="(amenity, index) in location.amenities" :key="index" class="p-2 bg-gray-100 rounded-lg">
+                <div v-for="(amenity, index) in location.amenities" :key="index" class="p-2 bg-surface-100 dark:bg-surface-700 rounded-lg">
                   <p>{{ amenity }}</p>
                 </div>
               </div>
