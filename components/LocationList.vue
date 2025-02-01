@@ -17,8 +17,7 @@ const buttonStates = ref(new Map<string, boolean>()) // true = showing details
 async function fetchDetails(location: Location) {
   if (!locationDetails.value.has(location.location_id)) {
     locationIsLoading.value.set(location.location_id, true)
-    const data = await $fetch(`/api/location/details?locationId=${location.location_id}`)
-    const details = data as LocationDetails
+    const details = await $fetch<LocationDetails>(`/api/location/details?locationId=${location.location_id}`)
     locationDetails.value.set(details.location_id, details)
     hideLocationDetails.value.set(location.location_id, false)
     locationIsLoading.value.set(location.location_id, false)
