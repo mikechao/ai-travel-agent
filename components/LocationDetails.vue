@@ -79,8 +79,8 @@ function getRankingString() {
         </div>
       </template>
     </Galleria>
-    <div class="flex-1 p-2 flex flex-col">
-      <div class="flex flex-row items-center mt-2">
+    <div class="flex-1 p-2 flex flex-col text-neutral-700">
+      <div class="flex flex-row items-center mt-2 ">
         <img :src="location.rating_image_url">
         <p><span class="font-medium"> {{ location.num_reviews }}</span> reviews</p>
       </div>
