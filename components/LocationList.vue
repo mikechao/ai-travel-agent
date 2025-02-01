@@ -51,7 +51,7 @@ function toggleDetails(location: Location) {
 </script>
 
 <template>
-  <div class="w-auto bg-surface-100">
+  <div class="w-auto">
     <div class="p-1">
       <div class="space-y-2 flex flex-col items-start">
         <Card
