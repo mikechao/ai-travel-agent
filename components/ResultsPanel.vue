@@ -1,4 +1,3 @@
-<!-- eslint-disable no-console -->
 <script setup lang="ts">
 import type { MenuItem, MenuItemCommandEvent } from 'primevue/menuitem'
 import Dialog from 'primevue/dialog'
@@ -67,7 +66,7 @@ const settingMenuItem: MenuItem = {
   label: 'Settings',
   icon: './settings-icon.webp',
   command(event: MenuItemCommandEvent) {
-    console.log('event inside settingsMenuItem', event)
+    console.error('Not yet implemented event inside settingsMenuItem', event)
   },
 }
 const menuItems: Ref<MenuItem[]> = ref([sightseeingMenuItem, hotelsMenuItem, weatherMenuItem, settingMenuItem])
