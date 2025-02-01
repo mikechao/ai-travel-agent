@@ -150,7 +150,7 @@ export default defineLazyEventHandler(async () => {
     const systemPrompt
       = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
        Be sure to bark a lot and use dog related emojis `
-        + `If you need specific sightseeing recommendations, ask 'sightseeingAdvisor' named Polly Parrot for help. `
+        + `If you need specific sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. `
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
         + 'If you have enough information to respond to the user, return \'finish\'. '
@@ -226,7 +226,7 @@ export default defineLazyEventHandler(async () => {
         + ' The \'hotelReviewsTool\' can give you reviews provided by other people for you to summerize for the user '
         + `When talking to the user be friendly, warm and playful with a sense of humor`
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
-        + 'If you need specific sightseeing recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
+        + 'If you need specific sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
         + 'If you have enough information to respond to the user, return \'finish\'. '
         + 'Feel free to mention other agents by name, but call them synonyms of colleagues'
@@ -266,7 +266,7 @@ export default defineLazyEventHandler(async () => {
       + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
       + 'Talk to the user like a pirate and use pirate related emojis '
       + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
-      + 'If you need specific sightseeing recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
+      + 'If you need specific sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
       + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
       + 'Feel free to meantion the other agents by name, but in a pirate way'
 
