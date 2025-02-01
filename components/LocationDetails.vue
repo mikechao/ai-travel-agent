@@ -33,9 +33,10 @@ function showAmen(event: UIEvent) {
 
 const subratingsPop = ref()
 const subratings = (props.location.subratings) ? Object.values(props.location.subratings) : []
+const displaySubratings = ref(false)
 
-function showSubratings(event: UIEvent) {
-  subratingsPop.value.toggle(event)
+function showSubratings() {
+  displaySubratings.value = true
 }
 
 const reviews: Ref<Review[]> = ref([])
@@ -170,9 +171,25 @@ function getRankingString() {
             </ScrollPanel>
           </div>
         </Popover>
-        <Popover ref="subratingsPop" append-to="self">
+        <Dialog
+          v-model:visible="displaySubratings"
+          :keep-in-view-port="true"
+          :pt="{
+            header: {
+              class: 'px-3 py-1',
+            },
+            content: {
+              class: 'pb-2',
+            },
+          }"
+        >
+          <template #header>
+            <span class="p-dialog-title">
+              <font-awesome icon="fa-solid fa-circle-info" class="mr-1" />Additional Ratings
+            </span>
+          </template>
           <LocationSubratings :subratings="subratings" />
-        </Popover>
+        </Dialog>
       </div>
       <div class="flex flex-row gap-1 items-start justify-start" :class="linksMarginTop">
         <Button as="a" label="Visit Web Site" :href="website" target="_blank" rel="noopener" size="small" variant="link" />
