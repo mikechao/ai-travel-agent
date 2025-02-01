@@ -25,16 +25,9 @@ const website = computed(() => (props.location.website) ? props.location.website
 const linksMarginTop = computed(() => (props.location.subratings && props.location.amenities) ? 'mt-1' : 'mt-auto')
 
 const displayAmenities = ref(false)
-function showAmen() {
-  displayAmenities.value = true
-}
 
 const subratings = (props.location.subratings) ? Object.values(props.location.subratings) : []
 const displaySubratings = ref(false)
-
-function showSubratings() {
-  displaySubratings.value = true
-}
 
 const reviews: Ref<Review[]> = ref([])
 const isReviewsLoading = ref(false)
@@ -131,7 +124,7 @@ function getRankingString() {
           size="small"
           rounded
           raised
-          @click="showSubratings"
+          @click="displaySubratings = true"
         >
           <template #icon>
             <font-awesome icon="fa-solid fa-circle-info" class="p-button-icon-right" />
@@ -143,7 +136,7 @@ function getRankingString() {
           size="small"
           rounded
           raised
-          @click="showAmen"
+          @click="displayAmenities = true"
         >
           <template #icon>
             <font-awesome icon="fa-solid fa-list" class="p-button-icon-right" />
