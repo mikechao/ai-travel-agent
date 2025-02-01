@@ -12,7 +12,7 @@ import { useDataItemStore } from '~/stores/dataItemStore'
 const dataItemStore = useDataItemStore()
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
-  api: '/api/travel',
+  api: '/api/test',
   body: computed(() => ({
     sessionId,
     messages: messages.value.length > 0 ? [messages.value[messages.value.length - 1]] : [],
@@ -89,7 +89,11 @@ function formSubmit(_event: FormSubmitEvent) {
       <div class="chat-container flex flex-col max-w-2xl mx-auto">
         <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-0 px-2 border-2 border-gray-200">
           <div v-for="message in messages" :key="message.id">
-            <div v-if="message.content.length > 0" class="mb-0 px-2 rounded-lg shadow-lg" :class="[message.role === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100']">
+            <div
+              v-if="message.content.length > 0"
+              class="mb-0 px-2 rounded-lg shadow-lg text-surface-700 dark:text-surface-0 "
+              :class="[message.role === 'user' ? 'bg-sky-100 dark:bg-sky-900 text-right' : 'bg-surface-0 dark:bg-surface-950']"
+            >
               <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
               <div v-html="renderMessage(message)" />
             </div>
