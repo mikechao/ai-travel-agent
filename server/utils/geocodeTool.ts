@@ -7,9 +7,9 @@ const runtimeConfig = useRuntimeConfig()
 
 const geocodeTool = new DynamicStructuredTool({
   name: 'geocodeTool',
-  description: 'Provides Latitude, Longitude and location for a place the user has expressed an interest in',
+  description: 'Provides Latitude, Longitude and location for a place or address the user has expressed an interest in',
   schema: z.object({
-    location: z.string().describe('The location to get Latitude and Longitude for'),
+    location: z.string().describe('The location or address to get Latitude and Longitude for'),
   }),
   func: async (input: { location: string }) => {
     const { location } = input
