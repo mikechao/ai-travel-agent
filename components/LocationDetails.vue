@@ -111,10 +111,10 @@ function getRankingString() {
           :style="{ width: '50vw' }"
           :pt="{
             header: {
-              class: 'px-3 py-1 bg-surface-100',
+              class: 'px-3 py-1',
             },
             content: {
-              class: 'bg-surface-100 pb-2',
+              class: 'pb-2',
             },
           }"
         >
