@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
-import Popover from 'primevue/popover'
 
 interface Props {
   location: LocationDetails
@@ -25,13 +24,11 @@ if (Array.isArray(data.value)) {
 const website = computed(() => (props.location.website) ? props.location.website : props.location.web_url)
 const linksMarginTop = computed(() => (props.location.subratings && props.location.amenities) ? 'mt-1' : 'mt-auto')
 
-const amen = ref()
-
-function showAmen(event: UIEvent) {
-  amen.value.toggle(event)
+const displayAmenities = ref(false)
+function showAmen() {
+  displayAmenities.value = true
 }
 
-const subratingsPop = ref()
 const subratings = (props.location.subratings) ? Object.values(props.location.subratings) : []
 const displaySubratings = ref(false)
 
@@ -43,7 +40,7 @@ const reviews: Ref<Review[]> = ref([])
 const isReviewsLoading = ref(false)
 const displayReviews = ref(false)
 
-function showReviews(_event: UIEvent) {
+function showReviews() {
   isReviewsLoading.value = true
   $fetch<{ data: Review[] } >(`/api/location/reviews?locationId=${props.location.location_id}`)
     .then((data) => {
@@ -152,9 +149,24 @@ function getRankingString() {
             <font-awesome icon="fa-solid fa-list" class="p-button-icon-right" />
           </template>
         </Button>
-        <Popover ref="amen">
+        <Dialog
+          v-model:visible="displayAmenities"
+          :keep-in-view-port="true"
+          :pt="{
+            header: {
+              class: 'px-3 py-1',
+            },
+            content: {
+              class: 'pb-2',
+            },
+          }"
+        >
+          <template #header>
+            <span class="p-dialog-title">
+              <font-awesome icon="fa-solid fa-list" class="mr-1" />Amenities
+            </span>
+          </template>
           <div>
-            <span class="font-medium block mb-2">Amenities</span>
             <ScrollPanel
               style="width: 100%; height: 200px"
               :pt="{
@@ -170,7 +182,7 @@ function getRankingString() {
               </div>
             </ScrollPanel>
           </div>
-        </Popover>
+        </Dialog>
         <Dialog
           v-model:visible="displaySubratings"
           :keep-in-view-port="true"
