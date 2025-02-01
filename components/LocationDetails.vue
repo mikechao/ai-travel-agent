@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 
-interface Props {
-  location: LocationDetails
-}
-
-const props = defineProps<Props>()
+const props = defineProps({
+  location: {
+    type: Object as PropType<LocationDetails>,
+    required: true,
+  },
+})
 
 const Galleria = defineAsyncComponent(() => import('primevue/galleria'))
 const LocationReviews = defineAsyncComponent(() => import('./LocationReviews.vue'))
