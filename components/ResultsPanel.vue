@@ -16,10 +16,13 @@ const displayHotels = ref(false)
 const sightseeingData = ref()
 const displaySights = ref(false)
 
+const displaySettings = ref(false)
+
 const baseZIndex = 5000
 const weatherZIndex = ref(baseZIndex)
 const hotelsZIndex = ref(baseZIndex)
 const sightsZIndex = ref(baseZIndex)
+const settingsZIndex = ref(baseZIndex)
 
 let currentZIndex = baseZIndex
 
@@ -65,8 +68,10 @@ const sightseeingMenuItem: MenuItem = {
 const settingMenuItem: MenuItem = {
   label: 'Settings',
   icon: './settings-icon.webp',
-  command(event: MenuItemCommandEvent) {
-    console.error('Not yet implemented event inside settingsMenuItem', event)
+  command(_event: MenuItemCommandEvent) {
+    currentZIndex += 1
+    settingsZIndex.value = currentZIndex
+    displaySettings.value = true
   },
 }
 const menuItems: Ref<MenuItem[]> = ref([sightseeingMenuItem, hotelsMenuItem, weatherMenuItem, settingMenuItem])
@@ -131,7 +136,7 @@ function onDockItemClick(event: MouseEvent, item: MenuItem) {
   event.preventDefault()
 }
 
-function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
+function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
   currentZIndex += 1
   switch (type) {
     case 'weather':
@@ -142,6 +147,9 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
       break
     case 'sights':
       sightsZIndex.value = currentZIndex
+      break
+    case 'settings':
+      settingsZIndex.value = currentZIndex
       break
   }
 }
@@ -238,6 +246,29 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights') {
         </span>
       </template>
       <LocationList :locations="sightseeingData" />
+    </Dialog>
+    <Dialog
+      v-model:visible="displaySettings"
+      :base-z-index="settingsZIndex"
+      position="left"
+      :keep-in-view-port="true"
+      :pt="{
+        mask: {
+          style: {
+            zIndex: settingsZIndex,
+          },
+        },
+        header: {
+          class: 'px-4 py-2',
+        },
+      }"
+      @mousedown.stop="updateZIndex('settings')"
+    >
+      <template #header>
+        <span class="p-dialog-title">
+          <font-awesome icon="fa-solid fa-gears" class="mr-1" />Settings
+        </span>
+      </template>
     </Dialog>
   </div>
 </template>

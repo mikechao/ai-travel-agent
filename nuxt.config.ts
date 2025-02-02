@@ -77,7 +77,7 @@ export default defineNuxtConfig({
         'umbrella',
         'wind',
         'xmark',
-        'gear',
+        'gears',
         'route',
         'chevron-down',
         'chevron-up',
