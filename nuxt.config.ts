@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@primevue/nuxt-module',
     '@pinia/nuxt',
+    '@nuxtjs/color-mode',
   ],
   css: [
     './assets/styles/tailwind.css',
