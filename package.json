@@ -15,7 +15,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@ai-sdk/vue": "^1.0.12",
+    "@ai-sdk/vue": "^1.1.8",
     "@langchain/community": "^0.3.28",
     "@langchain/core": "^0.3.37",
     "@langchain/langgraph": "^0.2.44",
@@ -26,7 +26,7 @@
     "@primevue/forms": "^4.2.5",
     "@primevue/themes": "^4.2.5",
     "@vesp/nuxt-fontawesome": "1.2.0",
-    "ai": "^4.0.39",
+    "ai": "^4.1.16",
     "consola": "^3.4.0",
     "duck-duck-scrape": "^2.2.7",
     "nuxt": "^3.15.4",
@@ -54,7 +54,6 @@
     "nuxi": "^3.20.0",
     "postcss-import": "^16.1.0",
     "prettier": "^3.4.2",
-    "supabase": "^2.6.8",
     "tailwindcss": "^3.4.17"
   }
 }
