@@ -269,6 +269,7 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
           <font-awesome icon="fa-solid fa-gears" class="mr-1" />Settings
         </span>
       </template>
+      <SettingsPanel />
     </Dialog>
   </div>
 </template>

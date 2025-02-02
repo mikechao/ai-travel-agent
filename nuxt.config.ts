@@ -92,6 +92,8 @@ export default defineNuxtConfig({
         'paper-plane',
         'thumbs-up',
         'face-sad-tear',
+        'sun',
+        'moon',
       ],
     },
   },
