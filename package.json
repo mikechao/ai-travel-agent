@@ -5,7 +5,7 @@
   "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "NODE_OPTIONS='--trace-warnings' nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -51,7 +51,7 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-format": "^1.0.1",
     "eslint-plugin-prettier": "^5.2.3",
-    "langsmith": "^0.2.15",
+    "langsmith": "^0.3.4",
     "nuxi": "^3.20.0",
     "postcss-import": "^16.1.0",
     "prettier": "^3.4.2",
