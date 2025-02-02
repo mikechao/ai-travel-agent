@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@ai-sdk/vue": "^1.0.12",
-    "@langchain/community": "^0.3.24",
+    "@langchain/community": "^0.3.28",
     "@langchain/core": "^0.3.37",
     "@langchain/langgraph": "^0.2.44",
     "@langchain/langgraph-checkpoint-postgres": "^0.0.3",
