@@ -18,7 +18,7 @@
     "@ai-sdk/vue": "^1.0.12",
     "@langchain/community": "^0.3.24",
     "@langchain/core": "^0.3.30",
-    "@langchain/langgraph": "^0.2.40",
+    "@langchain/langgraph": "^0.2.44",
     "@langchain/langgraph-checkpoint-postgres": "^0.0.3",
     "@langchain/openai": "^0.4.2",
     "@nuxtjs/tailwindcss": "6.13.1",
