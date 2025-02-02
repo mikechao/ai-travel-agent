@@ -29,7 +29,7 @@ export default defineNuxtConfig({
     dataValue: 'theme',
     fallback: 'light',
     storage: 'localStorage',
-    storageKey: 'nuxt-color-mode',
+    storageKey: 'ai-travel-agent-color-mode',
   },
   primevue: {
     options: {
