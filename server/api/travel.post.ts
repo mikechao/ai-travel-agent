@@ -129,7 +129,8 @@ export default defineLazyEventHandler(async () => {
       ]).partial({
         tool_names: toolNames,
       })
-      return prompt.pipe(model.withStructuredOutput(outputSchema, { name: 'Response' })).invoke({ messages }, { tags: [modelTag], runName })
+      const chain = prompt.pipe(model.withStructuredOutput(outputSchema, { name: 'Response' }))
+      return chain.invoke({ messages }, { tags: [modelTag], runName })
     }
     else {
       const outputSchema = z.object({
@@ -157,7 +158,8 @@ export default defineLazyEventHandler(async () => {
         + `Feel free to mention the other agents by name, but call them your colleagues or a synonym
          like partner, coworker, buddy, associate.`
 
-    const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
+    const promptMessage = new SystemMessage({ name: 'TravelPrompt', content: systemPrompt })
+    const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor')
     const aiMsg = { role: 'ai', content: response.response, name: 'travelAdvisor' }
@@ -192,7 +194,8 @@ export default defineLazyEventHandler(async () => {
         + 'If you have enough information to respond to the user, return \'finish\'. '
         + 'Feel free to meantion the other agents by name, but in a Parrot way'
 
-    const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
+    const promptMessage = new SystemMessage({ name: 'SightseeingPrompt', content: systemPrompt })
+    const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'hotelAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [geocodeTool, sightseeingSearchTool, sightsDetailsTool, sightsReviewsTool])
     const aiMsg: AIMsg = {
@@ -231,7 +234,8 @@ export default defineLazyEventHandler(async () => {
         + 'If you have enough information to respond to the user, return \'finish\'. '
         + 'Feel free to mention other agents by name, but call them synonyms of colleagues'
 
-    const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
+    const promptMessage = new SystemMessage({ name: 'HotelPrompt', content: systemPrompt })
+    const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'hotelAdvisor', [geocodeTool, hotelSearchTool, hotelDetailsTool, hotelReviewsTool])
 
@@ -270,7 +274,8 @@ export default defineLazyEventHandler(async () => {
       + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
       + 'Feel free to meantion the other agents by name, but in a pirate way'
 
-    const messages = [{ role: 'system', content: systemPrompt }, ...state.messages] as BaseMessage[]
+    const promptMessage = new SystemMessage({ name: 'WeatherPrompt', content: systemPrompt })
+    const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'hotelAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [geocodeTool, weatherForecastTool])
     const aiMsg: AIMsg = {
@@ -385,7 +390,7 @@ export default defineLazyEventHandler(async () => {
 
     const initMessage = {
       messages: [
-        new SystemMessage({ content: `Use the tools and agents you have to figure out what to ask the user.
+        new SystemMessage({ name: 'initMessage', content: `Use the tools and agents you have to figure out what to ask the user.
         Introduce yourself and give the user a summary of your skills and knowledge in a list format.` }),
       ],
     }
