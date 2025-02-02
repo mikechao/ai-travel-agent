@@ -24,6 +24,13 @@ export default defineNuxtConfig({
     './assets/styles/tailwind.css',
     './assets/styles/base.css',
   ],
+  colorMode: {
+    preference: 'system',
+    dataValue: 'theme',
+    fallback: 'light',
+    storage: 'localStorage',
+    storageKey: 'nuxt-color-mode',
+  },
   primevue: {
     options: {
       ripple: true,
@@ -55,6 +62,7 @@ export default defineNuxtConfig({
         'primevue/inputtext',
         'primevue/panel',
         'primevue/card',
+        'primevue/selectbutton',
       ],
     },
   },
