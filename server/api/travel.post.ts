@@ -405,11 +405,11 @@ export default defineLazyEventHandler(async () => {
             if (event.event === 'on_chat_model_stream' && event.tags?.includes(modelTag)) {
               if (isAIMessageChunk(event.data.chunk)) {
                 const aiMessageChunk = event.data.chunk as AIMessageChunk
-                if (aiMessageChunk.tool_call_chunks?.length && aiMessageChunk.tool_call_chunks[0].args) {
-                  const toolChunk = aiMessageChunk.tool_call_chunks[0].args
+                if (aiMessageChunk.content.length) {
+                  const content = aiMessageChunk.content as string
                   // we can filter the toolChunk to exclude the {response:... but it depends on
                   // how the model tokenizes and introduces overhead
-                  const part = formatDataStreamPart('text', toolChunk)
+                  const part = formatDataStreamPart('text', content)
                   controller.enqueue(encoder.encode(part))
                 }
               }
