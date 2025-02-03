@@ -64,9 +64,9 @@ function surfaceColorOutline(name: string) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-1">
     <span class="text-sm text-surface-700 dark:text-surface-0 font-semibold leading-none">Primary Color</span>
-    <div class="flex flex-wrap gap-2 pt-2">
+    <div class="grid grid-cols-5 gap-2 pt-2">
       <button
         v-for="primaryColor in primaryColors"
         :key="primaryColor.name"
@@ -80,7 +80,7 @@ function surfaceColorOutline(name: string) {
   </div>
   <div class="flex flex-col gap-2 mt-2">
     <span class="text-sm text-surface-700 dark:text-surface-0 font-semibold leading-none">Surface Color</span>
-    <div class="flex flex-wrap gap-2 pt-2">
+    <div class="grid grid-cols-5 gap-2 pt-2">
       <button
         v-for="surfaceColor in surfaceColors"
         :key="surfaceColor.name"
