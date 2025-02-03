@@ -36,20 +36,40 @@ function updatePrimaryColor(primaryColor: ColorDefinition) {
     document.documentElement.style.setProperty(`--p-primary-${shade}`, primaryColor.palette[shade])
   })
 }
+
+const firstRowColors = computed(() =>
+  primaryColors.slice(0, Math.ceil(primaryColors.length / 2)),
+)
+
+const secondRowColors = computed(() =>
+  primaryColors.slice(Math.ceil(primaryColors.length / 2)),
+)
 </script>
 
 <template>
   <div class="config-panel-colors">
-    <span class="config-panel-label">Primary</span>
-    <div>
-      <button
-        v-for="primaryColor of primaryColors"
-        :key="primaryColor.name"
-        type="button"
-        :class="{ 'active-color': selectedPrimaryColor === primaryColor.name }"
-        :style="{ backgroundColor: `${primaryColor.palette[500]}` }"
-        @click="updatePrimaryColor(primaryColor)"
-      />
+    <span class="config-panel-label">Primary Color</span>
+    <div class="flex flex-col gap-2 pt-2">
+      <div class="flex gap-2">
+        <button
+          v-for="primaryColor in firstRowColors"
+          :key="primaryColor.name"
+          type="button"
+          :class="{ 'active-color': selectedPrimaryColor === primaryColor.name }"
+          :style="{ backgroundColor: `${primaryColor.palette[500]}` }"
+          @click="updatePrimaryColor(primaryColor)"
+        />
+      </div>
+      <div class="flex gap-2">
+        <button
+          v-for="primaryColor in secondRowColors"
+          :key="primaryColor.name"
+          type="button"
+          :class="{ 'active-color': selectedPrimaryColor === primaryColor.name }"
+          :style="{ backgroundColor: `${primaryColor.palette[500]}` }"
+          @click="updatePrimaryColor(primaryColor)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -78,5 +98,11 @@ function updatePrimaryColor(primaryColor: ColorDefinition) {
       }
     }
   }
+}
+.config-panel-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
+  font-weight: 600;
+  line-height: 1;
 }
 </style>
