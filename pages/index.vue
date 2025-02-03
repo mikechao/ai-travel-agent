@@ -2,10 +2,22 @@
 import Splitter from 'primevue/splitter'
 import SplitterPanel from 'primevue/splitterpanel'
 
-const colorMode = useColorMode()
-if (colorMode.value === 'dark') {
-  document.documentElement.classList.add('p-dark')
-}
+onMounted(() => {
+  const colorMode = useColorMode()
+  // have to use a watch here since color mode
+  // is detected on the client side
+  watch(
+    () => colorMode.value,
+    (newValue) => {
+      if (newValue === 'dark') {
+        document.documentElement.classList.add('p-dark')
+      }
+      else {
+        document.documentElement.classList.remove('p-dark')
+      }
+    },
+  )
+})
 </script>
 
 <template>
