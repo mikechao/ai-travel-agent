@@ -1,4 +1,15 @@
 <script setup lang="ts">
+type PaletteShade = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950
+
+type ColorPalette = {
+  [shade in PaletteShade]: string
+}
+
+interface ColorDefinition {
+  name: string
+  palette: ColorPalette
+}
+
 const currentPrimaryColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--p-primary-color')
   .trim()
@@ -9,13 +20,21 @@ const keys = Object.keys(primevue.config.theme.preset.primitive).filter(key => k
 
 const selectedPrimaryColor = ref()
 
-const primaryColors = []
+const primaryColors: ColorDefinition[] = []
 for (const key of keys) {
   const values = primevue.config.theme.preset.primitive[key]
   if (values['500'] === currentPrimaryColor) {
     selectedPrimaryColor.value = key
   }
   primaryColors.push ({ name: key, palette: { ...values } })
+}
+
+function updatePrimaryColor(primaryColor: ColorDefinition) {
+  selectedPrimaryColor.value = primaryColor.name
+  Object.keys(primaryColor.palette).forEach((key) => {
+    const shade = key as unknown as PaletteShade
+    document.documentElement.style.setProperty(`--p-primary-${shade}`, primaryColor.palette[shade])
+  })
 }
 </script>
 
@@ -29,6 +48,7 @@ for (const key of keys) {
         type="button"
         :class="{ 'active-color': selectedPrimaryColor === primaryColor.name }"
         :style="{ backgroundColor: `${primaryColor.palette[500]}` }"
+        @click="updatePrimaryColor(primaryColor)"
       />
     </div>
   </div>
