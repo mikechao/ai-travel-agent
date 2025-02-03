@@ -2,20 +2,34 @@
 const currentPrimaryColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--p-primary-color')
   .trim()
+const currentSurfaceColor = getComputedStyle(document.documentElement)
+  .getPropertyValue('--p-surface-500')
+  .trim()
 
+const surfaceColorNames = ['slate', 'gray', 'zinc', 'neutral', 'stone']
 const primevue = usePrimeVue()
-
-const keys = Object.keys(primevue.config.theme.preset.primitive).filter(key => key !== 'borderRadius')
-
 const selectedPrimaryColor = ref()
+const selectedSurfaceColor = ref()
 
-const primaryColors: ColorDefinition[] = []
-for (const key of keys) {
+const primaryColorKeys = Object.keys(primevue.config.theme.preset.primitive).filter(key => key !== 'borderRadius' && !surfaceColorNames.includes(key))
+
+const primaryColors = ref<ColorDefinition[]>([])
+for (const key of primaryColorKeys) {
   const values = primevue.config.theme.preset.primitive[key]
   if (values['500'] === currentPrimaryColor) {
     selectedPrimaryColor.value = key
   }
-  primaryColors.push ({ name: key, palette: { ...values } })
+  primaryColors.value.push ({ name: key, palette: { ...values } })
+}
+
+const surfaceColorKeys = Object.keys(primevue.config.theme.preset.primitive).filter(key => surfaceColorNames.includes(key))
+const surfaceColors: ColorDefinition[] = []
+for (const key of surfaceColorKeys) {
+  const values = primevue.config.theme.preset.primitive[key]
+  if (values['500'] === currentSurfaceColor) {
+    selectedSurfaceColor.value = key
+  }
+  surfaceColors.push({ name: key, palette: { ...values } })
 }
 
 function updatePrimaryColor(primaryColor: ColorDefinition) {
@@ -26,72 +40,56 @@ function updatePrimaryColor(primaryColor: ColorDefinition) {
   })
 }
 
-const firstRowColors = computed(() =>
-  primaryColors.slice(0, Math.ceil(primaryColors.length / 2)),
-)
+function updateSurfaceColor(surfaceColor: ColorDefinition) {
+  selectedSurfaceColor.value = surfaceColor.name
+  Object.keys(surfaceColor.palette).forEach((key) => {
+    const shade = key as unknown as PaletteShade
+    document.documentElement.style.setProperty(`--p-surface-${shade}`, surfaceColor.palette[shade])
+  })
+}
 
-const secondRowColors = computed(() =>
-  primaryColors.slice(Math.ceil(primaryColors.length / 2)),
-)
+function primaryColorOutline(name: string) {
+  if (selectedPrimaryColor.value === name) {
+    return 'outline-black dark:outline-white'
+  }
+  return 'outline-transparent'
+}
+
+function surfaceColorOutline(name: string) {
+  if (selectedSurfaceColor.value === name) {
+    return 'outline-black dark:outline-white'
+  }
+  return 'outline-transparent'
+}
 </script>
 
 <template>
-  <div class="config-panel-colors">
-    <span class="config-panel-label">Primary Color</span>
-    <div class="flex flex-col gap-2 pt-2">
-      <div class="flex gap-2">
-        <button
-          v-for="primaryColor in firstRowColors"
-          :key="primaryColor.name"
-          type="button"
-          :class="{ 'active-color': selectedPrimaryColor === primaryColor.name }"
-          :style="{ backgroundColor: `${primaryColor.palette[500]}` }"
-          @click="updatePrimaryColor(primaryColor)"
-        />
-      </div>
-      <div class="flex gap-2">
-        <button
-          v-for="primaryColor in secondRowColors"
-          :key="primaryColor.name"
-          type="button"
-          :class="{ 'active-color': selectedPrimaryColor === primaryColor.name }"
-          :style="{ backgroundColor: `${primaryColor.palette[500]}` }"
-          @click="updatePrimaryColor(primaryColor)"
-        />
-      </div>
+  <div class="flex flex-col gap-2">
+    <span class="text-sm text-surface-700 dark:text-surface-0 font-semibold leading-none">Primary Color</span>
+    <div class="flex flex-wrap gap-2 pt-2">
+      <button
+        v-for="primaryColor in primaryColors"
+        :key="primaryColor.name"
+        type="button"
+        class="w-5 h-5 rounded-full cursor-pointer outline-2 outline"
+        :class="primaryColorOutline(primaryColor.name)"
+        :style="{ backgroundColor: `${primaryColor.palette[500]}` }"
+        @click="updatePrimaryColor(primaryColor)"
+      />
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 mt-2">
+    <span class="text-sm text-surface-700 dark:text-surface-0 font-semibold leading-none">Surface Color</span>
+    <div class="flex flex-wrap gap-2 pt-2">
+      <button
+        v-for="surfaceColor in surfaceColors"
+        :key="surfaceColor.name"
+        type="button"
+        class="w-5 h-5 rounded-full cursor-pointer outline-2 outline"
+        :class="surfaceColorOutline(surfaceColor.name)"
+        :style="{ backgroundColor: `${surfaceColor.palette[500]}` }"
+        @click="updateSurfaceColor(surfaceColor)"
+      />
     </div>
   </div>
 </template>
-
-<style scoped>
-.config-panel-colors {
-  > div {
-    padding-top: 0.5rem;
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-
-    button {
-      border: none;
-      width: 1.25rem;
-      height: 1.25rem;
-      border-radius: 50%;
-      padding: 0;
-      cursor: pointer;
-      outline-color: transparent;
-      outline-width: 2px;
-      outline-style: solid;
-
-      &.active-color {
-        outline-color: var(--primary-color);
-      }
-    }
-  }
-}
-.config-panel-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary-color);
-  font-weight: 600;
-  line-height: 1;
-}
-</style>
