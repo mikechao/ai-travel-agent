@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import Splitter from 'primevue/splitter'
 import SplitterPanel from 'primevue/splitterpanel'
+
+const colorMode = useColorMode()
+if (colorMode.value === 'dark') {
+  document.documentElement.classList.add('p-dark')
+}
 </script>
 
 <template>

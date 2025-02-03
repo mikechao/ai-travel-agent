@@ -37,6 +37,7 @@ export default defineNuxtConfig({
       theme: {
         preset: Nora,
         options: {
+          darkModeSelector: '.p-dark',
           cssLayer: {
             name: 'primevue',
             order: 'tailwind-base, primevue, tailwind-utilities',
@@ -63,6 +64,8 @@ export default defineNuxtConfig({
         'primevue/panel',
         'primevue/card',
         'primevue/selectbutton',
+        'primevue/scrollpanel',
+        'primevue/galleria',
       ],
     },
   },
