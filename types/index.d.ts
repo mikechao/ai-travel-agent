@@ -1,6 +1,17 @@
 export {}
 
 declare global {
+  type PaletteShade = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950
+
+  type ColorPalette = {
+    [shade in PaletteShade]: string
+  }
+
+  interface ColorDefinition {
+    name: string
+    palette: ColorPalette
+  }
+
   interface DataItem {
     id: string
     type: string

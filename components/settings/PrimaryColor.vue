@@ -1,15 +1,4 @@
 <script setup lang="ts">
-type PaletteShade = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950
-
-type ColorPalette = {
-  [shade in PaletteShade]: string
-}
-
-interface ColorDefinition {
-  name: string
-  palette: ColorPalette
-}
-
 const currentPrimaryColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--p-primary-color')
   .trim()
