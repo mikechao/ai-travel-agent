@@ -99,15 +99,7 @@ export default defineLazyEventHandler(async () => {
       reducer: (x, y) => y ?? x ?? 'human',
       default: () => 'human',
     }),
-    toolsToCall: Annotation<string>({
-      reducer: (x, y) => {
-        if (!y.length) {
-          return ''
-        }
-        return x.concat(`,${y}`)
-      },
-      default: () => '',
-    }),
+    toolsToCall: Annotation<string>(),
   })
 
   async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: DynamicStructuredTool<any>[] = []) {
