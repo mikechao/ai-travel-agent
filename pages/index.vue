@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Splitter from 'primevue/splitter'
 import SplitterPanel from 'primevue/splitterpanel'
+import { updatePrimaryColors } from '~/composables/updatePrimaryColors'
+import { updateSurfaceColors } from '~/composables/updateSurfaceColors'
 
 onMounted(() => {
   const colorMode = useColorMode()
@@ -25,10 +27,7 @@ onMounted(() => {
       if (key) {
         const values = primevue.config.theme.preset.primitive[key]
         const colorDef = { name: key, palette: { ...values } }
-        Object.keys(colorDef.palette).forEach((key) => {
-          const shade = key as unknown as PaletteShade
-          document.documentElement.style.setProperty(`--p-primary-${shade}`, colorDef.palette[shade])
-        })
+        updatePrimaryColors(colorDef)
       }
     }
   }
@@ -40,10 +39,7 @@ onMounted(() => {
       if (key) {
         const values = primevue.config.theme.preset.primitive[key]
         const colorDef = { name: key, palette: { ...values } }
-        Object.keys(colorDef.palette).forEach((key) => {
-          const shade = key as unknown as PaletteShade
-          document.documentElement.style.setProperty(`--p-surface-${shade}`, colorDef.palette[shade])
-        })
+        updateSurfaceColors(colorDef)
       }
     }
   }

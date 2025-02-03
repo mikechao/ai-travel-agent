@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { updatePrimaryColors } from '~/composables/updatePrimaryColors'
+import { updateSurfaceColors } from '~/composables/updateSurfaceColors'
+
 const currentPrimaryColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--p-primary-color')
   .trim()
@@ -37,10 +40,7 @@ function updatePrimaryColor(primaryColor: ColorDefinition) {
   if (import.meta.client) {
     localStorage.setItem('ai-travel-agent-pColor', primaryColor.name)
   }
-  Object.keys(primaryColor.palette).forEach((key) => {
-    const shade = key as unknown as PaletteShade
-    document.documentElement.style.setProperty(`--p-primary-${shade}`, primaryColor.palette[shade])
-  })
+  updatePrimaryColors(primaryColor)
 }
 
 function updateSurfaceColor(surfaceColor: ColorDefinition) {
@@ -48,10 +48,7 @@ function updateSurfaceColor(surfaceColor: ColorDefinition) {
   if (import.meta.client) {
     localStorage.setItem('ai-travel-agent-sColor', surfaceColor.name)
   }
-  Object.keys(surfaceColor.palette).forEach((key) => {
-    const shade = key as unknown as PaletteShade
-    document.documentElement.style.setProperty(`--p-surface-${shade}`, surfaceColor.palette[shade])
-  })
+  updateSurfaceColors(surfaceColor)
 }
 
 function primaryColorOutline(name: string) {
