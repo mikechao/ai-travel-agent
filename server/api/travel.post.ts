@@ -11,6 +11,7 @@ import type {
   Message as VercelChatMessage,
 } from 'ai'
 import {
+  AIMessage,
   isAIMessageChunk,
   SystemMessage,
 } from '@langchain/core/messages'
@@ -22,6 +23,7 @@ import {
   Annotation,
   Command,
   interrupt,
+  MessagesAnnotation,
   START,
   StateGraph,
 } from '@langchain/langgraph'
@@ -47,8 +49,6 @@ export default defineLazyEventHandler(async () => {
 
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
-
-  interface AIMsg { role: string, content: string, name: string, toolsToCall?: string }
 
   const weatherForecastTool = getWeatherForecastTool()
   const hotelSearchTool = getHotelSearchTool()
@@ -94,12 +94,19 @@ export default defineLazyEventHandler(async () => {
   await checkpointer.setup()
 
   const AgentState = Annotation.Root({
-    messages: Annotation<BaseMessage[]>({
-      reducer: (x, y) => x.concat(y),
-    }),
+    ...MessagesAnnotation.spec,
     sender: Annotation<string>({
       reducer: (x, y) => y ?? x ?? 'human',
       default: () => 'human',
+    }),
+    toolsToCall: Annotation<string>({
+      reducer: (x, y) => {
+        if (!y.length) {
+          return ''
+        }
+        return x.concat(`,${y}`)
+      },
+      default: () => '',
     }),
   })
 
@@ -162,7 +169,7 @@ export default defineLazyEventHandler(async () => {
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor')
-    const aiMsg = { role: 'ai', content: response.response, name: 'travelAdvisor' }
+    const aiMsg = new AIMessage({ name: 'travelResponse', content: response.response })
     let goto = response.goto
     if (goto === 'finish') {
       goto = 'human'
@@ -198,13 +205,10 @@ export default defineLazyEventHandler(async () => {
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'hotelAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [geocodeTool, sightseeingSearchTool, sightsDetailsTool, sightsReviewsTool])
-    const aiMsg: AIMsg = {
-      role: 'ai',
-      content: response.response,
-      name: 'sightseeingAdvisor',
-    }
+    const aiMessage = new AIMessage({ name: 'sightseeingResponse', content: response.response })
+    let toolsToCall = ''
     if (response.toolsToCall) {
-      aiMsg.toolsToCall = response.toolsToCall
+      toolsToCall = response.toolsToCall
     }
     let goto = response.goto
     if (goto === 'finish') {
@@ -213,8 +217,9 @@ export default defineLazyEventHandler(async () => {
     return new Command({
       goto,
       update: {
-        messages: [aiMsg],
+        messages: [aiMessage],
         sender: 'sightseeingAdvisor',
+        toolsToCall,
       },
     })
   }
@@ -238,14 +243,10 @@ export default defineLazyEventHandler(async () => {
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'hotelAdvisor', [geocodeTool, hotelSearchTool, hotelDetailsTool, hotelReviewsTool])
-
-    const aiMsg: AIMsg = {
-      role: 'ai',
-      content: response.response,
-      name: 'hotelAdvisor',
-    }
+    const aiMessage = new AIMessage({ name: 'hotelResponse', content: response.response })
+    let toolsToCall = ''
     if (response.toolsToCall) {
-      aiMsg.toolsToCall = response.toolsToCall
+      toolsToCall = response.toolsToCall
     }
 
     let goto = response.goto
@@ -255,8 +256,9 @@ export default defineLazyEventHandler(async () => {
     return new Command({
       goto,
       update: {
-        messages: [aiMsg],
+        messages: [aiMessage],
         sender: 'hotelAdvisor',
+        toolsToCall,
       },
     })
   }
@@ -278,13 +280,10 @@ export default defineLazyEventHandler(async () => {
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'hotelAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [geocodeTool, weatherForecastTool])
-    const aiMsg: AIMsg = {
-      role: 'ai',
-      content: response.response,
-      name: 'weatherAdvisor',
-    }
+    const aiMessage = new AIMessage({ name: 'weatherResponse', content: response.response })
+    let toolsToCall = ''
     if (response.toolsToCall) {
-      aiMsg.toolsToCall = response.toolsToCall
+      toolsToCall = response.toolsToCall
     }
     let goto = response.goto
     if (goto === 'finish') {
@@ -294,8 +293,9 @@ export default defineLazyEventHandler(async () => {
     return new Command({
       goto,
       update: {
-        messages: [aiMsg],
+        messages: [aiMessage],
         sender: 'weatherAdvisor',
+        toolsToCall,
       },
     })
   }
@@ -319,11 +319,9 @@ export default defineLazyEventHandler(async () => {
 
   async function callTools(state: typeof AgentState.State): Promise<Command> {
     consola.info('callTools')
-    const lastMessage = state.messages[state.messages.length - 1]
-    const aiMsg = lastMessage as unknown as AIMsg
     const tools: StructuredToolInterface[]
-    = (aiMsg.toolsToCall)
-      ? aiMsg.toolsToCall.split(',')
+    = (state.toolsToCall)
+      ? state.toolsToCall.split(',')
           .map(name => toolsByName.get(name))
           .filter(tool => tool !== undefined)
       : []
@@ -344,10 +342,11 @@ export default defineLazyEventHandler(async () => {
         update: {
           messages: [result, ...toolResults],
           sender: 'callTools',
+          toolsToCall: '',
         },
       })
     }
-    console.error(`No tools to call for ${state.sender} aiMsg ${aiMsg}`)
+    console.error(`No tools to call for ${state.sender}`)
     return new Command({
       goto: state.sender,
     })
