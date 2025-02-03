@@ -17,6 +17,36 @@ onMounted(() => {
       }
     },
   )
+  const primaryColor = localStorage.getItem('ai-travel-agent-pColor')
+  if (primaryColor) {
+    const primevue = usePrimeVue()
+    if (primevue.config.theme.preset.primitive) {
+      const key = Object.keys(primevue.config.theme.preset.primitive).find(k => k === primaryColor)
+      if (key) {
+        const values = primevue.config.theme.preset.primitive[key]
+        const colorDef = { name: key, palette: { ...values } }
+        Object.keys(colorDef.palette).forEach((key) => {
+          const shade = key as unknown as PaletteShade
+          document.documentElement.style.setProperty(`--p-primary-${shade}`, colorDef.palette[shade])
+        })
+      }
+    }
+  }
+  const surfaceColor = localStorage.getItem('ai-travel-agent-sColor')
+  if (surfaceColor) {
+    const primevue = usePrimeVue()
+    if (primevue.config.theme.preset.primitive) {
+      const key = Object.keys(primevue.config.theme.preset.primitive).find(k => k === surfaceColor)
+      if (key) {
+        const values = primevue.config.theme.preset.primitive[key]
+        const colorDef = { name: key, palette: { ...values } }
+        Object.keys(colorDef.palette).forEach((key) => {
+          const shade = key as unknown as PaletteShade
+          document.documentElement.style.setProperty(`--p-surface-${shade}`, colorDef.palette[shade])
+        })
+      }
+    }
+  }
 })
 </script>
 
