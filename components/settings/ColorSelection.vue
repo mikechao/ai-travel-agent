@@ -34,6 +34,9 @@ for (const key of surfaceColorKeys) {
 
 function updatePrimaryColor(primaryColor: ColorDefinition) {
   selectedPrimaryColor.value = primaryColor.name
+  if (import.meta.client) {
+    localStorage.setItem('ai-travel-agent-pColor', primaryColor.name)
+  }
   Object.keys(primaryColor.palette).forEach((key) => {
     const shade = key as unknown as PaletteShade
     document.documentElement.style.setProperty(`--p-primary-${shade}`, primaryColor.palette[shade])
@@ -42,6 +45,9 @@ function updatePrimaryColor(primaryColor: ColorDefinition) {
 
 function updateSurfaceColor(surfaceColor: ColorDefinition) {
   selectedSurfaceColor.value = surfaceColor.name
+  if (import.meta.client) {
+    localStorage.setItem('ai-travel-agent-sColor', surfaceColor.name)
+  }
   Object.keys(surfaceColor.palette).forEach((key) => {
     const shade = key as unknown as PaletteShade
     document.documentElement.style.setProperty(`--p-surface-${shade}`, surfaceColor.palette[shade])
