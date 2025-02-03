@@ -66,6 +66,7 @@ export default defineNuxtConfig({
         'primevue/selectbutton',
         'primevue/scrollpanel',
         'primevue/galleria',
+        'primevue/divider',
       ],
     },
   },
