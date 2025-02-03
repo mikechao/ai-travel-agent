@@ -110,14 +110,12 @@ function formSubmit(_event: FormSubmitEvent) {
           class="flex-1 shadow-lg rounded-full"
         />
         <Button
-          v-ripple
           type="submit"
           label="Send"
           icon-pos="right"
           :loading="isLoading"
           raised
           rounded
-          class="ripple-box shadow-lg"
         >
           <template #icon>
             <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
