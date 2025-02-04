@@ -162,19 +162,7 @@ export default defineLazyEventHandler(async () => {
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor')
-    const aiMsg = new AIMessage({ name: 'travelResponse', content: response.response })
-    let goto = response.goto
-    if (goto === 'finish') {
-      goto = 'deleteNode'
-    }
-    consola.info('goto', goto)
-    return new Command({
-      goto,
-      update: {
-        messages: [aiMsg],
-        sender: 'travelAdvisor',
-      },
-    })
+    return handleLLMResponse(response, 'travelResponse', 'travelAdvisor')
   }
 
   async function sightseeingAdvisor(state: typeof AgentState.State): Promise<Command> {
@@ -198,23 +186,7 @@ export default defineLazyEventHandler(async () => {
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'hotelAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'sightseeingAdvisor', [geocodeTool, sightseeingSearchTool, sightsDetailsTool, sightsReviewsTool])
-    const aiMessage = new AIMessage({ name: 'sightseeingResponse', content: response.response })
-    let toolsToCall = ''
-    if (response.toolsToCall) {
-      toolsToCall = response.toolsToCall
-    }
-    let goto = response.goto
-    if (goto === 'finish') {
-      goto = 'deleteNode'
-    }
-    return new Command({
-      goto,
-      update: {
-        messages: [aiMessage],
-        sender: 'sightseeingAdvisor',
-        toolsToCall,
-      },
-    })
+    return handleLLMResponse(response, 'sightseeingResponse', 'sightseeingAdvisor')
   }
 
   async function hotelAdvisor(state: typeof AgentState.State): Promise<Command> {
@@ -236,24 +208,7 @@ export default defineLazyEventHandler(async () => {
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'weatherAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'hotelAdvisor', [geocodeTool, hotelSearchTool, hotelDetailsTool, hotelReviewsTool])
-    const aiMessage = new AIMessage({ name: 'hotelResponse', content: response.response })
-    let toolsToCall = ''
-    if (response.toolsToCall) {
-      toolsToCall = response.toolsToCall
-    }
-
-    let goto = response.goto
-    if (goto === 'finish') {
-      goto = 'deleteNode'
-    }
-    return new Command({
-      goto,
-      update: {
-        messages: [aiMessage],
-        sender: 'hotelAdvisor',
-        toolsToCall,
-      },
-    })
+    return handleLLMResponse(response, 'hotelResponse', 'hotelAdvisor')
   }
 
   async function weatherAdvisor(state: typeof AgentState.State): Promise<Command> {
@@ -273,7 +228,15 @@ export default defineLazyEventHandler(async () => {
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['travelAdvisor', 'sightseeingAdvisor', 'hotelAdvisor']
     const response = await callLLM(messages, targetAgentNodes, 'weatherAdvisor', [geocodeTool, weatherForecastTool])
-    const aiMessage = new AIMessage({ name: 'weatherResponse', content: response.response })
+    return handleLLMResponse(response, 'weatherResponse', 'weatherAdvisor')
+  }
+
+  async function handleLLMResponse(response: {
+    response: string
+    goto: string
+    toolsToCall?: string | undefined
+  }, messageName: string, senderName: string): Promise<Command> {
+    const aiMessage = new AIMessage({ name: messageName, content: response.response })
     let toolsToCall = ''
     if (response.toolsToCall) {
       toolsToCall = response.toolsToCall
@@ -287,7 +250,7 @@ export default defineLazyEventHandler(async () => {
       goto,
       update: {
         messages: [aiMessage],
-        sender: 'weatherAdvisor',
+        sender: senderName,
         toolsToCall,
       },
     })
