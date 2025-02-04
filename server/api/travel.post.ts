@@ -37,6 +37,7 @@ import {
 import consola from 'consola'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { getHotelDetailsTool } from '../utils/hotelDetailsTool'
 import { getHotelReviewsTool } from '../utils/hotelReviewsTool'
 import { getHotelSearchTool } from '../utils/hotelSearchTool'
@@ -48,9 +49,17 @@ import { getWeatherForecastTool } from '../utils/weatherSearchTool'
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
 
+  const model = new ChatOpenAI({
+    model: 'gpt-4o-mini',
+    temperature: 0.6,
+    apiKey: runtimeConfig.openaiAPIKey,
+    streaming: true,
+  })
+
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
 
+  const travelRecommendToolKit = new TravelRecommendToolKit(model)
   const weatherForecastTool = getWeatherForecastTool()
   const hotelSearchTool = getHotelSearchTool()
   const hotelDetailsTool = getHotelDetailsTool()
@@ -69,6 +78,7 @@ export default defineLazyEventHandler(async () => {
   toolsByName.set(sightsDetailsTool.name, sightsDetailsTool)
   toolsByName.set(hotelReviewsTool.name, hotelReviewsTool)
   toolsByName.set(sightsReviewsTool.name, sightsReviewsTool)
+  travelRecommendToolKit.getTools().forEach(tool => toolsByName.set(tool.name, tool))
 
   const weathToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
@@ -81,13 +91,6 @@ export default defineLazyEventHandler(async () => {
   toolTagsByToolName.set(hotelSearchTool.name, hotelSearchTag)
   toolTagsByToolName.set(sightseeingSearchTool.name, sightSearchTag)
   toolTagsByToolName.set(sightsDetailsTool.name, sighDetailTag)
-
-  const model = new ChatOpenAI({
-    model: 'gpt-4o-mini',
-    temperature: 0.6,
-    apiKey: runtimeConfig.openaiAPIKey,
-    streaming: true,
-  })
 
   const checkpointer = PostgresSaver.fromConnString(
     runtimeConfig.postgresURL,
@@ -103,7 +106,7 @@ export default defineLazyEventHandler(async () => {
     toolsToCall: Annotation<string>(),
   })
 
-  async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: DynamicStructuredTool<any>[] = []) {
+  async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: StructuredToolInterface<any>[] = []) {
   // without this if/else it seems like it will loop a few times before the LLM figures out
   // that we have already gotten the weather forecast for example
     if (toolsToUse.length) {
@@ -151,6 +154,7 @@ export default defineLazyEventHandler(async () => {
     const systemPrompt
       = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
        Be sure to bark a lot and use dog related emojis `
+        + `To recommend travel destinations to the user use the tool \'searchQueryTool\' first and then use the tool \'searchExecutionTool\' `
         + `If you need sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. `
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
@@ -160,7 +164,7 @@ export default defineLazyEventHandler(async () => {
     const promptMessage = new SystemMessage({ name: 'TravelPrompt', content: systemPrompt })
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor')
+    const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor', travelRecommendToolKit.getTools())
     return handleLLMResponse(response, 'travelResponse', 'travelAdvisor')
   }
 
