@@ -297,13 +297,21 @@ export default defineLazyEventHandler(async () => {
   function deleteNode(state: typeof AgentState.State): Command {
     consola.info('deleteNode')
     if (state.messages.length > 4 && !isInitMessageRemoved) {
-      // filter out some messages here
       consola.info('removing initMessage')
+      const messages = state.messages
+      const idsToRemove = []
+      const initIndex = messages.findIndex(msg => msg.id === 'initMessage')
+      // remove the initMessage and the one after it
+      if (initIndex !== -1 && initIndex + 1 < messages.length) {
+        idsToRemove.push(messages[initIndex].id)
+        idsToRemove.push(messages[initIndex + 1].id)
+      }
+      const removeMessages = idsToRemove.map(id => new RemoveMessage({ id: `${id}` }))
       isInitMessageRemoved = true
       return new Command({
         goto: 'human',
         update: {
-          messages: [new RemoveMessage({ id: 'initMessage' })],
+          messages: removeMessages,
         },
       })
     }
