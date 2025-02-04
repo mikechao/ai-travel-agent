@@ -125,6 +125,7 @@ export default defineLazyEventHandler(async () => {
           'system',
           'You are collaborating with other assistants.'
           + ' Use the provided tools, only if it is needed to progress towards answering the question.'
+          + ' Multiple tools can be choosen at the same time to progress towards answering the question'
           + ' If you have choosen a tool to use be sure to add it to the toolsToCall field. '
           + ' You have access to the following tools: \n{tool_names}.\n ',
         ],
@@ -154,7 +155,8 @@ export default defineLazyEventHandler(async () => {
     const systemPrompt
       = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
        Be sure to bark a lot and use dog related emojis `
-        + `To recommend travel destinations to the user use the tool \'searchQueryTool\' first and then use the tool \'searchExecutionTool\' `
+        + `To recommend travel destinations to the user first use the tool \'searchQueryTool\'  
+         and then use the tool \'searchExecutionTool\' with the artifact of \'searchQueryTool\' ToolMessage `
         + `If you need sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. `
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
@@ -242,6 +244,7 @@ export default defineLazyEventHandler(async () => {
     if (response.toolsToCall) {
       toolsToCall = response.toolsToCall
     }
+    consola.info('toolsToCall', toolsToCall)
     let goto = response.goto
     if (goto === 'finish') {
       goto = 'deleteNode'
@@ -319,7 +322,7 @@ export default defineLazyEventHandler(async () => {
         }
       }
       const modelWithTools = model.bindTools(tools)
-      const result = await modelWithTools.invoke(state.messages)
+      const result = await modelWithTools.invoke(state.messages, { parallel_tool_calls: false })
       const toolNode = new ToolNode(tools)
       const toolResults = await toolNode.invoke([...state.messages, result], { tags })
       return new Command({
