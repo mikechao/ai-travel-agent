@@ -21,19 +21,19 @@ function getTime(localtime) {
 <template>
   <div
     :class="place.current.is_day === 1 ? 'bg-day' : 'bg-night'"
-    class="text-white p-10 rounded-lg shadow-lg gap-6 mb-6 relative overflow-hidden"
+    class="text-white p-7 rounded-lg shadow-lg gap-4 mb-4 relative overflow-hidden"
   >
     <!-- Location & time -->
     <div class="mb-2 flex justify-between items-center">
       <div class="flex items-center justify-center gap-2">
         <font-awesome icon="fa-solid fa-location-dot" />
-        <h1 class="text-3xl">
+        <h1 class="text-xl">
           {{ place.location.name }}
         </h1>
       </div>
       <div class="flex items-center justify-center gap-2">
         <font-awesome icon="fa-solid fa-clock" />
-        <h1 class="text-3xl">
+        <h1 class="text-xl">
           {{ getTime(place.location.localtime) }}
         </h1>
       </div>
@@ -41,11 +41,11 @@ function getTime(localtime) {
 
     <!-- current weather -->
     <div class="text-center flex-1">
-      <img :src="place.current.condition.icon" alt="icon" width="200" class="mx-auto -mb-10">
-      <h1 class="text-9xl mb-2 -mr-4">
+      <img :src="place.current.condition.icon" alt="icon" width="175" class="mx-auto -mb-10">
+      <h1 class="text-6xl mb-2 -mr-4">
         {{ Math.round(place.current.temp_f) }}&deg;
       </h1>
-      <p class="text-2xl">
+      <p class="text-xl">
         {{ place.current.condition.text }}
       </p>
     </div>
