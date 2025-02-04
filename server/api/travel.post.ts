@@ -13,6 +13,7 @@ import type {
 import {
   AIMessage,
   isAIMessageChunk,
+  RemoveMessage,
   SystemMessage,
 } from '@langchain/core/messages'
 import {
@@ -164,7 +165,7 @@ export default defineLazyEventHandler(async () => {
     const aiMsg = new AIMessage({ name: 'travelResponse', content: response.response })
     let goto = response.goto
     if (goto === 'finish') {
-      goto = 'human'
+      goto = 'deleteNode'
     }
     consola.info('goto', goto)
     return new Command({
@@ -204,7 +205,7 @@ export default defineLazyEventHandler(async () => {
     }
     let goto = response.goto
     if (goto === 'finish') {
-      goto = 'human'
+      goto = 'deleteNode'
     }
     return new Command({
       goto,
@@ -243,7 +244,7 @@ export default defineLazyEventHandler(async () => {
 
     let goto = response.goto
     if (goto === 'finish') {
-      goto = 'human'
+      goto = 'deleteNode'
     }
     return new Command({
       goto,
@@ -279,7 +280,7 @@ export default defineLazyEventHandler(async () => {
     }
     let goto = response.goto
     if (goto === 'finish') {
-      goto = 'human'
+      goto = 'deleteNode'
     }
     consola.info('goto', goto)
     return new Command({
@@ -289,6 +290,25 @@ export default defineLazyEventHandler(async () => {
         sender: 'weatherAdvisor',
         toolsToCall,
       },
+    })
+  }
+
+  let isInitMessageRemoved = false
+  function deleteNode(state: typeof AgentState.State): Command {
+    consola.info('deleteNode')
+    if (state.messages.length > 4 && !isInitMessageRemoved) {
+      // filter out some messages here
+      consola.info('removing initMessage')
+      isInitMessageRemoved = true
+      return new Command({
+        goto: 'human',
+        update: {
+          messages: [new RemoveMessage({ id: 'initMessage' })],
+        },
+      })
+    }
+    return new Command({
+      goto: 'human',
     })
   }
 
@@ -346,13 +366,13 @@ export default defineLazyEventHandler(async () => {
 
   const builder = new StateGraph(AgentState)
     .addNode('travelAdvisor', travelAdvisor, {
-      ends: ['human', 'sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor'],
+      ends: ['deleteNode', 'sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor'],
     })
     .addNode('sightseeingAdvisor', sightseeingAdvisor, {
-      ends: ['human', 'travelAdvisor', 'hotelAdvisor', 'weatherAdvisor'],
+      ends: ['deleteNode', 'travelAdvisor', 'hotelAdvisor', 'weatherAdvisor'],
     })
     .addNode('hotelAdvisor', hotelAdvisor, {
-      ends: ['human', 'travelAdvisor', 'sightseeingAdvisor', 'weatherAdvisor'],
+      ends: ['deleteNode', 'travelAdvisor', 'sightseeingAdvisor', 'weatherAdvisor'],
     })
   // This adds a node to collect human input, which will route
   // back to the active agent.
@@ -365,6 +385,9 @@ export default defineLazyEventHandler(async () => {
     })
     .addNode('callTools', callTools, {
       ends: ['hotelAdvisor', 'sightseeingAdvisor', 'travelAdvisor', 'weatherAdvisor'],
+    })
+    .addNode('deleteNode', deleteNode, {
+      ends: ['human'],
     })
   // We'll always start with a general travel advisor.
     .addEdge(START, 'travelAdvisor')
@@ -381,7 +404,7 @@ export default defineLazyEventHandler(async () => {
 
     const initMessage = {
       messages: [
-        new SystemMessage({ name: 'initMessage', content: `Use the tools and agents you have to figure out what to ask the user.
+        new SystemMessage({ id: 'initMessage', name: 'initMessage', content: `Use the tools and agents you have to figure out what to ask the user.
         Introduce yourself and give the user a summary of your skills and knowledge in a list format.` }),
       ],
     }
