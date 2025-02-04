@@ -53,7 +53,6 @@ export default defineLazyEventHandler(async () => {
     model: 'gpt-4o-mini',
     temperature: 0.6,
     apiKey: runtimeConfig.openaiAPIKey,
-    streaming: true,
   })
 
   const modelTag = 'stream-out'
