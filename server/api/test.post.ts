@@ -14,10 +14,10 @@ export default defineLazyEventHandler(async () => {
       lon: -0.1062,
       tz_id: 'Europe/London',
       localtime_epoch: 1737758994,
-      localtime: '2025-01-24 22:49',
+      localtime: '2025-01-24 22:09',
     },
     current: {
-      last_updated: '2025-01-24 22:45',
+      last_updated: '2025-01-24 22:05',
       temp_f: 45.1,
       is_day: 0,
       condition: {

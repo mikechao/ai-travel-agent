@@ -12,6 +12,10 @@ const props = defineProps({
 })
 const showDetail = ref(false)
 const place = props.place
+
+function getTime(localtime) {
+  return new Date(localtime).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: false })
+}
 </script>
 
 <template>
@@ -30,9 +34,7 @@ const place = props.place
       <div class="flex items-center justify-center gap-2">
         <font-awesome icon="fa-solid fa-clock" />
         <h1 class="text-3xl">
-          {{ new Date(place.location.localtime).getHours() }}:{{
-            new Date(place.location.localtime).getMinutes()
-          }}
+          {{ getTime(place.location.localtime) }}
         </h1>
       </div>
     </div>
