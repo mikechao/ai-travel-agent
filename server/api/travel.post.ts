@@ -152,10 +152,10 @@ export default defineLazyEventHandler(async () => {
   async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
     consola.info('travelAdvisor')
     const systemPrompt
-      = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc). 
-       Be sure to bark a lot and use dog related emojis `
-        + `To recommend travel destinations to the user first use the tool \'searchQueryTool\'  
-         and then use the tool \'searchExecutionTool\' with the artifact of \'searchQueryTool\' ToolMessage `
+      = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc)  
+         by using the  \'travelRecommendTool\' tool.   
+      Be sure to bark a lot and use dog related emojis `
+        + ` To recommend travel destinations you MUST use the \'travelRecommendTool\' tool `
         + `If you need sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. `
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
@@ -305,7 +305,7 @@ export default defineLazyEventHandler(async () => {
   }
 
   async function callTools(state: typeof AgentState.State): Promise<Command> {
-    consola.info('callTools')
+    consola.info('callTools node')
     const tools: StructuredToolInterface[]
     = (state.toolsToCall)
       ? state.toolsToCall.split(',')
