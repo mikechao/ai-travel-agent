@@ -2,7 +2,7 @@ import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import type { StructuredToolInterface } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import { consola } from 'consola'
-import DDG from 'duck-duck-scrape'
+import { SafeSearchType, search } from 'duck-duck-scrape'
 import { z } from 'zod'
 
 class SearchQueryTool extends StructuredTool {
@@ -66,7 +66,9 @@ class SearchExecutionTool extends StructuredTool {
     consola.info('searchExecutionTool _call with ', queries)
     const results = []
     for (const query of queries) {
-      const result = await DDG.search(query)
+      const result = await search(query, {
+        safeSearch: SafeSearchType.STRICT,
+      })
       consola.info(`query: ${query} result: ${result}`)
       results.push(result)
     }
@@ -76,7 +78,7 @@ class SearchExecutionTool extends StructuredTool {
 
 class TravelRecommendTool extends StructuredTool {
   name = 'travelRecommendTool'
-  description = `Recommends travel destinations based on user's interests `
+  description = `Recommends travel destinations or places to visit based on user's interests `
   schema = z.object({
     interest: z.string().describe(`The user's travel interest to generate travel destinations recommendations`),
   })
