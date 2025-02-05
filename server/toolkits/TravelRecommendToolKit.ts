@@ -1,7 +1,7 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseLanguageModelInterface } from '@langchain/core/language_models/base'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import type { StructuredToolInterface } from '@langchain/core/tools'
+import type { StructuredToolInterface, Tool } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import { BraveSearch } from 'brave-search'
 import { SafeSearchLevel } from 'brave-search/dist/types'
@@ -142,16 +142,27 @@ export class TravelRecommendToolKit extends BaseToolkit {
   searchQueryTool: StructuredTool
   searchExecutionTool: StructuredTool
   searchSummaryTool: StructuredTool
+  travelRecTool: Tool
   constructor(llm: BaseChatModel, embeddings: EmbeddingsInterface) {
     super()
     this.searchQueryTool = new SearchQueryTool(llm)
     this.searchExecutionTool = new SearchExecutionTool()
     this.searchSummaryTool = new SearchSummaryTool(llm, embeddings)
+    this.travelRecTool = this.createTravelRecommendationTool() as unknown as Tool
     this.tools = [
-      this.searchQueryTool,
-      this.searchExecutionTool,
-      this.searchSummaryTool,
+      this.travelRecTool,
     ]
+  }
+
+  private createTravelRecommendationTool() {
+    const chain = this.searchQueryTool.pipe(this.searchExecutionTool).pipe(this.searchSummaryTool)
+    return chain.asTool({
+      name: 'travelRecommendationTool',
+      description: `Generates travel recommendations when given a user's interest by generating queries, searching for those queries on the web and summarizing the search results`,
+      schema: z.object({
+        interest: z.string().describe(`The user's travel interest to generate search queries for`),
+      }),
+    })
   }
 
   getSearchQueryTool() {

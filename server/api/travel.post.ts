@@ -1,7 +1,6 @@
 import type {
   AIMessageChunk,
   BaseMessage,
-  ToolMessage,
 } from '@langchain/core/messages'
 import type {
   StructuredToolInterface,
@@ -14,6 +13,7 @@ import {
   isAIMessageChunk,
   RemoveMessage,
   SystemMessage,
+  ToolMessage,
 } from '@langchain/core/messages'
 import {
   ChatPromptTemplate,
@@ -29,13 +29,14 @@ import {
 } from '@langchain/langgraph'
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ToolNode } from '@langchain/langgraph/prebuilt'
-import { ChatOpenAI } from '@langchain/openai'
+import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import {
   formatDataStreamPart,
 } from 'ai'
 import consola from 'consola'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { getHotelDetailsTool } from '../utils/hotelDetailsTool'
 import { getHotelReviewsTool } from '../utils/hotelReviewsTool'
 import { getHotelSearchTool } from '../utils/hotelSearchTool'
@@ -52,6 +53,12 @@ export default defineLazyEventHandler(async () => {
     temperature: 0.6,
     apiKey: runtimeConfig.openaiAPIKey,
   })
+
+  const embeddings = new OpenAIEmbeddings({
+    apiKey: runtimeConfig.openaiAPIKey,
+  })
+
+  const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
 
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
@@ -74,6 +81,7 @@ export default defineLazyEventHandler(async () => {
   toolsByName.set(sightsDetailsTool.name, sightsDetailsTool)
   toolsByName.set(hotelReviewsTool.name, hotelReviewsTool)
   toolsByName.set(sightsReviewsTool.name, sightsReviewsTool)
+  travelRecommendToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
 
   const weathToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
@@ -147,7 +155,8 @@ export default defineLazyEventHandler(async () => {
   async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
     consola.info('travelAdvisor')
     const systemPrompt
-      = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations based on the user's interests `
+      = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations based on the user's interests 
+         by using the tool \'travelRecommendationTool\' which can take a little bit `
         + ` Be sure to bark a lot and use dog related emojis `
         + `If you need sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. `
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
@@ -158,7 +167,7 @@ export default defineLazyEventHandler(async () => {
     const promptMessage = new SystemMessage({ name: 'TravelPrompt', content: systemPrompt })
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor')
+    const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor', travelRecommendToolKit.getTools())
     return handleLLMResponse(response, 'travelResponse', 'travelAdvisor')
   }
 
@@ -299,6 +308,31 @@ export default defineLazyEventHandler(async () => {
 
   async function callTools(state: typeof AgentState.State): Promise<Command> {
     consola.info('callTools node')
+    // need to figure why this works, but using it in a toolnode doesn't
+    if (state.toolsToCall === 'travelRecommendationTool') {
+      const tool = toolsByName.get('travelRecommendationTool') as StructuredToolInterface
+      const modelWithTools = model.bindTools([tool])
+      const result = await modelWithTools.invoke(state.messages, { parallel_tool_calls: false })
+      const aiMessageChunk = result as AIMessageChunk
+      if (aiMessageChunk.tool_calls && aiMessageChunk.tool_calls.length) {
+        const args = aiMessageChunk.tool_calls[0].args
+        const toolCallid = aiMessageChunk.tool_calls[0].id as string
+        const toolResult = await tool.invoke(args)
+        const toolMessage = new ToolMessage({ tool_call_id: toolCallid, content: toolResult })
+        return new Command({
+          goto: state.sender,
+          update: {
+            messages: [result, toolMessage],
+            sender: 'callTools',
+            toolsToCall: '',
+          },
+        })
+      }
+      consola.error('No tool calls for travelRecommendationTool')
+      return new Command({
+        goto: state.sender,
+      })
+    }
     const tools: StructuredToolInterface[]
     = (state.toolsToCall)
       ? state.toolsToCall.split(',')
