@@ -1,8 +1,10 @@
+import { StringOutputParser } from '@langchain/core/output_parsers'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
 import consola from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { v4 as uuidv4 } from 'uuid'
+import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 
 // just a simple test endpoint that will return some text
 // or data based on certain content in the message
@@ -525,6 +527,22 @@ and black suspenders nods and smiles<br/>
     return allResults
   }
 
+  const toolKit = new TravelRecommendToolKit(model, embeddings)
+  async function tools() {
+    const searchQueryTool = toolKit.getSearchQueryTool()
+    const searchExecutionTool = toolKit.getSearchExecutionTool()
+
+    const chain = searchQueryTool.pipe(searchExecutionTool)
+    try {
+      const result = await chain.invoke({ interest: 'cats' })
+      return JSON.stringify(result)
+    }
+    catch (error) {
+      consola.error('error invoking chain', error)
+      return 'Error happened'
+    }
+  }
+
   function delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
@@ -536,6 +554,17 @@ and black suspenders nods and smiles<br/>
 
     if (messages[0].content === 'webbrowser') {
       const result = await webBrowser()
+      return new ReadableStream({
+        async start(controller) {
+          const text = formatDataStreamPart('text', result)
+          controller.enqueue(encoder.encode(text))
+          controller.close()
+        },
+      })
+    }
+
+    if (messages[0].content === 'tools') {
+      const result = await tools()
       return new ReadableStream({
         async start(controller) {
           const text = formatDataStreamPart('text', result)
