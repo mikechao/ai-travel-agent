@@ -1,7 +1,7 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseLanguageModelInterface } from '@langchain/core/language_models/base'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import type { StructuredToolInterface, Tool } from '@langchain/core/tools'
+import type { StructuredToolInterface } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import { BraveSearch } from 'brave-search'
 import { SafeSearchLevel } from 'brave-search/dist/types'
