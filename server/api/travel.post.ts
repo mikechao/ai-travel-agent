@@ -54,10 +54,14 @@ export default defineLazyEventHandler(async () => {
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
+  const embeddings = new OpenAIEmbeddings({
+    apiKey: runtimeConfig.openaiAPIKey,
+  })
+
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
 
-  const travelRecommendToolKit = new TravelRecommendToolKit(model, new OpenAIEmbeddings())
+  const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
   const weatherForecastTool = getWeatherForecastTool()
   const hotelSearchTool = getHotelSearchTool()
   const hotelDetailsTool = getHotelDetailsTool()

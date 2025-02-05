@@ -1,9 +1,8 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseLanguageModelInterface } from '@langchain/core/language_models/base'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import type { StructuredToolInterface, Tool } from '@langchain/core/tools'
+import type { StructuredToolInterface } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
-import { ChatOpenAI, OpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { BraveSearch } from 'brave-search'
 import { SafeSearchLevel } from 'brave-search/dist/types'
 import { consola } from 'consola'
@@ -101,18 +100,19 @@ class SearchSummaryTool extends StructuredTool {
     urls: z.array(z.string()).describe('An array of URLs to get summaries for.'),
   })
 
+  model: BaseLanguageModelInterface
+  embeddings: EmbeddingsInterface
   constructor(llm: BaseLanguageModelInterface, embeddings: EmbeddingsInterface) {
     super({ responseFormat: 'content', verboseParsingErrors: false })
+    this.model = llm
+    this.embeddings = embeddings
   }
 
   protected async _call(input: { urls: string[] }) {
     const results = []
     const { urls } = input
-    const runtimeConfig = useRuntimeConfig()
-    const model = new ChatOpenAI({ temperature: 0, apiKey: runtimeConfig.openaiAPIKey })
-    const embeddings = new OpenAIEmbeddings()
 
-    const browser = new WebBrowser({ model, embeddings })
+    const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings })
     try {
       for (const url of urls) {
         const result = await browser.invoke(`"${url}",""`)
@@ -157,19 +157,14 @@ class TravelRecommendTool extends StructuredTool {
     }
   }
 }
-const runtimeConfig = useRuntimeConfig()
+
 export class TravelRecommendToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
 
-  openAI: OpenAI
   constructor(llm: BaseChatModel, embeddings: EmbeddingsInterface) {
     super()
-    this.openAI = new OpenAI({
-      temperature: 0,
-      apiKey: runtimeConfig.openaiAPIKey,
-    })
     this.tools = [
-      new TravelRecommendTool(new SearchQueryTool(llm), new SearchExecutionTool(), new SearchSummaryTool(this.openAI, embeddings)),
+      new TravelRecommendTool(new SearchQueryTool(llm), new SearchExecutionTool(), new SearchSummaryTool(llm, embeddings)),
     ]
   }
 }
