@@ -80,13 +80,13 @@ class SearchExecutionTool extends StructuredTool {
     try {
       for (const query of queries) {
         const webSearchResult = await this.braveSearch.webSearch(query, {
-          count: 1,
+          count: 10,
           safesearch: SafeSearchLevel.Moderate,
         })
-        if (webSearchResult.web) {
-          for (const searchResult of webSearchResult.web.results) {
-            results.push({ query, url: searchResult.url })
-          }
+        if (webSearchResult.web && webSearchResult.web.results.length > 0) {
+          const randomIndex = Math.floor(Math.random() * webSearchResult.web.results.length)
+          const randomResult = webSearchResult.web.results[randomIndex]
+          results.push({ query, url: randomResult.url })
         }
       }
     }
