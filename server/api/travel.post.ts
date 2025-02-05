@@ -123,7 +123,6 @@ export default defineLazyEventHandler(async () => {
           'system',
           'You are collaborating with other assistants.'
           + ' Use the provided tools, only if it is needed to progress towards answering the question.'
-          + ' Multiple tools can be choosen at the same time to progress towards answering the question'
           + ' If you have choosen a tool to use be sure to add it to the toolsToCall field. '
           + ' You have access to the following tools: \n{tool_names}.\n ',
         ],
@@ -151,10 +150,10 @@ export default defineLazyEventHandler(async () => {
   async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
     consola.info('travelAdvisor')
     const systemPrompt
-      = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations (e.g. countries, cities, etc)  
-         by using the  \'travelRecommendTool\' tool.   
-      Be sure to bark a lot and use dog related emojis `
+      = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations based on the user's interests 
+         by using the  \'travelRecommendTool\' tool. `
         + ` To recommend travel destinations you MUST use the \'travelRecommendTool\' tool `
+        + ` Be sure to bark a lot and use dog related emojis `
         + `If you need sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. `
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
