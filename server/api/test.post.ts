@@ -505,7 +505,11 @@ and black suspenders nods and smiles<br/>
  <br/>
 `
   async function webBrowser() {
-    const model = new ChatOpenAI({ temperature: 0 })
+    const runtimeConfig = useRuntimeConfig()
+    const model = new ChatOpenAI({
+      temperature: 0,
+      apiKey: runtimeConfig.openaiAPIKey,
+    })
     const embeddings = new OpenAIEmbeddings()
 
     const browser = new WebBrowser({ model, embeddings })
