@@ -186,4 +186,8 @@ export class TravelRecommendToolKit extends BaseToolkit {
   getSearchExecutionTool() {
     return this.searchExecutionTool
   }
+
+  getSearchSummaryTool() {
+    return this.searchSummaryTool
+  }
 }

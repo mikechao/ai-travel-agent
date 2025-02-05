@@ -29,14 +29,13 @@ import {
 } from '@langchain/langgraph'
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ToolNode } from '@langchain/langgraph/prebuilt'
-import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
+import { ChatOpenAI } from '@langchain/openai'
 import {
   formatDataStreamPart,
 } from 'ai'
 import consola from 'consola'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
-import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { getHotelDetailsTool } from '../utils/hotelDetailsTool'
 import { getHotelReviewsTool } from '../utils/hotelReviewsTool'
 import { getHotelSearchTool } from '../utils/hotelSearchTool'
@@ -54,14 +53,9 @@ export default defineLazyEventHandler(async () => {
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
-  const embeddings = new OpenAIEmbeddings({
-    apiKey: runtimeConfig.openaiAPIKey,
-  })
-
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
 
-  const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
   const weatherForecastTool = getWeatherForecastTool()
   const hotelSearchTool = getHotelSearchTool()
   const hotelDetailsTool = getHotelDetailsTool()
@@ -80,7 +74,6 @@ export default defineLazyEventHandler(async () => {
   toolsByName.set(sightsDetailsTool.name, sightsDetailsTool)
   toolsByName.set(hotelReviewsTool.name, hotelReviewsTool)
   toolsByName.set(sightsReviewsTool.name, sightsReviewsTool)
-  travelRecommendToolKit.getTools().forEach(tool => toolsByName.set(tool.name, tool))
 
   const weathToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
@@ -154,9 +147,7 @@ export default defineLazyEventHandler(async () => {
   async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
     consola.info('travelAdvisor')
     const systemPrompt
-      = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations based on the user's interests 
-         by using the  \'travelRecommendTool\' tool. `
-        + ` To recommend travel destinations you MUST use the \'travelRecommendTool\' tool `
+      = `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations based on the user's interests `
         + ` Be sure to bark a lot and use dog related emojis `
         + `If you need sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. `
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
@@ -167,7 +158,7 @@ export default defineLazyEventHandler(async () => {
     const promptMessage = new SystemMessage({ name: 'TravelPrompt', content: systemPrompt })
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
     const targetAgentNodes = ['sightseeingAdvisor', 'hotelAdvisor', 'weatherAdvisor']
-    const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor', travelRecommendToolKit.getTools())
+    const response = await callLLM(messages, targetAgentNodes, 'travelAdvisor')
     return handleLLMResponse(response, 'travelResponse', 'travelAdvisor')
   }
 

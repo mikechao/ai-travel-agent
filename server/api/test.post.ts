@@ -1,4 +1,3 @@
-import { StringOutputParser } from '@langchain/core/output_parsers'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
 import consola from 'consola'
@@ -531,8 +530,8 @@ and black suspenders nods and smiles<br/>
   async function tools() {
     const searchQueryTool = toolKit.getSearchQueryTool()
     const searchExecutionTool = toolKit.getSearchExecutionTool()
-
-    const chain = searchQueryTool.pipe(searchExecutionTool)
+    const searchSummaryTool = toolKit.getSearchSummaryTool()
+    const chain = searchQueryTool.pipe(searchExecutionTool).pipe(searchSummaryTool)
     try {
       const result = await chain.invoke({ interest: 'cats' })
       return JSON.stringify(result)
