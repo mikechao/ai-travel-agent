@@ -517,10 +517,13 @@ and black suspenders nods and smiles<br/>
 
     const browser = new WebBrowser({ model, embeddings })
 
-    const result = await browser.invoke(
-      `"https://www.themarginalian.org/2015/04/09/find-your-bliss-joseph-campbell-power-of-myth","who is joseph campbell"`,
-    )
-    return result
+    const urls = ['https://www.theneighborscat.com/blog/2017/8/25/top-five-cat-cafes-from-around-the-world', 'https://www.ministryofcat.com/blog/best-cat-friendly-travel-destinations']
+    let allResults = ''
+    for (const url of urls) {
+      const result = await browser.invoke(`"${url}",""`)
+      allResults += `${result}\n`
+    }
+    return allResults
   }
 
   function delay(ms: number): Promise<void> {
