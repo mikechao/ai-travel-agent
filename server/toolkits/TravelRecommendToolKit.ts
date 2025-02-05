@@ -1,8 +1,10 @@
+import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import type { StructuredToolInterface } from '@langchain/core/tools'
+import type { StructuredToolInterface, Tool } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import { consola } from 'consola'
 import { SafeSearchType, search } from 'duck-duck-scrape'
+import { WebBrowser } from 'langchain/tools/webbrowser'
 import { z } from 'zod'
 
 class SearchQueryTool extends StructuredTool {
@@ -79,6 +81,30 @@ class SearchExecutionTool extends StructuredTool {
   }
 }
 
+class SearchSummaryTool extends StructuredTool {
+  name = 'searchSummaryTool'
+  description = 'Use to get a summary of an array of URLs'
+  schema = z.object({
+    urls: z.array(z.string()).describe('An array of URLs to get summaries for.'),
+  })
+
+  browser: Tool
+  constructor(llm: BaseChatModel, embeddings: EmbeddingsInterface) {
+    super({ responseFormat: 'content', verboseParsingErrors: false })
+    this.browser = new WebBrowser({ model: llm, embeddings })
+  }
+
+  protected async _call(input: { urls: string[] }) {
+    const results = []
+    const { urls } = input
+    for (const url of urls) {
+      const result = await this.browser.invoke(`"${url}",""`)
+      results.push(result)
+    }
+    return results
+  }
+}
+
 class TravelRecommendTool extends StructuredTool {
   name = 'travelRecommendTool'
   description = `Recommends travel destinations or places to visit based on user's interests `
@@ -88,27 +114,29 @@ class TravelRecommendTool extends StructuredTool {
 
   searchQueryTool: SearchQueryTool
   searchExexutionTool: SearchExecutionTool
-  constructor(searchQueryTool: SearchQueryTool, searchExexutionTool: SearchExecutionTool) {
+  searchSummaryTool: SearchSummaryTool
+  constructor(searchQueryTool: SearchQueryTool, searchExexutionTool: SearchExecutionTool, searchSummaryTool: SearchSummaryTool) {
     super({ responseFormat: 'content', verboseParsingErrors: false })
     this.searchQueryTool = searchQueryTool
     this.searchExexutionTool = searchExexutionTool
+    this.searchSummaryTool = searchSummaryTool
   }
 
   protected async _call(input: { interest: string }): Promise<any> {
     const queryResult = await this.searchQueryTool.invoke(input)
     const executionResult = await this.searchExexutionTool.invoke(queryResult)
-    consola.info(executionResult)
-    return executionResult
+    const summaryResults = await this.searchSummaryTool.invoke(executionResult)
+    return summaryResults
   }
 }
 
 export class TravelRecommendToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
 
-  constructor(llm: BaseChatModel) {
+  constructor(llm: BaseChatModel, embeddings: EmbeddingsInterface) {
     super()
     this.tools = [
-      new TravelRecommendTool(new SearchQueryTool(llm), new SearchExecutionTool()),
+      new TravelRecommendTool(new SearchQueryTool(llm), new SearchExecutionTool(), new SearchSummaryTool(llm, embeddings)),
     ]
   }
 }
