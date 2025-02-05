@@ -29,7 +29,7 @@ import {
 } from '@langchain/langgraph'
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ToolNode } from '@langchain/langgraph/prebuilt'
-import { ChatOpenAI } from '@langchain/openai'
+import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import {
   formatDataStreamPart,
 } from 'ai'
@@ -57,7 +57,7 @@ export default defineLazyEventHandler(async () => {
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
 
-  const travelRecommendToolKit = new TravelRecommendToolKit(model)
+  const travelRecommendToolKit = new TravelRecommendToolKit(model, new OpenAIEmbeddings())
   const weatherForecastTool = getWeatherForecastTool()
   const hotelSearchTool = getHotelSearchTool()
   const hotelDetailsTool = getHotelDetailsTool()
