@@ -4,7 +4,6 @@ import type {
   ToolMessage,
 } from '@langchain/core/messages'
 import type {
-  DynamicStructuredTool,
   StructuredToolInterface,
 } from '@langchain/core/tools'
 import type {
