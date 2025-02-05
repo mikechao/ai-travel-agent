@@ -1,7 +1,7 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseLanguageModelInterface } from '@langchain/core/language_models/base'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import type { StructuredToolInterface } from '@langchain/core/tools'
+import type { StructuredToolInterface, Tool } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import { BraveSearch } from 'brave-search'
 import { SafeSearchLevel } from 'brave-search/dist/types'
@@ -146,6 +146,9 @@ class TravelRecommendTool extends StructuredTool {
 
   protected async _call(input: { interest: string }): Promise<any> {
     try {
+      // this does NOT seem to work at all in the graph
+      // even if I just return queryResult, it sliently fails
+      // but on langsmith Abort Error: Abort at EventTarget.listener is shown
       const queryResult = await this.searchQueryTool.invoke(input)
       const executionResult = await this.searchExexutionTool.invoke(queryResult)
       const summaryResults = await this.searchSummaryTool.invoke(executionResult)
@@ -161,10 +164,26 @@ class TravelRecommendTool extends StructuredTool {
 export class TravelRecommendToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
 
+  searchQueryTool: StructuredTool
+  searchExecutionTool: StructuredTool
+  searchSummaryTool: StructuredTool
   constructor(llm: BaseChatModel, embeddings: EmbeddingsInterface) {
     super()
+    this.searchQueryTool = new SearchQueryTool(llm)
+    this.searchExecutionTool = new SearchExecutionTool()
+    this.searchSummaryTool = new SearchSummaryTool(llm, embeddings)
     this.tools = [
-      new TravelRecommendTool(new SearchQueryTool(llm), new SearchExecutionTool(), new SearchSummaryTool(llm, embeddings)),
+      this.searchQueryTool,
+      this.searchExecutionTool,
+      this.searchSummaryTool,
     ]
+  }
+
+  getSearchQueryTool() {
+    return this.searchQueryTool
+  }
+
+  getSearchExecutionTool() {
+    return this.searchExecutionTool
   }
 }

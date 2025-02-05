@@ -511,10 +511,9 @@ and black suspenders nods and smiles<br/>
     temperature: 0,
     apiKey: runtimeConfig.openaiAPIKey,
   })
+  const embeddings = new OpenAIEmbeddings({ apiKey: runtimeConfig.openaiAPIKey })
 
   async function webBrowser() {
-    const embeddings = new OpenAIEmbeddings({ apiKey: runtimeConfig.openaiAPIKey })
-
     const browser = new WebBrowser({ model, embeddings })
 
     const urls = ['https://www.theneighborscat.com/blog/2017/8/25/top-five-cat-cafes-from-around-the-world', 'https://www.ministryofcat.com/blog/best-cat-friendly-travel-destinations']
