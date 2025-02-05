@@ -3,6 +3,7 @@ import { formatDataStreamPart } from 'ai'
 import consola from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { v4 as uuidv4 } from 'uuid'
+import { z } from 'zod'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 
 // just a simple test endpoint that will return some text
@@ -532,8 +533,15 @@ and black suspenders nods and smiles<br/>
     const searchExecutionTool = toolKit.getSearchExecutionTool()
     const searchSummaryTool = toolKit.getSearchSummaryTool()
     const chain = searchQueryTool.pipe(searchExecutionTool).pipe(searchSummaryTool)
+    const tool = chain.asTool({
+      name: 'travelRecommendationTool',
+      description: `Generates travel recommendations when given a user's interest by generating queries, searching for those queries on the web and summarizing the search results`,
+      schema: z.object({
+        interest: z.string().describe(`The user's travel interest to generate search queries for`),
+      }),
+    })
     try {
-      const result = await chain.invoke({ interest: 'cats' })
+      const result = await tool.invoke({ interest: 'cats' })
       return JSON.stringify(result)
     }
     catch (error) {
