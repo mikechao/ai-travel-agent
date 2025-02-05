@@ -1,5 +1,7 @@
+import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
 import consola from 'consola'
+import { WebBrowser } from 'langchain/tools/webbrowser'
 import { v4 as uuidv4 } from 'uuid'
 
 // just a simple test endpoint that will return some text
@@ -502,6 +504,18 @@ to the cafeteria where a man in a black derby<br/>
 and black suspenders nods and smiles<br/>
  <br/>
 `
+  async function webBrowser() {
+    const model = new ChatOpenAI({ temperature: 0 })
+    const embeddings = new OpenAIEmbeddings()
+
+    const browser = new WebBrowser({ model, embeddings })
+
+    const result = await browser.invoke(
+      `"https://www.themarginalian.org/2015/04/09/find-your-bliss-joseph-campbell-power-of-myth","who is joseph campbell"`,
+    )
+    return result
+  }
+
   function delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
@@ -510,6 +524,17 @@ and black suspenders nods and smiles<br/>
     const body = await readBody(webEvent)
     const { messages } = body
     consola.info('messages', messages)
+
+    if (messages[0].content === 'webbrowser') {
+      const result = await webBrowser()
+      return new ReadableStream({
+        async start(controller) {
+          const text = formatDataStreamPart('text', result)
+          controller.enqueue(encoder.encode(text))
+          controller.close()
+        },
+      })
+    }
 
     if (messages[0].content === 'weather') {
       const id = uuidv4()
