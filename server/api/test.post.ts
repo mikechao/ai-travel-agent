@@ -504,13 +504,16 @@ to the cafeteria where a man in a black derby<br/>
 and black suspenders nods and smiles<br/>
  <br/>
 `
+
+  const runtimeConfig = useRuntimeConfig()
+  const model = new ChatOpenAI({
+    model: 'gpt-4o-mini',
+    temperature: 0,
+    apiKey: runtimeConfig.openaiAPIKey,
+  })
+
   async function webBrowser() {
-    const runtimeConfig = useRuntimeConfig()
-    const model = new ChatOpenAI({
-      temperature: 0,
-      apiKey: runtimeConfig.openaiAPIKey,
-    })
-    const embeddings = new OpenAIEmbeddings()
+    const embeddings = new OpenAIEmbeddings({ apiKey: runtimeConfig.openaiAPIKey })
 
     const browser = new WebBrowser({ model, embeddings })
 
