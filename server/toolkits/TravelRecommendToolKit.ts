@@ -103,8 +103,8 @@ class SearchSummaryTool extends StructuredTool {
   description = 'Use to get a summary of an array of URLs'
   schema = z.object({
     queryAndURLs: z.array(z.object({
-      query: z.string().min(1),
-      url: z.string().url(),
+      query: z.string(),
+      url: z.string(),
     })).describe('An array of query and URL pairs to get summaries for.'),
   })
 
@@ -116,12 +116,7 @@ class SearchSummaryTool extends StructuredTool {
     this.embeddings = embeddings
   }
 
-  protected async _call(input: any) {
-    consola.info('Input received:', JSON.stringify(input, null, 2))
-
-    if (!input?.queryAndURLs || !Array.isArray(input.queryAndURLs)) {
-      throw new Error('Input must contain queryAndURLs array')
-    }
+  protected async _call(input: { queryAndURLs: QueryAndURL[] }) {
     const results = []
 
     const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings })
