@@ -508,7 +508,7 @@ and black suspenders nods and smiles<br/>
 
   const runtimeConfig = useRuntimeConfig()
   const model = new ChatOpenAI({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4o-mini',
     temperature: 0,
     apiKey: runtimeConfig.openaiAPIKey,
   })
