@@ -75,7 +75,7 @@ class SearchExecutionTool extends StructuredTool {
     try {
       for (const query of queries) {
         const webSearchResult = await this.braveSearch.webSearch(query, {
-          count: 2,
+          count: 1,
           safesearch: SafeSearchLevel.Moderate,
         })
         if (webSearchResult.web) {
@@ -124,40 +124,6 @@ class SearchSummaryTool extends StructuredTool {
       consola.error('error using browser', error)
     }
     return results
-  }
-}
-
-class TravelRecommendTool extends StructuredTool {
-  name = 'travelRecommendTool'
-  description = `Recommends travel destinations or places to visit based on user's interests `
-  schema = z.object({
-    interest: z.string().describe(`The user's travel interest to generate travel destinations recommendations`),
-  })
-
-  searchQueryTool: SearchQueryTool
-  searchExexutionTool: SearchExecutionTool
-  searchSummaryTool: SearchSummaryTool
-  constructor(searchQueryTool: SearchQueryTool, searchExexutionTool: SearchExecutionTool, searchSummaryTool: SearchSummaryTool) {
-    super({ responseFormat: 'content', verboseParsingErrors: false })
-    this.searchQueryTool = searchQueryTool
-    this.searchExexutionTool = searchExexutionTool
-    this.searchSummaryTool = searchSummaryTool
-  }
-
-  protected async _call(input: { interest: string }): Promise<any> {
-    try {
-      // this does NOT seem to work at all in the graph
-      // even if I just return queryResult, it sliently fails
-      // but on langsmith Abort Error: Abort at EventTarget.listener is shown
-      const queryResult = await this.searchQueryTool.invoke(input)
-      const executionResult = await this.searchExexutionTool.invoke(queryResult)
-      const summaryResults = await this.searchSummaryTool.invoke(executionResult)
-      return summaryResults
-    }
-    catch (error) {
-      consola.error('error in TravelRecommendTool', error)
-      return 'I encountered some errors sorry :('
-    }
   }
 }
 
