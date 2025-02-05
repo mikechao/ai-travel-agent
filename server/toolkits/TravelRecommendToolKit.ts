@@ -9,6 +9,11 @@ import { consola } from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { z } from 'zod'
 
+interface QueryAndURL {
+  query: string
+  url: string
+}
+
 class SearchQueryTool extends StructuredTool {
   name = 'searchQueryTool'
   description = `Used to generate search queries that are relevant to a user's travel interest`
@@ -71,7 +76,7 @@ class SearchExecutionTool extends StructuredTool {
   protected async _call(input: { queries: string[] }) {
     const { queries } = input
     consola.info('searchExecutionTool _call with ', queries)
-    const results = []
+    const results: QueryAndURL[] = []
     try {
       for (const query of queries) {
         const webSearchResult = await this.braveSearch.webSearch(query, {
@@ -80,7 +85,7 @@ class SearchExecutionTool extends StructuredTool {
         })
         if (webSearchResult.web) {
           for (const searchResult of webSearchResult.web.results) {
-            results.push(searchResult.url)
+            results.push({ query, url: searchResult.url })
           }
         }
       }
@@ -89,7 +94,7 @@ class SearchExecutionTool extends StructuredTool {
       consola.error('error executing search', error)
     }
     consola.info('results', results)
-    return { urls: results }
+    return { queryAndURLs: results }
   }
 }
 
@@ -97,7 +102,10 @@ class SearchSummaryTool extends StructuredTool {
   name = 'searchSummaryTool'
   description = 'Use to get a summary of an array of URLs'
   schema = z.object({
-    urls: z.array(z.string()).describe('An array of URLs to get summaries for.'),
+    queryAndURLs: z.array(z.object({
+      query: z.string().min(1),
+      url: z.string().url(),
+    })).describe('An array of query and URL pairs to get summaries for.'),
   })
 
   model: BaseLanguageModelInterface
@@ -108,14 +116,20 @@ class SearchSummaryTool extends StructuredTool {
     this.embeddings = embeddings
   }
 
-  protected async _call(input: { urls: string[] }) {
+  protected async _call(input: any) {
+    consola.info('Input received:', JSON.stringify(input, null, 2))
+
+    if (!input?.queryAndURLs || !Array.isArray(input.queryAndURLs)) {
+      throw new Error('Input must contain queryAndURLs array')
+    }
     const results = []
-    const { urls } = input
 
     const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings })
     try {
-      for (const url of urls) {
-        const result = await browser.invoke(`"${url}",""`)
+      for (const queryAndURL of input.queryAndURLs) {
+        const url = queryAndURL.url
+        const query = queryAndURL.query
+        const result = await browser.invoke(`"${url}","${query}"`)
         consola.info('single result', result)
         results.push(result)
       }
