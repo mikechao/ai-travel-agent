@@ -29,6 +29,7 @@
     "@vesp/nuxt-fontawesome": "1.2.0",
     "ai": "^4.1.16",
     "axios": "^1.7.9",
+    "brave-search": "^0.6.5",
     "cheerio": "^1.0.0",
     "consola": "^3.4.0",
     "duck-duck-scrape": "^2.2.7",
