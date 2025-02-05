@@ -69,8 +69,11 @@ class SearchExecutionTool extends StructuredTool {
       const result = await search(query, {
         safeSearch: SafeSearchType.STRICT,
       })
-      consola.info(`query: ${query} result: ${result}`)
-      results.push(result)
+      if (!result.noResults && result.results.length > 0) {
+        // Get first 2 results or all if less than 2
+        const topResults = result.results.slice(0, 2)
+        results.push(...topResults.map(r => r.url))
+      }
     }
     return results
   }
