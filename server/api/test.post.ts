@@ -545,7 +545,10 @@ and black suspenders nods and smiles<br/>
       }),
     })
     try {
+      const beofre = performance.now()
       const result = await tool.invoke({ interest: 'cats' })
+      const after = performance.now()
+      consola.info(`tool time ${after - beofre} ms`)
       return JSON.stringify(result)
     }
     catch (error) {
@@ -557,8 +560,11 @@ and black suspenders nods and smiles<br/>
   const runnableTools = new RunnableTools(model, embeddings)
   async function runnables() {
     const mapChain = runnableTools.createRunnableMap()
+    const before = performance.now()
     const results = await mapChain.invoke({ interest: 'cats' })
+    const after = performance.now()
     consola.info('runnables results', results)
+    consola.info(`runnable time ${after - before} ms`)
     return results
   }
 
