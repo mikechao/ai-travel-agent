@@ -1,7 +1,7 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { RunnableEach, RunnableLambda } from '@langchain/core/runnables'
-import { BraveSearch } from 'brave-search'
+import { BraveSearch } from 'brave-search/dist/braveSearch.js'
 import { SafeSearchLevel } from 'brave-search/dist/types'
 import { consola } from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
@@ -94,14 +94,15 @@ export class RunnableTools {
   createSearchSummaryRunnable() {
     return RunnableLambda.from<QueryAndURL, string>(async (input: QueryAndURL) => {
       consola.info(`searchSummaryRunnable called with ${JSON.stringify(input)} ${performance.now()}`)
-      const browser = new WebBrowser({model: this.llm, embeddings: this.embeddings})
+      const browser = new WebBrowser({ model: this.llm, embeddings: this.embeddings })
 
-      try{
+      try {
         const url = input.url
         const query = input.query
         const result = await browser.invoke(`"${url}","${query}"`)
         return result
-      } catch (error) {
+      }
+      catch (error) {
         consola.error('error using browser', error)
       }
       return 'Error happened'
