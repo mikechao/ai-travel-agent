@@ -557,7 +557,7 @@ and black suspenders nods and smiles<br/>
   const runnableTools = new RunnableTools(model, embeddings)
   async function runnables() {
     const mapChain = runnableTools.createRunnableMap()
-    const results = await mapChain.invoke({ interest: 'bananas' })
+    const results = await mapChain.invoke({ interest: 'cats' })
     consola.info('runnables results', results)
     return results
   }
