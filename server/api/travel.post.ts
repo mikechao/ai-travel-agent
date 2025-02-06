@@ -111,46 +111,30 @@ export default defineLazyEventHandler(async () => {
   })
 
   async function callLLM(messages: BaseMessage[], targetAgentNodes: string[], runName = 'callLLM', toolsToUse: StructuredToolInterface<any>[] = []) {
-  // without this if/else it seems like it will loop a few times before the LLM figures out
-  // that we have already gotten the weather forecast for example
-    if (toolsToUse.length) {
-      const outputSchema = z.object({
-        response: z.string().describe('A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user.'),
-        goto: z.enum(['finish', 'human', 'callTools', ...targetAgentNodes])
-          .describe(`The next agent to call, 'callTools' if a tool should be used 
+    const outputSchema = z.object({
+      response: z.string().describe('A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user.'),
+      goto: z.enum(['finish', 'human', 'callTools', ...targetAgentNodes])
+        .describe(`The next agent to call, 'callTools' if a tool should be used 
           or 'human' if you need more input from the user to complete the query 
           or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
-        toolsToCall: z.string().optional().describe(`A comma separated list of tools to call if any, can be empty. 
+      toolsToCall: z.string().optional().describe(`A comma separated list of tools to call if any, can be empty. 
           Must be filled out when the goto filed is 'callTools'`),
-      })
-      const toolNames = toolsToUse.map(tool => `name: ${tool.name}, description: ${tool.description}`).join('\n')
-      const prompt = await ChatPromptTemplate.fromMessages([
-        [
-          'system',
-          'You are collaborating with other assistants.'
-          + ' Use the provided tools, only if it is needed to progress towards answering the question.'
-          + ' If you have chosen a tool to use be sure to add it to the toolsToCall field. '
-          + ' You have access to the following tools: \n{tool_names}.\n ',
-        ],
-        new MessagesPlaceholder('messages'),
-      ]).partial({
-        tool_names: toolNames,
-      })
-      const chain = prompt.pipe(model.withStructuredOutput(outputSchema, { name: 'Response' }))
-      return chain.invoke({ messages }, { tags: [modelTag], runName })
-    }
-    else {
-      const outputSchema = z.object({
-        response: z.string().describe('A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user.'),
-        goto: z.enum(['finish', 'human', ...targetAgentNodes])
-          .describe(`The next agent to call, 
-          'finish' if the user's query has been resolved, 
-          or 'human' if you need more input from the user to complete the query. 
-          Must be one of the specified values.`),
-        toolsToCall: z.string().optional().describe('A comma separated list of tools to call if any, can be empty'),
-      })
-      return model.withStructuredOutput(outputSchema, { name: 'Response' }).invoke(messages, { tags: [modelTag], runName })
-    }
+    })
+    const toolNames = toolsToUse.map(tool => `name: ${tool.name}, description: ${tool.description}`).join('\n')
+    const prompt = await ChatPromptTemplate.fromMessages([
+      [
+        'system',
+        'You are collaborating with other assistants.'
+        + ' Use the provided tools, only if it is needed to progress towards answering the question.'
+        + ' If you have chosen a tool to use be sure to add it to the toolsToCall field. '
+        + ' You have access to the following tools: \n{tool_names}.\n ',
+      ],
+      new MessagesPlaceholder('messages'),
+    ]).partial({
+      tool_names: toolNames,
+    })
+    const chain = prompt.pipe(model.withStructuredOutput(outputSchema, { name: 'Response' }))
+    return chain.invoke({ messages }, { tags: [modelTag], runName })
   }
 
   async function travelAdvisor(state: typeof AgentState.State): Promise<Command> {
