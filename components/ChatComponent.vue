@@ -50,7 +50,7 @@ watch(messages, () => {
 watch(data, (newData) => {
   if (newData && newData.length) {
     // this gets invoked a lot and it is a stream
-    // of data so we can't really modifiy it
+    // of data so we can't really modify it
     // as it is part of ai-sdk/vue
     // this is guarded against in the dataItemStore
     const lastData = newData[newData.length - 1] as unknown as DataItem

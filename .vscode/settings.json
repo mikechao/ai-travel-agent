@@ -47,5 +47,11 @@
     "scss",
     "pcss",
     "postcss"
+  ],
+  "cSpell.enabledFileTypes": {
+    "json": false
+  },
+  "cSpell.words": [
+    "toolkits"
   ]
 }

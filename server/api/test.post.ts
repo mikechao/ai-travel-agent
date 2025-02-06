@@ -1,5 +1,6 @@
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
+import { BraveSearch } from 'brave-search/dist/braveSearch.js'
 import consola from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { v4 as uuidv4 } from 'uuid'
@@ -10,6 +11,7 @@ import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 // just a simple test endpoint that will return some text
 // or data based on certain content in the message
 export default defineLazyEventHandler(async () => {
+  // cSpell:disable
   const weatherData = JSON.stringify({
     location: {
       name: 'London',
@@ -507,6 +509,7 @@ to the cafeteria where a man in a black derby<br/>
 and black suspenders nods and smiles<br/>
  <br/>
 `
+  // cSpell:enable
 
   const runtimeConfig = useRuntimeConfig()
   const model = new ChatOpenAI({
@@ -545,10 +548,10 @@ and black suspenders nods and smiles<br/>
       }),
     })
     try {
-      const beofre = performance.now()
+      const before = performance.now()
       const result = await tool.invoke({ interest: 'cats' })
       const after = performance.now()
-      consola.info(`tool time ${after - beofre} ms`)
+      consola.info(`tool time ${after - before} ms`)
       return JSON.stringify(result)
     }
     catch (error) {
@@ -568,6 +571,41 @@ and black suspenders nods and smiles<br/>
     return results
   }
 
+  async function piece() {
+    const searchQuery = runnableTools.createSearchQueryRunnable()
+
+    const runtimeConfig = useRuntimeConfig()
+    const braveSearch = new BraveSearch(runtimeConfig.braveAPIKey)
+    const searchExecution = runnableTools.createSearchExecutionRunnable(braveSearch)
+
+    const searchSummary = runnableTools.createSearchSummaryRunnable()
+
+    const beforeQuery = performance.now()
+    const queries = await searchQuery.invoke({ interest: 'cats' })
+    const afterQuery = performance.now()
+    consola.info(`Took ${afterQuery - beforeQuery} ms to generate ${queries.length} queries`)
+
+    const queryAndURLs = []
+    for (const query of queries) {
+      const queryBefore = performance.now()
+      const queryAndURL = await searchExecution.invoke(query)
+      const queryAfter = performance.now()
+      consola.info(`Executed query ${query} took ${queryAfter - queryBefore} ms`)
+      queryAndURLs.push(queryAndURL)
+    }
+
+    const summaryResults = []
+    for (const queryAndURL of queryAndURLs) {
+      const summaryBefore = performance.now()
+      const result = await searchSummary.invoke(queryAndURL)
+      const summaryAfter = performance.now()
+      consola.info(`Took ${summaryAfter - summaryBefore} ms to summaries`)
+      summaryResults.push(result)
+    }
+
+    return JSON.stringify(summaryResults)
+  }
+
   function delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
@@ -576,6 +614,17 @@ and black suspenders nods and smiles<br/>
     const body = await readBody(webEvent)
     const { messages } = body
     consola.info('messages', messages)
+
+    if (messages[0].content === 'piece') {
+      const result = await piece()
+      return new ReadableStream({
+        async start(controller) {
+          const text = formatDataStreamPart('text', result)
+          controller.enqueue(encoder.encode(text))
+          controller.close()
+        },
+      })
+    }
 
     if (messages[0].content === 'webbrowser') {
       const result = await webBrowser()
@@ -653,13 +702,13 @@ and black suspenders nods and smiles<br/>
     return new ReadableStream({
       async start(controller) {
         for (const chunk of text1.split(' ')) {
-          // simluate some delay
+          // simulate some delay
           await delay(50)
           const part = formatDataStreamPart('text', chunk)
           controller.enqueue(encoder.encode(part))
         }
         for (const chunk of text2.split(' ')) {
-          // simluate some delay
+          // simulate some delay
           await delay(50)
           const part = formatDataStreamPart('text', chunk)
           controller.enqueue(encoder.encode(part))
