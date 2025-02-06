@@ -4,7 +4,6 @@ import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import type { StructuredToolInterface, Tool } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import { BraveSearch } from 'brave-search/dist/braveSearch.js'
-import { SafeSearchLevel } from 'brave-search/dist/types'
 import { consola } from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { z } from 'zod'
@@ -12,6 +11,15 @@ import { z } from 'zod'
 interface QueryAndURL {
   query: string
   url: string
+}
+
+// seems like we need this to workaround
+// vercel not being able to resolve it from
+// the brave-search package
+enum SafeSearchLevel {
+  Off = 'off',
+  Moderate = 'moderate',
+  Strict = 'strict',
 }
 
 class SearchQueryTool extends StructuredTool {

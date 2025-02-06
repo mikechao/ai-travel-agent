@@ -2,10 +2,18 @@ import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { RunnableEach, RunnableLambda } from '@langchain/core/runnables'
 import { BraveSearch } from 'brave-search/dist/braveSearch.js'
-import { SafeSearchLevel } from 'brave-search/dist/types.js'
 import { consola } from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { z } from 'zod'
+
+// seems like we need this to workaround
+// vercel not being able to resolve it from
+// the brave-search package
+enum SafeSearchLevel {
+  Off = 'off',
+  Moderate = 'moderate',
+  Strict = 'strict',
+}
 
 interface SearchQueryInput {
   interest: string
