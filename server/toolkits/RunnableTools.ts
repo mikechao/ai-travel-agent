@@ -4,6 +4,7 @@ import { RunnableEach, RunnableLambda } from '@langchain/core/runnables'
 import { BraveSearch } from 'brave-search'
 import { SafeSearchLevel } from 'brave-search/dist/types'
 import { consola } from 'consola'
+import { WebBrowser } from 'langchain/tools/webbrowser'
 import { z } from 'zod'
 
 interface SearchQueryInput {
@@ -91,11 +92,19 @@ export class RunnableTools {
   }
 
   createSearchSummaryRunnable() {
-    return RunnableLambda.from<QueryAndURL, string>((input: QueryAndURL) => {
+    return RunnableLambda.from<QueryAndURL, string>(async (input: QueryAndURL) => {
       consola.info(`searchSummaryRunnable called with ${JSON.stringify(input)} ${performance.now()}`)
-      const results = `summary 1 ${JSON.stringify(input)}`
+      const browser = new WebBrowser({model: this.llm, embeddings: this.embeddings})
 
-      return results
+      try{
+        const url = input.url
+        const query = input.query
+        const result = await browser.invoke(`"${url}","${query}"`)
+        return result
+      } catch (error) {
+        consola.error('error using browser', error)
+      }
+      return 'Error happened'
     })
   }
 
