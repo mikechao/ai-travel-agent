@@ -125,7 +125,6 @@ class SearchSummaryTool extends StructuredTool {
         const url = queryAndURL.url
         const query = queryAndURL.query
         const result = await browser.invoke(`"${url}","${query}"`)
-        consola.info('single result', result)
         results.push(result)
       }
     }
