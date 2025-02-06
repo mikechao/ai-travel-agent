@@ -1,6 +1,8 @@
 import type {
   AIMessageChunk,
   BaseMessage,
+
+  ToolMessage,
 } from '@langchain/core/messages'
 import type {
   StructuredToolInterface,
@@ -13,7 +15,6 @@ import {
   isAIMessageChunk,
   RemoveMessage,
   SystemMessage,
-  ToolMessage,
 } from '@langchain/core/messages'
 import {
   ChatPromptTemplate,
@@ -308,32 +309,6 @@ export default defineLazyEventHandler(async () => {
 
   async function callTools(state: typeof AgentState.State): Promise<Command> {
     consola.info('callTools node')
-    // need to figure why this works, but using it in a toolnode doesn't
-    // maybe cause I didn't JSON.stringify results in the toolkit??
-    if (state.toolsToCall === 'travelRecommendationTool') {
-      const tool = toolsByName.get('travelRecommendationTool') as StructuredToolInterface
-      const modelWithTools = model.bindTools([tool])
-      const result = await modelWithTools.invoke(state.messages, { parallel_tool_calls: false })
-      const aiMessageChunk = result as AIMessageChunk
-      if (aiMessageChunk.tool_calls && aiMessageChunk.tool_calls.length) {
-        const args = aiMessageChunk.tool_calls[0].args
-        const toolCallid = aiMessageChunk.tool_calls[0].id as string
-        const toolResult = await tool.invoke(args)
-        const toolMessage = new ToolMessage({ tool_call_id: toolCallid, content: JSON.stringify(toolResult) })
-        return new Command({
-          goto: state.sender,
-          update: {
-            messages: [result, toolMessage],
-            sender: 'callTools',
-            toolsToCall: '',
-          },
-        })
-      }
-      consola.error('No tool calls for travelRecommendationTool')
-      return new Command({
-        goto: state.sender,
-      })
-    }
     const tools: StructuredToolInterface[]
     = (state.toolsToCall)
       ? state.toolsToCall.split(',')
