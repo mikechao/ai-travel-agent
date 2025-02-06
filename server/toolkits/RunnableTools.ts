@@ -1,6 +1,6 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import { RunnableLambda, RunnableMap } from '@langchain/core/runnables'
+import { Runnable, RunnableEach, RunnableLambda, RunnableMap, RunnablePick } from '@langchain/core/runnables'
 import { consola } from 'consola'
 
 interface SearchQueryInput {
@@ -22,7 +22,7 @@ interface SearchExecutionOuput {
   queryAndURLs: QueryAndURL[]
 }
 
-type SearchSummaryInput = SearchExecutionOuput
+type SearchSummaryInput = QueryAndURL
 
 interface SearchSummaryOutput {
   results: string[]
@@ -46,7 +46,7 @@ export class RunnableTools {
   }
 
   createSearchExecutionRunnable() {
-    return RunnableLambda.from<SearchExecutionInput, SearchExecutionOuput>((input: SearchExecutionInput) => {
+    return RunnableLambda.from<SearchExecutionInput, QueryAndURL[]>((input: SearchExecutionInput) => {
       consola.info('searchExecutionRunnable called with ', input.queries)
 
       const results: QueryAndURL[] = [
@@ -54,14 +54,14 @@ export class RunnableTools {
         { query: 'cat travel tips', url: 'https://www.cat-travel-tips.com' },
       ]
 
-      return { queryAndURLs: results }
+      return results
     })
   }
 
   createSearchSummaryRunnable() {
-    return RunnableLambda.from<SearchSummaryInput, SearchSummaryOutput>((input: SearchSummaryInput) => {
-      consola.info('searchSummaryRunnable called with ', JSON.stringify(input.queryAndURLs))
-      const results: string[] = [`summary 1 ${JSON.stringify(input.queryAndURLs)}`]
+    return RunnableLambda.from<QueryAndURL, SearchSummaryOutput>((input: QueryAndURL) => {
+      consola.info(`searchSummaryRunnable called with ${JSON.stringify(input)} ${performance.now()}`)
+      const results: string[] = [`summary 1 ${JSON.stringify(input)}`]
 
       return { results }
     })
@@ -71,11 +71,15 @@ export class RunnableTools {
     const searchQueryRunnable = this.createSearchQueryRunnable()
     const searchExecutionRunnable = this.createSearchExecutionRunnable()
     const searchSummaryRunnable = this.createSearchSummaryRunnable()
-    const chain = searchQueryRunnable.pipe(searchExecutionRunnable)
+    const chain = searchQueryRunnable
+      .pipe(searchExecutionRunnable)
 
-    return RunnableMap.from({
-      chain,
-      searchSummaryRunnable,
+    const chain2 = new RunnableEach({
+      bound: searchSummaryRunnable,
     })
+    return chain.pipe(chain2)
+    // return chain.pipe(RunnableMap.from({
+    //   searchSummaryRunnable,
+    // }))
   }
 }
