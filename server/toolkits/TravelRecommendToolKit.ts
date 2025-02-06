@@ -1,16 +1,19 @@
+import { CallbackManagerForToolRun } from '@langchain/core/callbacks/manager'
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseLanguageModelInterface } from '@langchain/core/language_models/base'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import type { StructuredToolInterface } from '@langchain/core/tools'
+import type { StructuredToolInterface, ToolRunnableConfig } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import { BraveSearch } from 'brave-search/dist/braveSearch.js'
 import { consola } from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { z } from 'zod'
 
-interface QueryAndURL {
+interface SearchResult {
   query: string
   url: string
+  title: string
+  description: string
 }
 
 // seems like we need this to workaround
@@ -84,7 +87,7 @@ class SearchExecutionTool extends StructuredTool {
   protected async _call(input: { queries: string[] }) {
     const { queries } = input
     consola.info('searchExecutionTool _call with ', queries)
-    const results: QueryAndURL[] = []
+    const results: SearchResult[] = []
     try {
       for (const query of queries) {
         const webSearchResult = await this.braveSearch.webSearch(query, {
@@ -94,7 +97,7 @@ class SearchExecutionTool extends StructuredTool {
         if (webSearchResult.web && webSearchResult.web.results.length > 0) {
           const randomIndex = Math.floor(Math.random() * webSearchResult.web.results.length)
           const randomResult = webSearchResult.web.results[randomIndex]
-          results.push({ query, url: randomResult.url })
+          results.push({ query, url: randomResult.url, title: randomResult.title, description: randomResult.description })
         }
       }
     }
@@ -108,11 +111,13 @@ class SearchExecutionTool extends StructuredTool {
 
 class SearchSummaryTool extends StructuredTool {
   name = 'searchSummaryTool'
-  description = `Use to get a summary of an array of URLs that are related to a user's travel interests`
+  description = `Provides a summary or more details about a website that the user is interested in`
   schema = z.object({
     queryAndURLs: z.array(z.object({
       query: z.string(),
       url: z.string(),
+      title: z.string(),
+      description: z.string()
     })).describe('An array of query and URL pairs to get summaries for.'),
   })
 
@@ -124,15 +129,16 @@ class SearchSummaryTool extends StructuredTool {
     this.embeddings = embeddings
   }
 
-  protected async _call(input: { queryAndURLs: QueryAndURL[] }) {
+  protected async _call(input: { queryAndURLs: SearchResult[] }, runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig) {
+    consola.info(`searchSummaryTool runManager ${runManager}`)
+    consola.info(`searchSummaryTool parentConfig ${parentConfig}`)
     const results = []
-
-    const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings })
+    const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings,  })
     try {
       for (const queryAndURL of input.queryAndURLs) {
         const url = queryAndURL.url
         const query = queryAndURL.query
-        const result = await browser.invoke(`"${url}","${query}"`)
+        const result = await browser.invoke(`"${url}","${query}"`, parentConfig)
         results.push(result)
       }
     }
