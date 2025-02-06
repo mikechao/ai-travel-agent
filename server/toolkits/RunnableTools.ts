@@ -1,6 +1,8 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { RunnableEach, RunnableLambda } from '@langchain/core/runnables'
+import { BraveSearch } from 'brave-search'
+import { SafeSearchLevel } from 'brave-search/dist/types'
 import { consola } from 'consola'
 import { z } from 'zod'
 
@@ -62,15 +64,28 @@ export class RunnableTools {
     })
   }
 
-  createSearchExecutionRunnable() {
-    return RunnableLambda.from<SearchExecutionInput, QueryAndURL[]>((input: SearchExecutionInput) => {
+  createSearchExecutionRunnable(braveSearch: BraveSearch) {
+    return RunnableLambda.from<SearchExecutionInput, QueryAndURL[]>(async (input: SearchExecutionInput) => {
       consola.info('searchExecutionRunnable called with ', input.queries)
 
-      const results: QueryAndURL[] = [
-        { query: 'best cat cafes in the world', url: 'https://www.cats.com' },
-        { query: 'cat travel tips', url: 'https://www.cat-travel-tips.com' },
-      ]
-
+      const results: QueryAndURL[] = []
+      try {
+        for (const query of input.queries) {
+          const webSearchResult = await braveSearch.webSearch(query, {
+            count: 10,
+            safesearch: SafeSearchLevel.Moderate,
+          })
+          if (webSearchResult.web && webSearchResult.web.results.length > 0) {
+            const randomIndex = Math.floor(Math.random() * webSearchResult.web.results.length)
+            const randomResult = webSearchResult.web.results[randomIndex]
+            results.push({ query, url: randomResult.url })
+          }
+        }
+      }
+      catch (error) {
+        consola.error('error executing search', error)
+      }
+      consola.info('results', results)
       return results
     })
   }
@@ -85,8 +100,10 @@ export class RunnableTools {
   }
 
   createRunnableMap() {
+    const runtimeConfig = useRuntimeConfig()
+    const braveSearch = new BraveSearch(runtimeConfig.braveAPIKey)
     const searchQueryRunnable = this.createSearchQueryRunnable()
-    const searchExecutionRunnable = this.createSearchExecutionRunnable()
+    const searchExecutionRunnable = this.createSearchExecutionRunnable(braveSearch)
     const searchSummaryRunnable = this.createSearchSummaryRunnable()
     const chain = searchQueryRunnable
       .pipe(searchExecutionRunnable)
