@@ -45,7 +45,7 @@ class SearchQueryTool extends StructuredTool {
     const queryPrompt = `You are a search query generator tasked with creating 
     targeted search queries to gather specific travel information or ideas related
     to the user's interest of ${interest}. 
-    Generate at most 3 search queries that will help the user with their research 
+    Generate at most 5 search queries that will help the user with their research 
     about their travel interest. 
     Your query should: 
     1. Focus on finding factual, interesting travel information and ideas 
