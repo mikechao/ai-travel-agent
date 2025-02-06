@@ -559,7 +559,7 @@ and black suspenders nods and smiles<br/>
 
   const runnableTools = new RunnableTools(model, embeddings)
   async function runnables() {
-    const mapChain = runnableTools.createRunnableMap()
+    const mapChain = runnableTools.createWholeChain()
     const before = performance.now()
     const results = await mapChain.invoke({ interest: 'cats' })
     const after = performance.now()

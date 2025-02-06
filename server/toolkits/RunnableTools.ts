@@ -19,12 +19,6 @@ interface SearchQueryInput {
   interest: string
 }
 
-interface SearchQueryOutput {
-  queries: string[]
-}
-
-type SearchExecutionInput = SearchQueryOutput
-
 interface QueryAndURL {
   query: string
   url: string
@@ -40,7 +34,7 @@ export class RunnableTools {
   }
 
   createSearchQueryRunnable() {
-    return RunnableLambda.from<SearchQueryInput, SearchQueryOutput>(async (input: SearchQueryInput) => {
+    return RunnableLambda.from<SearchQueryInput, string[]>(async (input: SearchQueryInput) => {
       consola.info('searchQueryRunnable called with ', input.interest)
 
       const interest = input.interest
@@ -69,39 +63,38 @@ export class RunnableTools {
       ])
 
       consola.info('result', result)
-      return result
+      return result.queries
     })
   }
 
   createSearchExecutionRunnable(braveSearch: BraveSearch) {
-    return RunnableLambda.from<SearchExecutionInput, QueryAndURL[]>(async (input: SearchExecutionInput) => {
-      consola.info('searchExecutionRunnable called with ', input.queries)
+    return RunnableLambda.from<string, QueryAndURL>(async (input: string) => {
+      consola.info(`searchExecutionRunnable called with ${input} ${performance.now()}`)
 
-      const results: QueryAndURL[] = []
       try {
-        for (const query of input.queries) {
-          const webSearchResult = await braveSearch.webSearch(query, {
-            count: 10,
-            safesearch: SafeSearchLevel.Moderate,
-          })
-          if (webSearchResult.web && webSearchResult.web.results.length > 0) {
-            const randomIndex = Math.floor(Math.random() * webSearchResult.web.results.length)
-            const randomResult = webSearchResult.web.results[randomIndex]
-            results.push({ query, url: randomResult.url })
-          }
+        const webSearchResult = await braveSearch.webSearch(input, {
+          count: 10,
+          safesearch: SafeSearchLevel.Moderate,
+        })
+        if (webSearchResult.web && webSearchResult.web.results.length > 0) {
+          const randomIndex = Math.floor(Math.random() * webSearchResult.web.results.length)
+          const randomResult = webSearchResult.web.results[randomIndex]
+          return { query: input, url: randomResult.url }
         }
       }
       catch (error) {
         consola.error('error executing search', error)
       }
-      consola.info('results', results)
-      return results
+      return { query: input, url: 'error' }
     })
   }
 
   createSearchSummaryRunnable() {
     return RunnableLambda.from<QueryAndURL, string>(async (input: QueryAndURL) => {
       consola.info(`searchSummaryRunnable called with ${JSON.stringify(input)} ${performance.now()}`)
+      if (input.url === 'error') {
+        return ''
+      }
       const browser = new WebBrowser({ model: this.llm, embeddings: this.embeddings })
 
       try {
@@ -117,16 +110,25 @@ export class RunnableTools {
     })
   }
 
-  createRunnableMap() {
+  /**
+   *
+   * @returns a chainable runnable where we will
+   * generate 3 search queries based on an input of interest
+   * then run in parallel the execution of each search query
+   * and the summarization of the search results
+   */
+  createWholeChain() {
     const runtimeConfig = useRuntimeConfig()
     const braveSearch = new BraveSearch(runtimeConfig.braveAPIKey)
     const searchQueryRunnable = this.createSearchQueryRunnable()
     const searchExecutionRunnable = this.createSearchExecutionRunnable(braveSearch)
     const searchSummaryRunnable = this.createSearchSummaryRunnable()
+
+    // we parallelize the searchExecution and summary but overall it is still
+    // pretty slow
     const chain = searchQueryRunnable
-      .pipe(searchExecutionRunnable)
       .pipe(new RunnableEach({
-        bound: searchSummaryRunnable,
+        bound: searchExecutionRunnable.pipe(searchSummaryRunnable),
       }))
 
     return chain
