@@ -1,6 +1,6 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import { RunnableLambda } from '@langchain/core/runnables'
+import { RunnableLambda, RunnableMap } from '@langchain/core/runnables'
 import { consola } from 'consola'
 
 interface SearchQueryInput {
@@ -64,6 +64,18 @@ export class RunnableTools {
       const results: string[] = [`summary 1 ${JSON.stringify(input.queryAndURLs)}`]
 
       return { results }
+    })
+  }
+
+  createRunnableMap() {
+    const searchQueryRunnable = this.createSearchQueryRunnable()
+    const searchExecutionRunnable = this.createSearchExecutionRunnable()
+    const searchSummaryRunnable = this.createSearchSummaryRunnable()
+    const chain = searchQueryRunnable.pipe(searchExecutionRunnable)
+
+    return RunnableMap.from({
+      chain,
+      searchSummaryRunnable,
     })
   }
 }
