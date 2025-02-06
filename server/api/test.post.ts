@@ -513,7 +513,10 @@ and black suspenders nods and smiles<br/>
     temperature: 0,
     apiKey: runtimeConfig.openaiAPIKey,
   })
-  const embeddings = new OpenAIEmbeddings({ apiKey: runtimeConfig.openaiAPIKey })
+  const embeddings = new OpenAIEmbeddings({
+    model: 'text-embedding-3-small',
+    apiKey: runtimeConfig.openaiAPIKey,
+  })
 
   async function webBrowser() {
     const browser = new WebBrowser({ model, embeddings })
