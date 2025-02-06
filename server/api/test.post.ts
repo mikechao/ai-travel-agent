@@ -4,6 +4,7 @@ import consola from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { RunnableTools } from '../toolkits/RunnableTools'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 
 // just a simple test endpoint that will return some text
@@ -553,6 +554,14 @@ and black suspenders nods and smiles<br/>
     }
   }
 
+  const runnableTools = new RunnableTools(model, embeddings)
+  async function runnables() {
+    const mapChain = runnableTools.createRunnableMap()
+    const results = await mapChain.invoke({ interest: 'bananas' })
+    consola.info('runnables results', results)
+    return results
+  }
+
   function delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
@@ -579,6 +588,19 @@ and black suspenders nods and smiles<br/>
         async start(controller) {
           const text = formatDataStreamPart('text', result)
           controller.enqueue(encoder.encode(text))
+          controller.close()
+        },
+      })
+    }
+
+    if (messages[0].content === 'runnables') {
+      return new ReadableStream({
+        async start(controller) {
+          const text = formatDataStreamPart('text', 'Running the runnables')
+          controller.enqueue(encoder.encode(text))
+          const results = await runnables()
+          const part = formatDataStreamPart('text', JSON.stringify(results))
+          controller.enqueue(encoder.encode(part))
           controller.close()
         },
       })
