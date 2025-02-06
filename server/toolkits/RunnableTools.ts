@@ -25,7 +25,7 @@ interface SearchExecutionOuput {
 type SearchSummaryInput = QueryAndURL
 
 interface SearchSummaryOutput {
-  results: string[]
+  results: string
 }
 
 export class RunnableTools {
@@ -59,11 +59,11 @@ export class RunnableTools {
   }
 
   createSearchSummaryRunnable() {
-    return RunnableLambda.from<QueryAndURL, SearchSummaryOutput>((input: QueryAndURL) => {
+    return RunnableLambda.from<QueryAndURL, string>((input: QueryAndURL) => {
       consola.info(`searchSummaryRunnable called with ${JSON.stringify(input)} ${performance.now()}`)
-      const results: string[] = [`summary 1 ${JSON.stringify(input)}`]
+      const results = `summary 1 ${JSON.stringify(input)}`
 
-      return { results }
+      return results
     })
   }
 
