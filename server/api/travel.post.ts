@@ -83,13 +83,13 @@ export default defineLazyEventHandler(async () => {
   toolsByName.set(sightsReviewsTool.name, sightsReviewsTool)
   travelRecommendToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
 
-  const weathToolTag = 'weather-tool'
+  const weatherToolTag = 'weather-tool'
   const hotelDetailsTag = 'hotel-details'
   const hotelSearchTag = 'hotel-search'
   const sightSearchTag = 'sight-search'
   const sighDetailTag = 'sight-details'
   const toolTagsByToolName = new Map<string, string>()
-  toolTagsByToolName.set(weatherForecastTool.name, weathToolTag)
+  toolTagsByToolName.set(weatherForecastTool.name, weatherToolTag)
   toolTagsByToolName.set(hotelDetailsTool.name, hotelDetailsTag)
   toolTagsByToolName.set(hotelSearchTool.name, hotelSearchTag)
   toolTagsByToolName.set(sightseeingSearchTool.name, sightSearchTag)
@@ -119,7 +119,7 @@ export default defineLazyEventHandler(async () => {
           .describe(`The next agent to call, 'callTools' if a tool should be used 
           or 'human' if you need more input from the user to complete the query 
           or 'finish' if the user's query has been resolved. Must be one of the specified values.`),
-        toolsToCall: z.string().optional().describe(`A comma seperated list of tools to call if any, can be empty. 
+        toolsToCall: z.string().optional().describe(`A comma separated list of tools to call if any, can be empty. 
           Must be filled out when the goto filed is 'callTools'`),
       })
       const toolNames = toolsToUse.map(tool => `name: ${tool.name}, description: ${tool.description}`).join('\n')
@@ -128,7 +128,7 @@ export default defineLazyEventHandler(async () => {
           'system',
           'You are collaborating with other assistants.'
           + ' Use the provided tools, only if it is needed to progress towards answering the question.'
-          + ' If you have choosen a tool to use be sure to add it to the toolsToCall field. '
+          + ' If you have chosen a tool to use be sure to add it to the toolsToCall field. '
           + ' You have access to the following tools: \n{tool_names}.\n ',
         ],
         new MessagesPlaceholder('messages'),
@@ -146,7 +146,7 @@ export default defineLazyEventHandler(async () => {
           'finish' if the user's query has been resolved, 
           or 'human' if you need more input from the user to complete the query. 
           Must be one of the specified values.`),
-        toolsToCall: z.string().optional().describe('A comma seperated list of tools to call if any, can be empty'),
+        toolsToCall: z.string().optional().describe('A comma separated list of tools to call if any, can be empty'),
       })
       return model.withStructuredOutput(outputSchema, { name: 'Response' }).invoke(messages, { tags: [modelTag], runName })
     }
@@ -181,11 +181,11 @@ export default defineLazyEventHandler(async () => {
         + ` Then Use the \'sightseeingSearchTool\' get a list of sights or attractions to see, tell user the names only 
         and tell the user you can get more details or a summary of reviews by other humans `
         + ` Use the \'sightsDetailsTool\' to get more details about the sight or attraction to see `
-        + ` The \'sightsReviewsTool\' can give you reviews provided by other people for you to summerize for the user `
+        + ` The \'sightsReviewsTool\' can give you reviews provided by other people for you to summarize for the user `
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help.  '
         + 'If you need weather forecast and clothing to pack, ask \'weatherAdvisor named Petey the Pirate for help'
-        + 'Feel free to meantion the other agents by name, but in a Parrot way'
+        + 'Feel free to mention the other agents by name, but in a Parrot way'
 
     const promptMessage = new SystemMessage({ name: 'SightseeingPrompt', content: systemPrompt })
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
@@ -201,7 +201,7 @@ export default defineLazyEventHandler(async () => {
         + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
         + ` Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, 
           tell the user you can get more details or a summary of reviews by other humans `
-        + ' The \'hotelReviewsTool\' can give you reviews provided by other people for you to summerize for the user '
+        + ' The \'hotelReviewsTool\' can give you reviews provided by other people for you to summarize for the user '
         + `When talking to the user be friendly, warm and playful with a sense of humor`
         + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
         + 'If you are asked for sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
@@ -226,7 +226,7 @@ export default defineLazyEventHandler(async () => {
       + 'If you need general travel help, go to \'travelAdvisor\' named Pluto the pup for help. '
       + 'If you need sightseeing or attraction recommendations, ask \'sightseeingAdvisor\' named Polly Parrot for help. '
       + 'If you need hotel recommendations, ask \'hotelAdvisor\' named Penny Restmore for help. '
-      + 'Feel free to meantion the other agents by name, but in a pirate way'
+      + 'Feel free to mention the other agents by name, but in a pirate way'
 
     const promptMessage = new SystemMessage({ name: 'WeatherPrompt', content: systemPrompt })
     const messages = [promptMessage, ...state.messages] as BaseMessage[]
@@ -382,7 +382,7 @@ export default defineLazyEventHandler(async () => {
     .addNode('human', humanNode, {
       ends: ['hotelAdvisor', 'sightseeingAdvisor', 'travelAdvisor', 'weatherAdvisor', 'human'],
     })
-  // add the weatherAdvsior
+  // add the weatherAdvisor
     .addNode('weatherAdvisor', weatherAdvisor, {
       ends: ['human', 'travelAdvisor', 'sightseeingAdvisor', 'hotelAdvisor', 'callTools'],
     })
@@ -414,7 +414,7 @@ export default defineLazyEventHandler(async () => {
     const input = isInitMessage(lastMessage) ? initMessage : new Command({ resume: lastMessage.content })
     const encoder = new TextEncoder()
     const config = { version: 'v2' as const, configurable: { thread_id: sessionId } }
-    const tags = [modelTag, toolTag, weathToolTag, hotelDetailsTag]
+    const tags = [modelTag, toolTag, weatherToolTag, hotelDetailsTag]
     return new ReadableStream({
       async start(controller) {
         try {
@@ -435,7 +435,7 @@ export default defineLazyEventHandler(async () => {
               if (event.data.output && (event.data.output as ToolMessage).content.length) {
                 const content = (event.data.output as ToolMessage).content as string
                 const id = uuidv4()
-                if (event.tags.includes(weathToolTag)) {
+                if (event.tags.includes(weatherToolTag)) {
                   // 2 will send it to data from useChat
                   // 8 will send it to message.annotations on the client side
                   const part = `2:[{"id":"${id}","type":"weather","data":${content}}]\n`
