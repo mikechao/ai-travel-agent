@@ -1,6 +1,6 @@
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
-import { Runnable, RunnableEach, RunnableLambda, RunnableMap, RunnablePick } from '@langchain/core/runnables'
+import { RunnableEach, RunnableLambda } from '@langchain/core/runnables'
 import { consola } from 'consola'
 
 interface SearchQueryInput {
@@ -16,16 +16,6 @@ type SearchExecutionInput = SearchQueryOutput
 interface QueryAndURL {
   query: string
   url: string
-}
-
-interface SearchExecutionOuput {
-  queryAndURLs: QueryAndURL[]
-}
-
-type SearchSummaryInput = QueryAndURL
-
-interface SearchSummaryOutput {
-  results: string
 }
 
 export class RunnableTools {
