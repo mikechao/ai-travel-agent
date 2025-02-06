@@ -73,13 +73,10 @@ export class RunnableTools {
     const searchSummaryRunnable = this.createSearchSummaryRunnable()
     const chain = searchQueryRunnable
       .pipe(searchExecutionRunnable)
+      .pipe(new RunnableEach({
+        bound: searchSummaryRunnable,
+      }))
 
-    const chain2 = new RunnableEach({
-      bound: searchSummaryRunnable,
-    })
-    return chain.pipe(chain2)
-    // return chain.pipe(RunnableMap.from({
-    //   searchSummaryRunnable,
-    // }))
+    return chain
   }
 }
