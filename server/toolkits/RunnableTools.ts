@@ -2,6 +2,7 @@ import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { RunnableEach, RunnableLambda } from '@langchain/core/runnables'
 import { consola } from 'consola'
+import { z } from 'zod'
 
 interface SearchQueryInput {
   interest: string
@@ -28,10 +29,36 @@ export class RunnableTools {
   }
 
   createSearchQueryRunnable() {
-    return RunnableLambda.from<SearchQueryInput, SearchQueryOutput>((input: SearchQueryInput) => {
+    return RunnableLambda.from<SearchQueryInput, SearchQueryOutput>(async (input: SearchQueryInput) => {
       consola.info('searchQueryRunnable called with ', input.interest)
-      const results = ['best cat cafes in the world', 'cat travel tips']
-      return { queries: results }
+
+      const interest = input.interest
+
+      const queryPrompt = `You are a search query generator tasked with creating 
+      targeted search queries to gather specific travel information or ideas related
+      to the user's interest of ${interest}. 
+      Generate at most 3 search queries that will help the user with their reasearch 
+      about their travel interest. 
+      Your query should: 
+      1. Focus on finding factual, interesting travel information and ideas 
+      2. Target travel news, blogs and other travel related sources 
+      3. Prioritize finding information that matches the user's interest of ${interest} 
+      4. Be specific enough to avoid irrelevant results 
+      Create a focused query that will maximize the chances of finding relevant information`
+
+      const outputSchema = z.object({
+        queries: z.array(z.string()).describe('List of search queries.'),
+      })
+
+      const structuredLLM = this.llm.withStructuredOutput(outputSchema)
+
+      const result = await structuredLLM.invoke([
+        { role: 'system', content: queryPrompt },
+        { role: 'user', content: `Please generate a list of search queries related to my travel interest of ${interest}` },
+      ])
+
+      consola.info('result', result)
+      return result
     })
   }
 
