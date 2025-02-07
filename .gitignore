@@ -24,4 +24,4 @@ logs
 !.env.example
 
 notes.txt
- langchain-cache*/
+langchain-cache*/
