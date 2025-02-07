@@ -38,7 +38,7 @@ class SearchQueryTool extends StructuredTool {
     this.llm = llm
   }
 
-  protected async _call(input: { interest: string }): Promise<any> {
+  protected async _call(input: { interest: string }, _runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig): Promise<any> {
     const { interest } = input
     consola.info(`searchQueryTool called with ${interest}`)
 
@@ -63,7 +63,7 @@ class SearchQueryTool extends StructuredTool {
     const result = await structuredLLM.invoke([
       { role: 'system', content: queryPrompt },
       { role: 'user', content: `Please generate a list of search queries related to my travel interest of ${interest}` },
-    ])
+    ], parentConfig)
 
     consola.info('result', result)
     return JSON.stringify(result)
@@ -129,9 +129,8 @@ class SearchSummaryTool extends StructuredTool {
     this.embeddings = embeddings
   }
 
-  protected async _call(input: { queryAndURLs: SearchResult[] }, runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig) {
-    consola.info(`searchSummaryTool runManager ${runManager}`)
-    consola.info(`searchSummaryTool parentConfig ${parentConfig}`)
+  protected async _call(input: { queryAndURLs: SearchResult[] }, _runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig) {
+    consola.info('searchSummaryTool called')
     const results = []
     const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings,  })
     try {
