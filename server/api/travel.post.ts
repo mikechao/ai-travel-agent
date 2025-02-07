@@ -125,7 +125,7 @@ export default defineLazyEventHandler(async () => {
       [
         'system',
         'You are collaborating with other assistants.'
-        + ' Use the provided tools, only if it is needed to progress towards answering the question.'
+        + ' Use the provided tools or other instructions you, to progress towards answering the question.'
         + ' If you have chosen a tool to use be sure to add it to the toolsToCall field. '
         + ' You have access to the following tools: \n{tool_names}.\n ',
       ],
