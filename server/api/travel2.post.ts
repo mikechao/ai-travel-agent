@@ -1,7 +1,8 @@
-import type { AIMessageChunk } from '@langchain/core/messages'
+import type { AIMessage, AIMessageChunk } from '@langchain/core/messages'
 import type { StructuredToolInterface } from '@langchain/core/tools'
 import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
 import { StructuredOutputParser } from '@langchain/core/output_parsers'
+import { RunnableBranch, RunnableLambda } from '@langchain/core/runnables'
 import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph'
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
@@ -85,6 +86,34 @@ export default defineLazyEventHandler(async () => {
         },
         ...state.messages,
       ]
+      const toolRun = RunnableLambda.from<AIMessage, any>(async (input: AIMessage) => {
+        consola.info('execute tools here')
+        return input
+      })
+      const parseMessage = RunnableLambda.from<AIMessage, any>(async (input: AIMessage) => {
+        consola.info('parse the message here')
+        return input
+      })
+      const branch = RunnableBranch.from([
+        [
+          true,
+          toolRun,
+        ],
+        parseMessage,
+      ])
+      // const branch1 = RunnableBranch.from([
+      //   [
+      //     (x: { topic: string, question: string }) =>
+      //       x.topic.toLowerCase().includes('anthropic'),
+      //     anthropicChain,
+      //   ],
+      //   [
+      //     (x: { topic: string, question: string }) =>
+      //       x.topic.toLowerCase().includes('langchain'),
+      //     langChainChain,
+      //   ],
+      //   generalChain,
+      // ])
       const response = await modelWithTools.pipe(parser).invoke(messages, { tags: [modelTag] })
 
       const aiMessage = {
