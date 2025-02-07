@@ -89,12 +89,14 @@ export default defineLazyEventHandler(async () => {
   const hotelSearchTag = 'hotel-search'
   const sightSearchTag = 'sight-search'
   const sighDetailTag = 'sight-details'
+  const searchSummaryTag = 'search-summary'
   const toolTagsByToolName = new Map<string, string>()
   toolTagsByToolName.set(weatherForecastTool.name, weatherToolTag)
   toolTagsByToolName.set(hotelDetailsTool.name, hotelDetailsTag)
   toolTagsByToolName.set(hotelSearchTool.name, hotelSearchTag)
   toolTagsByToolName.set(sightseeingSearchTool.name, sightSearchTag)
   toolTagsByToolName.set(sightsDetailsTool.name, sighDetailTag)
+  toolTagsByToolName.set(travelRecommendToolKit.getSearchSummaryTool().name, searchSummaryTag)
 
   const checkpointer = PostgresSaver.fromConnString(
     runtimeConfig.postgresURL,
@@ -417,6 +419,10 @@ export default defineLazyEventHandler(async () => {
                 }
                 if (event.tags.includes(sightSearchTag)) {
                   const part = `2:[{"id":"${id}","type":"sight-search","data":${content}}]\n`
+                  controller.enqueue(part)
+                }
+                if (event.tags.includes(searchSummaryTag)) {
+                  const part = `2:[{"id":"${id}","type":"search-summary","data":${content}}]\n`
                   controller.enqueue(part)
                 }
               }
