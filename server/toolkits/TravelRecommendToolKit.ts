@@ -104,21 +104,21 @@ class SearchExecutionTool extends StructuredTool {
     catch (error) {
       consola.error('error executing search', error)
     }
-    consola.info('results', results)
+    consola.info(`searchExecutionTool found ${results.length}`)
     return JSON.stringify(results)
   }
 }
 
 class SearchSummaryTool extends StructuredTool {
   name = 'searchSummaryTool'
-  description = `Provides a summary or more details about a website that the user is interested in`
+  description = `Provides a summary or more details about a website or search result that the user is interested in`
   schema = z.object({
-    queryAndURLs: z.array(z.object({
+    searchResult: z.object({
       query: z.string(),
       url: z.string(),
       title: z.string(),
       description: z.string()
-    })).describe('An array of query and URL pairs to get summaries for.'),
+    }).describe('A Search Result that contains an url for a website to get summary for.'),
   })
 
   model: BaseLanguageModelInterface
@@ -129,22 +129,19 @@ class SearchSummaryTool extends StructuredTool {
     this.embeddings = embeddings
   }
 
-  protected async _call(input: { queryAndURLs: SearchResult[] }, _runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig) {
+  protected async _call(input: { searchResult: SearchResult }, _runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig) {
     consola.info('searchSummaryTool called')
-    const results = []
     const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings,  })
     try {
-      for (const queryAndURL of input.queryAndURLs) {
-        const url = queryAndURL.url
-        const query = queryAndURL.query
+        const url = input.searchResult.url
+        const query = input.searchResult.query
         const result = await browser.invoke(`"${url}","${query}"`, parentConfig)
-        results.push(result)
-      }
-    }
-    catch (error) {
+        consola.info('searchSummaryTool got results')
+        return JSON.stringify(result)
+    } catch (error) {
       consola.error('error using browser', error)
+      return 'An error happened when I was using the webbrowser'
     }
-    return JSON.stringify(results)
   }
 }
 
