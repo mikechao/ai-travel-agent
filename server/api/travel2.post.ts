@@ -7,17 +7,20 @@ import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
 import consola from 'consola'
+import { LocalFileCache } from 'langchain/cache/file_system'
 import { z } from 'zod'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
 
+  const cache = await LocalFileCache.create()
   const modelTag = 'stream-out'
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0.6,
     apiKey: runtimeConfig.openaiAPIKey,
+    cache,
   })
 
   const embeddings = new OpenAIEmbeddings({
