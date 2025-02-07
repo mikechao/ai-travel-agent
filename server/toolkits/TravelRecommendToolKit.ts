@@ -129,7 +129,7 @@ class SearchSummaryTool extends StructuredTool {
 
   protected async _call(input: { searchResult: SearchResult }, _runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig) {
     consola.info('searchSummaryTool called')
-    const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings,  })
+    const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings, callbacks: parentConfig?.callbacks })
     try {
         const url = input.searchResult.url
         const query = input.searchResult.query
