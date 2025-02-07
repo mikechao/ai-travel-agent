@@ -1,4 +1,4 @@
-import { CallbackManagerForToolRun } from '@langchain/core/callbacks/manager'
+import type { CallbackManagerForToolRun } from '@langchain/core/callbacks/manager'
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseLanguageModelInterface } from '@langchain/core/language_models/base'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
@@ -115,7 +115,7 @@ class SearchSummaryTool extends StructuredTool {
       query: z.string(),
       url: z.string(),
       title: z.string(),
-      description: z.string()
+      description: z.string(),
     }).describe('A Search Result that contains an url for a website to get summary for.'),
   })
 
@@ -131,12 +131,13 @@ class SearchSummaryTool extends StructuredTool {
     consola.info('searchSummaryTool called')
     const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings, callbacks: parentConfig?.callbacks })
     try {
-        const url = input.searchResult.url
-        const query = input.searchResult.query
-        const result = await browser.invoke(`"${url}","${query}"`, parentConfig)
-        consola.info('searchSummaryTool got results')
-        return JSON.stringify(result)
-    } catch (error) {
+      const url = input.searchResult.url
+      const query = input.searchResult.query
+      const result = await browser.invoke(`"${url}","${query}"`, parentConfig)
+      consola.info('searchSummaryTool got results')
+      return JSON.stringify(result)
+    }
+    catch (error) {
       consola.error('error using browser', error)
       return 'An error happened when I was using the webbrowser'
     }
