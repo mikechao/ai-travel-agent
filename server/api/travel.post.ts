@@ -1,7 +1,6 @@
 import type {
   AIMessageChunk,
   BaseMessage,
-
   ToolMessage,
 } from '@langchain/core/messages'
 import type {
@@ -10,6 +9,7 @@ import type {
 import type {
   Message as VercelChatMessage,
 } from 'ai'
+import { setMaxListeners } from 'node:events'
 import {
   AIMessage,
   isAIMessageChunk,
@@ -47,6 +47,8 @@ import { getSightsReviewsTool } from '../utils/sightsReviewTool'
 import { getWeatherForecastTool } from '../utils/weatherSearchTool'
 
 export default defineLazyEventHandler(async () => {
+  setMaxListeners(15)
+
   const runtimeConfig = useRuntimeConfig()
 
   const model = new ChatOpenAI({
@@ -147,7 +149,7 @@ export default defineLazyEventHandler(async () => {
         + ` Follow these steps to use the tools to help you recommend travel destinations based on user's interest `
         + ` Step 1. Use the \'searchQueryTool\' to generate travel destinations search queries based on the user's interests, present the results of 
          this tool to the user `
-        + ` Step 2. Wait for the user to select a search query ` 
+        + ` Step 2. Wait for the user to select a search query `
         + ` Step 3. Use the user selected search query and the \'searchExecutionTool\' to execute travel destination search queries on the internet,
           present the results of this tool to the user `
         + ` Step 4. When the user select a title or url use the \'searchSummaryTool\' to generate a summary and present the results to the user`

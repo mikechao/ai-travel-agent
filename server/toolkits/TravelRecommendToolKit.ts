@@ -109,7 +109,7 @@ class SearchExecutionTool extends StructuredTool {
 
 class SearchSummaryTool extends StructuredTool {
   name = 'searchSummaryTool'
-  description = `Provides a summary or more details about a website or search result that the user is interested in`
+  description = `Provides a summary or more details about a website that could be mentioned by title or search result that the user is interested in`
   schema = z.object({
     searchResult: z.object({
       query: z.string(),
