@@ -42,6 +42,7 @@ export default defineLazyEventHandler(async () => {
   enum NodeNames {
     TravelAdvisor = 'travelAdvisor',
     HumanNode = 'humanNode',
+    ToolNode = 'toolNode',
   }
 
   const AgentState = Annotation.Root({
@@ -57,19 +58,23 @@ export default defineLazyEventHandler(async () => {
   }) => {
     return async (state: typeof AgentState.State) => {
       consola.info('message length', state.messages.length)
-      const possibleDestinations = ['__end__', ...params.destinations] as const
+      const possibleDestinations = [NodeNames.ToolNode, ...params.destinations] as const
       const outputSchema = z.object({
         response: z.string().describe('A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user.'),
         goto: z.enum(possibleDestinations).describe('The next agent to call, must be one of the specified values.'),
       })
 
-      // const parser = StructuredOutputParser.fromZodSchema(outputSchema)
-      // const formatInstructions = parser.getFormatInstructions()
-      // const promptContent = `If you do not need to use a tool wrap the output in 'json' tags\n${formatInstructions}`
+      const parser = StructuredOutputParser.fromZodSchema(outputSchema)
+      const formatInstructions = parser.getFormatInstructions()
+      const promptContent = `If you do not need to use a tool wrap the output in 'json' tags\n${formatInstructions}`
 
-      // const modelWithTools = model.bindTools(params.tools, { configurable: { name: 'modelWithTools' } })
+      const modelWithTools = model.bindTools(params.tools)
 
       const messages = [
+        {
+          role: 'system',
+          content: promptContent,
+        },
         {
           role: 'system',
           content: params.systemPrompt,
@@ -77,39 +82,26 @@ export default defineLazyEventHandler(async () => {
         ...state.messages,
       ]
 
-      const response = await model.withStructuredOutput(outputSchema, { name: 'Response' }).invoke(messages, { tags: [modelTag] })
-      const aiMessage = {
-        role: 'assistant',
-        content: response.response,
-        name: params.name,
+      const result = await modelWithTools.invoke(messages, { tags: [modelTag] })
+      if (result.tool_calls && result.tool_calls.length) {
+        consola.info('got to call some tools')
       }
-      return new Command({
-        goto: response.goto,
-        update: {
-          messages: [aiMessage],
-          sender: params.name,
-        },
-      })
-      // const result = await modelWithTools.invoke(messages, { tags: [modelTag] })
-      // if (result.tool_calls && result.tool_calls.length) {
-      //   consola.info('got to call some tools')
-      // }
-      // else {
-      //   const response = await parser.invoke(result, runConfig)
-      //   const aiMessage = {
-      //     role: 'assistant',
-      //     content: response.response,
-      //     name: params.name,
-      //   }
-      //   consola.info('response.goto', response.goto)
-      //   return new Command({
-      //     goto: response.goto,
-      //     update: {
-      //       messages: aiMessage,
-      //       sender: name,
-      //     },
-      //   })
-      // }
+      else {
+        const response = await parser.invoke(result)
+        const aiMessage = {
+          role: 'assistant',
+          content: response.response,
+          name: params.name,
+        }
+        consola.info('response.goto', response.goto)
+        return new Command({
+          goto: response.goto,
+          update: {
+            messages: aiMessage,
+            sender: params.name,
+          },
+        })
+      }
     }
   }
 
@@ -130,7 +122,7 @@ export default defineLazyEventHandler(async () => {
   })
 
   function humanNode(state: typeof AgentState.State): Command {
-    consola.info('humanNode')
+    consola.info('humanNode messages', state.messages.length)
     const userInput: string = interrupt('Ready for user input.')
     consola.info('userInput', userInput)
     return new Command({
@@ -147,13 +139,13 @@ export default defineLazyEventHandler(async () => {
   }
 
   const builder = new StateGraph(AgentState)
-    .addNode('travelAdvisor', travelAdvisor, {
-      ends: ['humanNode'],
+    .addNode(NodeNames.TravelAdvisor, travelAdvisor, {
+      ends: [NodeNames.HumanNode],
     })
-    .addNode('humanNode', humanNode, {
-      ends: ['travelAdvisor'],
+    .addNode(NodeNames.HumanNode, humanNode, {
+      ends: [NodeNames.TravelAdvisor],
     })
-    .addEdge(START, 'travelAdvisor')
+    .addEdge(START, NodeNames.TravelAdvisor)
 
   const graph = builder.compile({ checkpointer })
 
