@@ -163,12 +163,13 @@ export default defineLazyEventHandler(async () => {
 
   const weatherAdvisor = makeAgent({
     name: NodeNames.WeatherAdvisor,
-    destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor],
+    destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
     tools: weatherToolKit.getTools(),
     systemPrompt: `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
     for a given destination and duration. After getting the weather forecast do not tell the user 
     the weather for each day, but tell the user what clothes to pack.  `
       + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
+      + ` Then use the \'weatherForecastTool\' to get the weather `
       + 'Talk to the user like a pirate and use pirate related emojis '
       + `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `,
   })
@@ -217,7 +218,7 @@ export default defineLazyEventHandler(async () => {
       ends: [NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
     })
     .addNode(NodeNames.WeatherAdvisor, weatherAdvisor, {
-      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor],
+      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
     })
     .addEdge(START, NodeNames.TravelAdvisor)
 
