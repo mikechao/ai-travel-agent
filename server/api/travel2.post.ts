@@ -1,7 +1,7 @@
 import type { AIMessage, AIMessageChunk } from '@langchain/core/messages'
 import type { RunnableConfig } from '@langchain/core/runnables'
 import type { StructuredToolInterface } from '@langchain/core/tools'
-import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
+import { BaseMessage, isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
 import { StructuredOutputParser } from '@langchain/core/output_parsers'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 import { RunnableBranch, RunnableLambda } from '@langchain/core/runnables'
@@ -57,8 +57,8 @@ export default defineLazyEventHandler(async () => {
     tools: StructuredToolInterface[]
   }) => {
     return async (state: typeof AgentState.State) => {
-      consola.info('message length', state.messages.length)
-      const possibleDestinations = [NodeNames.ToolNode, ...params.destinations] as const
+      consola.info(`${params.name} messages length ${state.messages.length}`)
+      const possibleDestinations = ['end', ...params.destinations] as const
       const outputSchema = z.object({
         response: z.string().describe('A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user.'),
         goto: z.enum(possibleDestinations).describe('The next agent to call, must be one of the specified values.'),
@@ -66,23 +66,25 @@ export default defineLazyEventHandler(async () => {
 
       const parser = StructuredOutputParser.fromZodSchema(outputSchema)
       const formatInstructions = parser.getFormatInstructions()
-      const promptContent = `If you do not need to use a tool wrap the output in 'json' tags\n${formatInstructions}`
 
       const modelWithTools = model.bindTools(params.tools)
-
+      const prompt = await ChatPromptTemplate.fromMessages([
+        [
+          'system',
+          'If no tool or tools need to be used you must wrap the output in `json` tags\n{format_instructions}',
+        ],
+        new MessagesPlaceholder('messages'),
+      ]).partial({
+        format_instructions: formatInstructions,
+      })
       const messages = [
-        {
-          role: 'system',
-          content: promptContent,
-        },
         {
           role: 'system',
           content: params.systemPrompt,
         },
         ...state.messages,
       ]
-
-      const result = await modelWithTools.invoke(messages, { tags: [modelTag] })
+      const result = await prompt.pipe(modelWithTools).invoke({ messages }, { tags: [modelTag] })
       if (result.tool_calls && result.tool_calls.length) {
         consola.info('got to call some tools')
         const toolMessages = []
@@ -110,8 +112,13 @@ export default defineLazyEventHandler(async () => {
           name: params.name,
         }
         consola.info('response.goto', response.goto)
+        let goto = response.goto
+        if (goto === 'end') {
+          goto = NodeNames.HumanNode
+        }
+        consola.info('goto', goto)
         return new Command({
-          goto: response.goto,
+          goto,
           update: {
             messages: aiMessage,
             sender: params.name,
