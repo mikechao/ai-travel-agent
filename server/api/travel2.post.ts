@@ -232,9 +232,10 @@ export default defineLazyEventHandler(async () => {
                 const aiMessageChunk = event.data.chunk as AIMessageChunk
                 if (aiMessageChunk.content.length) {
                   const content = aiMessageChunk.content as string
+                  const updatedContent = content.replace(/\n/g, '<br/>')
                   // we can filter the toolChunk to exclude the {response:... but it depends on
                   // how the model tokenizes and introduces overhead
-                  const part = formatDataStreamPart('text', content)
+                  const part = formatDataStreamPart('text', updatedContent)
                   controller.enqueue(encoder.encode(part))
                 }
               }
