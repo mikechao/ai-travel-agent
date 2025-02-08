@@ -179,10 +179,10 @@ export default defineLazyEventHandler(async () => {
           }
         }
         return new Command({
-          goto: state.sender,
+          goto: params.name,
           update: {
             messages: [aiMessage, ...toolMessages],
-            sender: '',
+            sender: 'toolCall',
           },
         })
       }
@@ -192,7 +192,7 @@ export default defineLazyEventHandler(async () => {
   const weatherAdvisor = makeAgent({
     name: NodeNames.WeatherAdvisor,
     destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
-    tools: weatherToolKit.getTools(),
+    tools: [ ...weatherToolKit.getTools()],
     systemPrompt: `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
     for a given destination and duration. After getting the weather forecast do not tell the user 
     the weather for each day, but tell the user what clothes to pack.  `
