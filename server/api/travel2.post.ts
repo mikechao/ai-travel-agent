@@ -1,5 +1,5 @@
 import type { AIMessage, AIMessageChunk } from '@langchain/core/messages'
-import type { StructuredToolInterface } from '@langchain/core/tools'
+import { tool, type StructuredToolInterface } from '@langchain/core/tools'
 import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
 import { StructuredOutputParser } from '@langchain/core/output_parsers'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
@@ -11,6 +11,7 @@ import { formatDataStreamPart } from 'ai'
 import consola from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
 import { z } from 'zod'
+import { TransferTools } from '../toolkits/TransferTools'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit } from '../toolkits/WeatherToolKit'
 
@@ -41,6 +42,19 @@ export default defineLazyEventHandler(async () => {
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
+  enum NodeNames {
+    TravelAdvisor = 'travelAdvisor',
+    HumanNode = 'humanNode',
+    WeatherAdvisor = 'weatherAdvisor',
+  }
+
+  const transferTools = new TransferTools()
+  const transferToolsByName = new Map<string, StructuredToolInterface>()
+  transferToolsByName.set(transferTools.getTransferToWeatherAdvisorTool().name, transferTools.getTransferToWeatherAdvisorTool())
+
+  const transferLocationByToolName = new Map<string, NodeNames>()
+  transferLocationByToolName.set(transferTools.getTransferToWeatherAdvisorTool().name, NodeNames.WeatherAdvisor)
+
   const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
   const weatherToolKit = new WeatherToolKit()
   const toolsByName = new Map<string, StructuredToolInterface>()
@@ -51,12 +65,6 @@ export default defineLazyEventHandler(async () => {
     runtimeConfig.postgresURL,
   )
   await checkpointer.setup()
-
-  enum NodeNames {
-    TravelAdvisor = 'travelAdvisor',
-    HumanNode = 'humanNode',
-    WeatherAdvisor = 'weatherAdvisor',
-  }
 
   const AgentState = Annotation.Root({
     ...MessagesAnnotation.spec,
@@ -139,6 +147,26 @@ export default defineLazyEventHandler(async () => {
       }
       else {
         const aiMessage = result.aiMessage
+        if (aiMessage.tool_calls && aiMessage.tool_calls.length === 1 && aiMessage.tool_calls[0].name.endsWith('Transfer')) {
+          consola.info('transfer tool used')
+          const toolCall = aiMessage.tool_calls[0]
+          const transferTool = transferToolsByName.get(toolCall.name)
+          if (!transferTool) {
+            throw new Error(`transferToolsByName is missing ${toolCall.name}`)
+          }
+          const transferLocation = transferLocationByToolName.get(toolCall.name)
+          if (!transferLocation) {
+            throw new Error(`transferLocationByToolName is missing ${toolCall.name}`)
+          }
+          const toolMessage = await transferTool.invoke(toolCall)
+          return new Command({
+            goto: transferLocation,
+            update: {
+              messages: [aiMessage, toolMessage],
+              sender: params.name
+            }
+          })
+        }
         const toolMessages = []
         if (aiMessage.tool_calls) {
           for (const toolCall of aiMessage.tool_calls) {
@@ -177,7 +205,7 @@ export default defineLazyEventHandler(async () => {
   const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
     destinations: [NodeNames.HumanNode, NodeNames.WeatherAdvisor],
-    tools: travelRecommendToolKit.getTools(),
+    tools: [transferTools.getTransferToWeatherAdvisorTool(), ...travelRecommendToolKit.getTools()],
     systemPrompt: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations 
        based on the user's interests by using all the tools and following all the Steps 1 through 4 provided to you `
       + ` Follow these steps to use the tools to help you recommend travel destinations based on user's interest `
