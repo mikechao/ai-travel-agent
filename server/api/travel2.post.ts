@@ -175,7 +175,7 @@ export default defineLazyEventHandler(async () => {
 
   const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
-    destinations: [NodeNames.HumanNode],
+    destinations: [NodeNames.HumanNode, NodeNames.WeatherAdvisor],
     tools: travelRecommendToolKit.getTools(),
     systemPrompt: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations 
        based on the user's interests by using all the tools and following all the Steps 1 through 4 provided to you `
