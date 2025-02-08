@@ -1,4 +1,4 @@
-import { StructuredTool, type StructuredToolInterface } from '@langchain/core/tools'
+import { StructuredTool } from '@langchain/core/tools'
 import consola from 'consola'
 import { z } from 'zod'
 import { GeocodeToolKit } from './GeocodeToolKit'
@@ -25,13 +25,10 @@ class WeatherSearchTool extends StructuredTool {
 }
 
 export class WeatherToolKit extends GeocodeToolKit {
-  tools: StructuredToolInterface[]
-
+  // this.tools do not need to define this, as it will
+  // shadow/overwrite the parent class
   constructor() {
     super()
-    this.tools = [
-      ...super.getTools(),
-      new WeatherSearchTool(),
-    ]
+    this.tools.push(new WeatherSearchTool())
   }
 }

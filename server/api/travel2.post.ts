@@ -12,6 +12,7 @@ import consola from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
 import { z } from 'zod'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
+import { WeatherToolKit } from '../toolkits/WeatherToolKit'
 
 interface ParsedOutput {
   response: string
@@ -41,8 +42,10 @@ export default defineLazyEventHandler(async () => {
   })
 
   const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
+  const weatherToolKit = new WeatherToolKit()
   const toolsByName = new Map<string, StructuredToolInterface>()
   travelRecommendToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
+  weatherToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
 
   const checkpointer = PostgresSaver.fromConnString(
     runtimeConfig.postgresURL,
