@@ -1,7 +1,9 @@
 import type { AIMessage, AIMessageChunk } from '@langchain/core/messages'
+import type { RunnableConfig } from '@langchain/core/runnables'
 import type { StructuredToolInterface } from '@langchain/core/tools'
 import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
 import { StructuredOutputParser } from '@langchain/core/output_parsers'
+import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 import { RunnableBranch, RunnableLambda } from '@langchain/core/runnables'
 import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph'
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
@@ -15,7 +17,7 @@ import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
 
-  const cache = await LocalFileCache.create()
+  const cache = await LocalFileCache.create('langchain-cache-travel')
   const modelTag = 'stream-out'
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
@@ -40,45 +42,33 @@ export default defineLazyEventHandler(async () => {
   enum NodeNames {
     TravelAdvisor = 'travelAdvisor',
     HumanNode = 'humanNode',
-    ToolNode = 'toolNode',
   }
-
-  const NodeNamesSchema = z.enum([
-    NodeNames.TravelAdvisor,
-    NodeNames.HumanNode,
-    NodeNames.ToolNode,
-  ])
 
   const AgentState = Annotation.Root({
     ...MessagesAnnotation.spec,
     sender: Annotation<string>(),
-    toolsToCall: Annotation<string>(),
-    toolArgs: Annotation<string>(),
   })
 
   const makeAgent = (params: {
     name: string
-    destinations: NodeNames[]
+    destinations: string[]
     systemPrompt: string
     tools: StructuredToolInterface[]
   }) => {
     return async (state: typeof AgentState.State) => {
-      const gotoSchema = NodeNamesSchema.refine(
-        val => params.destinations.includes(val),
-        {
-          message: `goto must be one of: ${params.destinations.join(', ')}`,
-        },
-      ).describe('The next agent to call, must be one of the specified values.')
-
+      consola.info('message length', state.messages.length)
+      const possibleDestinations = ['__end__', ...params.destinations] as const
       const outputSchema = z.object({
         response: z.string().describe('A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user.'),
-        goto: gotoSchema,
-        toolsToCall: z.string().describe('A comma separated list of tool names for tools that should be called'),
-        toolArgs: z.string().describe('A comma separated list of tool arguments'),
+        goto: z.enum(possibleDestinations).describe('The next agent to call, must be one of the specified values.'),
       })
 
-      const parser = StructuredOutputParser.fromZodSchema(outputSchema)
-      const modelWithTools = (params.tools.length) ? model.bindTools(params.tools) : model
+      // const parser = StructuredOutputParser.fromZodSchema(outputSchema)
+      // const formatInstructions = parser.getFormatInstructions()
+      // const promptContent = `If you do not need to use a tool wrap the output in 'json' tags\n${formatInstructions}`
+
+      // const modelWithTools = model.bindTools(params.tools, { configurable: { name: 'modelWithTools' } })
+
       const messages = [
         {
           role: 'system',
@@ -86,36 +76,8 @@ export default defineLazyEventHandler(async () => {
         },
         ...state.messages,
       ]
-      const toolRun = RunnableLambda.from<AIMessage, any>(async (input: AIMessage) => {
-        consola.info('execute tools here')
-        return input
-      })
-      const parseMessage = RunnableLambda.from<AIMessage, any>(async (input: AIMessage) => {
-        consola.info('parse the message here')
-        return input
-      })
-      const branch = RunnableBranch.from([
-        [
-          true,
-          toolRun,
-        ],
-        parseMessage,
-      ])
-      // const branch1 = RunnableBranch.from([
-      //   [
-      //     (x: { topic: string, question: string }) =>
-      //       x.topic.toLowerCase().includes('anthropic'),
-      //     anthropicChain,
-      //   ],
-      //   [
-      //     (x: { topic: string, question: string }) =>
-      //       x.topic.toLowerCase().includes('langchain'),
-      //     langChainChain,
-      //   ],
-      //   generalChain,
-      // ])
-      const response = await modelWithTools.pipe(parser).invoke(messages, { tags: [modelTag] })
 
+      const response = await model.withStructuredOutput(outputSchema, { name: 'Response' }).invoke(messages, { tags: [modelTag] })
       const aiMessage = {
         role: 'assistant',
         content: response.response,
@@ -124,18 +86,36 @@ export default defineLazyEventHandler(async () => {
       return new Command({
         goto: response.goto,
         update: {
-          messages: aiMessage,
-          sender: name,
-          toolsToCall: response.toolsToCall,
-          toolArgs: response.toolArgs,
+          messages: [aiMessage],
+          sender: params.name,
         },
       })
+      // const result = await modelWithTools.invoke(messages, { tags: [modelTag] })
+      // if (result.tool_calls && result.tool_calls.length) {
+      //   consola.info('got to call some tools')
+      // }
+      // else {
+      //   const response = await parser.invoke(result, runConfig)
+      //   const aiMessage = {
+      //     role: 'assistant',
+      //     content: response.response,
+      //     name: params.name,
+      //   }
+      //   consola.info('response.goto', response.goto)
+      //   return new Command({
+      //     goto: response.goto,
+      //     update: {
+      //       messages: aiMessage,
+      //       sender: name,
+      //     },
+      //   })
+      // }
     }
   }
 
   const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
-    destinations: [NodeNames.HumanNode, NodeNames.ToolNode],
+    destinations: [NodeNames.HumanNode],
     tools: travelRecommendToolKit.getTools(),
     systemPrompt: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations 
        based on the user's interests by using all the tools and following all the Steps 1 through 4 provided to you `
@@ -152,7 +132,7 @@ export default defineLazyEventHandler(async () => {
   function humanNode(state: typeof AgentState.State): Command {
     consola.info('humanNode')
     const userInput: string = interrupt('Ready for user input.')
-
+    consola.info('userInput', userInput)
     return new Command({
       goto: state.sender,
       update: {
@@ -166,34 +146,14 @@ export default defineLazyEventHandler(async () => {
     })
   }
 
-  // async function callTools(state: typeof AgentState.State): Promise<Command> {
-  //   consola.info('callTools node')
-  //   const tools: StructuredToolInterface[]
-  //   = (state.toolsToCall)
-  //     ? state.toolsToCall.split(',')
-  //         .map(name => toolsByName.get(name))
-  //         .filter(tool => tool !== undefined)
-  //     : []
-
-  //   if (tools.length) {
-  //     const toolArgs = state.toolArgs.split(',')
-  //     const toolMessages = []
-  //   }
-
-  //   console.error(`No tools to call for ${state.sender}`)
-  //   return new Command({
-  //     goto: state.sender,
-  //   })
-  // }
-
   const builder = new StateGraph(AgentState)
-    .addNode(NodeNames.TravelAdvisor, travelAdvisor, {
-      ends: [NodeNames.HumanNode],
+    .addNode('travelAdvisor', travelAdvisor, {
+      ends: ['humanNode'],
     })
-    .addNode(NodeNames.HumanNode, humanNode, {
-      ends: [NodeNames.TravelAdvisor],
+    .addNode('humanNode', humanNode, {
+      ends: ['travelAdvisor'],
     })
-    .addEdge(START, NodeNames.TravelAdvisor)
+    .addEdge(START, 'travelAdvisor')
 
   const graph = builder.compile({ checkpointer })
 
@@ -203,7 +163,7 @@ export default defineLazyEventHandler(async () => {
     consola.info('\nReceived request sessionId', sessionId)
 
     const lastMessage = messages[0]
-    consola.debug('lastMessage', lastMessage.content)
+    consola.info('lastMessage', lastMessage.content)
 
     const initMessage = {
       messages: [
