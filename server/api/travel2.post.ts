@@ -55,7 +55,7 @@ export default defineLazyEventHandler(async () => {
   enum NodeNames {
     TravelAdvisor = 'travelAdvisor',
     HumanNode = 'humanNode',
-    ToolNode = 'toolNode',
+    WeatherAdvisor = 'weatherAdvisor',
   }
 
   const AgentState = Annotation.Root({
@@ -161,6 +161,18 @@ export default defineLazyEventHandler(async () => {
     }
   }
 
+  const weatherAdvisor = makeAgent({
+    name: NodeNames.WeatherAdvisor,
+    destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor],
+    tools: weatherToolKit.getTools(),
+    systemPrompt: `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
+    for a given destination and duration. After getting the weather forecast do not tell the user 
+    the weather for each day, but tell the user what clothes to pack.  `
+      + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
+      + 'Talk to the user like a pirate and use pirate related emojis '
+      + `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `,
+  })
+
   const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
     destinations: [NodeNames.HumanNode],
@@ -174,7 +186,10 @@ export default defineLazyEventHandler(async () => {
       + ` Step 3. Use the user selected search query and the \'searchExecutionTool\' to execute travel destination search queries on the internet,
           present the results of this tool to the user `
       + ` Step 4. When the user select a title or url use the \'searchSummaryTool\' to generate a summary and present the results to the user`
-      + ` Be sure to bark a lot and use dog related emojis `,
+      + ` Be sure to bark a lot and use dog related emojis `
+      + `If you need weather forecast and clothing to pack, ask \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help`
+      + `Feel free to mention the other agents by name, but call them your colleagues or a synonym
+         like partner, coworker, buddy, associate.`,
   })
 
   function humanNode(state: typeof AgentState.State): Command {
@@ -196,10 +211,13 @@ export default defineLazyEventHandler(async () => {
 
   const builder = new StateGraph(AgentState)
     .addNode(NodeNames.TravelAdvisor, travelAdvisor, {
-      ends: [NodeNames.HumanNode],
+      ends: [NodeNames.HumanNode, NodeNames.WeatherAdvisor],
     })
     .addNode(NodeNames.HumanNode, humanNode, {
-      ends: [NodeNames.TravelAdvisor],
+      ends: [NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
+    })
+    .addNode(NodeNames.WeatherAdvisor, weatherAdvisor, {
+      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor],
     })
     .addEdge(START, NodeNames.TravelAdvisor)
 
