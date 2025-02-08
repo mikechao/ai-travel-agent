@@ -91,7 +91,7 @@ export default defineLazyEventHandler(async () => {
           if (!tool) {
             throw new Error(`tool not found! for toolCall ${toolCall}`)
           }
-          const toolMessage = tool.invoke(toolCall)
+          const toolMessage = await tool.invoke(toolCall)
           toolMessages.push(toolMessage)
         }
         return new Command({
