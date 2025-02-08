@@ -85,6 +85,22 @@ export default defineLazyEventHandler(async () => {
       const result = await modelWithTools.invoke(messages, { tags: [modelTag] })
       if (result.tool_calls && result.tool_calls.length) {
         consola.info('got to call some tools')
+        const toolMessages = []
+        for (const toolCall of result.tool_calls) {
+          const tool = params.tools.find(t => t.name === toolCall.name)
+          if (!tool) {
+            throw new Error(`tool not found! for toolCall ${toolCall}`)
+          }
+          const toolMessage = tool.invoke(toolCall)
+          toolMessages.push(toolMessage)
+        }
+        return new Command({
+          goto: state.sender,
+          update: {
+            messages: [result, ...toolMessages],
+            sender: '',
+          },
+        })
       }
       else {
         const response = await parser.invoke(result)
