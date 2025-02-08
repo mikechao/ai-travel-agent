@@ -60,7 +60,7 @@ export default defineLazyEventHandler(async () => {
       consola.info(`${params.name} messages length ${state.messages.length}`)
       const possibleDestinations = ['end', ...params.destinations] as const
       const outputSchema = z.object({
-        response: z.string().describe('A human readable response to the original question. Does not need to be a final response. Will be streamed back to the user.'),
+        response: z.string().describe(`A human readable response to the original question or the AI's response to a tool message. Will be streamed back to the user.`),
         goto: z.enum(possibleDestinations).describe('The next agent to call, must be one of the specified values.'),
       })
 
