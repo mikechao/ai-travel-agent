@@ -1,6 +1,6 @@
 import type { AIMessage, AIMessageChunk } from '@langchain/core/messages'
 import type { StructuredToolInterface } from '@langchain/core/tools'
-import { isAIMessage, isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
+import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
 import { StructuredOutputParser } from '@langchain/core/output_parsers'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 import { RunnableLambda } from '@langchain/core/runnables'
@@ -60,7 +60,7 @@ export default defineLazyEventHandler(async () => {
     sender: Annotation<string>(),
   })
 
-  function makeAgent2(params: {
+  function makeAgent(params: {
     name: string
     destinations: string[]
     systemPrompt: string
@@ -158,85 +158,7 @@ export default defineLazyEventHandler(async () => {
     }
   }
 
-  const makeAgent = (params: {
-    name: string
-    destinations: string[]
-    systemPrompt: string
-    tools: StructuredToolInterface[]
-  }) => {
-    return async (state: typeof AgentState.State) => {
-      consola.info(`${params.name} messages length ${state.messages.length}`)
-      const possibleDestinations = ['end', ...params.destinations] as const
-      const outputSchema = z.object({
-        response: z.string().describe(`A human readable response to the original question or the AI's response to a tool message. Will be streamed back to the user.`),
-        goto: z.enum(possibleDestinations).describe('The next agent to call, must be one of the specified values.'),
-      })
-
-      const parser = StructuredOutputParser.fromZodSchema(outputSchema)
-      const formatInstructions = parser.getFormatInstructions()
-
-      const modelWithTools = model.bindTools(params.tools)
-      const prompt = await ChatPromptTemplate.fromMessages([
-        [
-          'system',
-          'If no tool or tools need to be used you must wrap the output in `json` tags\n{format_instructions}',
-        ],
-        new MessagesPlaceholder('messages'),
-      ]).partial({
-        format_instructions: formatInstructions,
-      })
-      const messages = [
-        {
-          role: 'system',
-          content: params.systemPrompt,
-        },
-        ...state.messages,
-      ]
-      const result = await prompt.pipe(modelWithTools).invoke({ messages }, { tags: [modelTag] })
-      if (result.tool_calls && result.tool_calls.length) {
-        consola.info('got to call some tools')
-        const toolMessages = []
-        for (const toolCall of result.tool_calls) {
-          const tool = params.tools.find(t => t.name === toolCall.name)
-          if (!tool) {
-            throw new Error(`tool not found! for toolCall ${toolCall}`)
-          }
-          const toolMessage = await tool.invoke(toolCall)
-          toolMessages.push(toolMessage)
-        }
-        return new Command({
-          goto: state.sender,
-          update: {
-            messages: [result, ...toolMessages],
-            sender: '',
-          },
-        })
-      }
-      else {
-        const response = await parser.invoke(result)
-        const aiMessage = {
-          role: 'assistant',
-          content: response.response,
-          name: params.name,
-        }
-        consola.info('response.goto', response.goto)
-        let goto = response.goto
-        if (goto === 'end') {
-          goto = NodeNames.HumanNode
-        }
-        consola.info('goto', goto)
-        return new Command({
-          goto,
-          update: {
-            messages: aiMessage,
-            sender: params.name,
-          },
-        })
-      }
-    }
-  }
-
-  const travelAdvisor = makeAgent2({
+  const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
     destinations: [NodeNames.HumanNode],
     tools: travelRecommendToolKit.getTools(),
