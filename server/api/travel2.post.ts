@@ -1,8 +1,8 @@
 import type { AIMessage, AIMessageChunk } from '@langchain/core/messages'
 import type { RunnableConfig } from '@langchain/core/runnables'
 import type { StructuredToolInterface } from '@langchain/core/tools'
-import { BaseMessage, isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
-import { StructuredOutputParser } from '@langchain/core/output_parsers'
+import { BaseMessage, isAIMessage, isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
+import { JsonOutputParser, StructuredOutputParser } from '@langchain/core/output_parsers'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 import { RunnableBranch, RunnableLambda } from '@langchain/core/runnables'
 import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph'
@@ -12,6 +12,7 @@ import { formatDataStreamPart } from 'ai'
 import consola from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
 import { z } from 'zod'
+import { zodToJsonSchema } from 'zod-to-json-schema'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 
 export default defineLazyEventHandler(async () => {
@@ -49,6 +50,100 @@ export default defineLazyEventHandler(async () => {
     ...MessagesAnnotation.spec,
     sender: Annotation<string>(),
   })
+
+  function makeAgent2(params: {
+    name: string
+    destinations: string[]
+    systemPrompt: string
+    tools: StructuredToolInterface[]
+  }) {
+    return async (state: typeof AgentState.State) => {
+      consola.info(`${params.name} messages length ${state.messages.length}`)
+      const possibleDestinations = ['end', ...params.destinations] as const
+      const outputSchema = z.object({
+        response: z.string().describe(`A human readable response to the original question or the AI's response to a tool message. Will be streamed back to the user.`),
+        goto: z.enum(possibleDestinations).describe('The next agent to call, must be one of the specified values.'),
+      })
+      const parser = StructuredOutputParser.fromZodSchema(outputSchema)
+
+      const modelWithTools = model.bindTools(params.tools)
+
+      const messages = [
+        {
+          role: 'system',
+          content: params.systemPrompt,
+        },
+        ...state.messages,
+      ]
+
+      const prompt = await ChatPromptTemplate.fromMessages([
+        [
+          'system',
+          'Answer the user query. Wrap the output in `json` tags\n{format_instructions}',
+        ],
+        new MessagesPlaceholder('messages'),
+      ]).partial({
+        format_instructions: parser.getFormatInstructions(),
+      })
+
+      const handleOutput = async (output: AIMessage) => {
+        const text = output.content as string
+        if (text.length) {
+          const pattern = /```json(.*?)```/gs
+          const matches = text.match(pattern)
+          if (matches && matches.length) {
+            consola.info('found json to parse')
+            const result = await parser.parse(matches[0])
+            return result
+          }
+          else {
+            consola.info('no json to parse')
+            // previous message was a ToolMessage
+            return { response: text, goto: NodeNames.HumanNode }
+          }
+        }
+        consola.info('AIMessage.content has no length')
+        return output
+      }
+
+      const chain = prompt.pipe(modelWithTools).pipe(new RunnableLambda({ func: handleOutput }))
+      const result = await chain.invoke({ messages }, { tags: [modelTag] })
+      if ('content' in result && isAIMessage(result)) {
+        const toolMessages = []
+        if (result.tool_calls) {
+          for (const toolCall of result.tool_calls) {
+            const tool = params.tools.find(t => t.name === toolCall.name)
+            if (!tool) {
+              throw new Error(`tool not found! for toolCall ${toolCall}`)
+            }
+            const toolMessage = await tool.invoke(toolCall)
+            toolMessages.push(toolMessage)
+          }
+        }
+        return new Command({
+          goto: state.sender,
+          update: {
+            messages: [result, ...toolMessages],
+            sender: '',
+          },
+        })
+      }
+      else if ('response' in result && 'goto' in result) {
+        // Handle parsed result case
+        return new Command({
+          goto: result.goto === 'end' ? NodeNames.HumanNode : result.goto,
+          update: {
+            messages: {
+              role: 'assistant',
+              content: result.response,
+              name: params.name,
+            },
+            sender: params.name,
+          },
+        })
+      }
+    }
+  }
 
   const makeAgent = (params: {
     name: string
@@ -128,7 +223,7 @@ export default defineLazyEventHandler(async () => {
     }
   }
 
-  const travelAdvisor = makeAgent({
+  const travelAdvisor = makeAgent2({
     name: NodeNames.TravelAdvisor,
     destinations: [NodeNames.HumanNode],
     tools: travelRecommendToolKit.getTools(),
