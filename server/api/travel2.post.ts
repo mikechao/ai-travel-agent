@@ -13,6 +13,17 @@ import { LocalFileCache } from 'langchain/cache/file_system'
 import { z } from 'zod'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 
+interface ParsedOutput {
+  response: string
+  goto: string
+}
+
+interface LLMOutput {
+  parsedOutput: ParsedOutput
+  aiMessage: AIMessage
+  hasParsedOutput: boolean
+}
+
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
 
@@ -92,24 +103,42 @@ export default defineLazyEventHandler(async () => {
           if (matches && matches.length) {
             consola.info('found json to parse')
             const result = await parser.parse(matches[0])
-            return result
+            const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: result, aiMessage: output }
+            return llmOutput
           }
           else {
             consola.info('no json to parse')
             // previous message was a ToolMessage
-            return { response: text, goto: NodeNames.HumanNode }
+            const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: { response: text, goto: NodeNames.HumanNode }, aiMessage: output }
+            return llmOutput
           }
         }
+        // should be a tool call
         consola.info('AIMessage.content has no length')
-        return output
+        return { hasParsedOutput: false, parsedOutput: { response: '', goto: '' }, aiMessage: output }
       }
 
       const chain = prompt.pipe(modelWithTools).pipe(new RunnableLambda({ func: handleOutput }))
       const result = await chain.invoke({ messages }, { tags: [modelTag] })
-      if ('content' in result && isAIMessage(result)) {
+      if (result.hasParsedOutput) {
+        const parsedOutput = result.parsedOutput
+        return new Command({
+          goto: parsedOutput.goto === 'end' ? NodeNames.HumanNode : parsedOutput.goto,
+          update: {
+            messages: {
+              role: 'assistant',
+              content: parsedOutput.response,
+              name: params.name,
+            },
+            sender: params.name,
+          },
+        })
+      }
+      else {
+        const aiMessage = result.aiMessage
         const toolMessages = []
-        if (result.tool_calls) {
-          for (const toolCall of result.tool_calls) {
+        if (aiMessage.tool_calls) {
+          for (const toolCall of aiMessage.tool_calls) {
             const tool = params.tools.find(t => t.name === toolCall.name)
             if (!tool) {
               throw new Error(`tool not found! for toolCall ${toolCall}`)
@@ -121,22 +150,8 @@ export default defineLazyEventHandler(async () => {
         return new Command({
           goto: state.sender,
           update: {
-            messages: [result, ...toolMessages],
+            messages: [aiMessage, ...toolMessages],
             sender: '',
-          },
-        })
-      }
-      else if ('response' in result && 'goto' in result) {
-        // Handle parsed result case
-        return new Command({
-          goto: result.goto === 'end' ? NodeNames.HumanNode : result.goto,
-          update: {
-            messages: {
-              role: 'assistant',
-              content: result.response,
-              name: params.name,
-            },
-            sender: params.name,
           },
         })
       }
