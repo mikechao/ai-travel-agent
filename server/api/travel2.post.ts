@@ -187,8 +187,8 @@ export default defineLazyEventHandler(async () => {
           present the results of this tool to the user `
       + ` Step 4. When the user select a title or url use the \'searchSummaryTool\' to generate a summary and present the results to the user`
       + ` Be sure to bark a lot and use dog related emojis `
-      + `If you need weather forecast and clothing to pack, ask \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help`
-      + `Feel free to mention the other agents by name, but call them your colleagues or a synonym
+      + ` If you need weather forecast and clothing to pack, ask \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help`
+      + ` Feel free to mention the other agents by name, but call them your colleagues or a synonym
          like partner, coworker, buddy, associate.`,
   })
 
