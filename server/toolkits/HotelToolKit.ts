@@ -21,7 +21,7 @@ class HotelSearchTool extends StructuredTool {
   })
 
   protected async _call({ lat, long, searchQuery, radius = 10 }: { lat: number, long: number, searchQuery: string, radius?: number }) {
-    consola.debug({ tag: 'hotelSearchTool', message: `hotelSearchTool called with lat: ${lat}, long: ${long}, searchQuery: ${searchQuery}, radius: ${radius}` })
+    consola.debug({ tag: 'hotelSearchTool', message: `called with lat: ${lat}, long: ${long}, searchQuery: ${searchQuery}, radius: ${radius}` })
     const locationSearchURL = new URL('https://api.content.tripadvisor.com/api/v1/location/search')
     locationSearchURL.searchParams.set('key', `${runtimeConfig.tripAdvisorAPIKey}`)
     locationSearchURL.searchParams.set('searchQuery', searchQuery)
@@ -49,9 +49,40 @@ class HotelSearchTool extends StructuredTool {
   }
 }
 
+class HotelReviewsTool extends StructuredTool {
+  name = 'hotelReviewsTool'
+  description = 'Used to get hotel reviews, needs location_id from hotelSearchTool '
+  schema = z.object({
+    locationId: z.string().describe('The location_id from previous results of the tool named hotelSearchTool'),
+  })
+
+  protected async _call({ locationId }: { locationId: string }) {
+    consola.debug({ tag: 'hotelReviewsTool', message: `called with locationId: ${locationId}` })
+    const reviewsURL = new URL(`https://api.content.tripadvisor.com/api/v1/location/${locationId}/reviews`)
+    reviewsURL.searchParams.set('key', `${runtimeConfig.tripAdvisorAPIKey}`)
+    consola.debug({ tag: 'hotelReviewsTool', message: `reviewsURL ${reviewsURL.toString()}` })
+    try {
+      const response = await $fetch(reviewsURL.toString(), {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+        },
+      })
+      return JSON.stringify(response)
+    }
+    catch (error) {
+      consola.error('error fetching hotel reviews', error)
+      return 'Error fetching hotel reviews'
+    }
+  }
+}
+
 export class HotelToolKit extends GeocodeToolKit {
   constructor() {
     super()
-    this.tools.push(new HotelSearchTool())
+    this.tools.push(
+      new HotelSearchTool(),
+      new HotelReviewsTool(),
+    )
   }
 }
