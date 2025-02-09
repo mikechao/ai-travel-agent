@@ -78,12 +78,42 @@ class SightDetailsTool extends StructuredTool {
   }
 }
 
+class SightsReviewTool extends StructuredTool {
+  name = 'sightsReviewsTool'
+  description = 'Used to get sights or attractions reviews, needs location_id from sightseeingSearchTool'
+  schema = z.object({
+    locationId: z.string().describe('The location_id from previous results of the tool named sightseeingSearchTool'),
+  })
+
+  protected async _call({ locationId }: { locationId: string }) {
+    consola.debug({ tag: 'sightsReviewsTool', message: `called with locationId: ${locationId}` })
+    const reviewsURL = new URL(`https://api.content.tripadvisor.com/api/v1/location/${locationId}/reviews`)
+    reviewsURL.searchParams.set('key', `${runtimeConfig.tripAdvisorAPIKey}`)
+    consola.debug({ tag: 'sightsReviewsTool', message: `reviewsURL ${reviewsURL.toString()}` })
+
+    try {
+      const response = await $fetch(reviewsURL.toString(), {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+        },
+      })
+      return JSON.stringify(response)
+    }
+    catch (error) {
+      consola.error('error fetching sights reviews', error)
+      return 'Error fetching sights reviews'
+    }
+  }
+}
+
 export class SightseeingToolKit extends GeocodeToolKit {
   constructor() {
     super()
     this.tools.push(
       new SightSeeingSearchTool(),
       new SightDetailsTool(),
+      new SightsReviewTool(),
     )
   }
 }
