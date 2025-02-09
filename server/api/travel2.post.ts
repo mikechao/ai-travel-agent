@@ -213,7 +213,7 @@ export default defineLazyEventHandler(async () => {
   const hotelAdvisor = makeAgent({
     name: NodeNames.HotelAdvisor,
     destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
-    tools: [...hotelToolKit.getTools()],
+    tools: [...transferTools.getToolsForHotelAdvisor(), ...hotelToolKit.getTools()],
     systemPrompt: `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `
       + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
       + ` Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, 
@@ -227,8 +227,8 @@ export default defineLazyEventHandler(async () => {
 
   const weatherAdvisor = makeAgent({
     name: NodeNames.WeatherAdvisor,
-    destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
-    tools: [transferTools.getTransferToTravelAdvisor(), ...weatherToolKit.getTools()],
+    destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
+    tools: [...transferTools.getToolsForWeatherAdvisor(), ...weatherToolKit.getTools()],
     systemPrompt: `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
     for a given destination and duration. After getting the weather forecast do not tell the user 
     the weather for each day, but tell the user what clothes to pack.  `
@@ -241,8 +241,8 @@ export default defineLazyEventHandler(async () => {
 
   const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
-    destinations: [NodeNames.HumanNode, NodeNames.WeatherAdvisor],
-    tools: [transferTools.getTransferToWeatherAdvisor(), ...travelRecommendToolKit.getTools()],
+    destinations: [NodeNames.HumanNode, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
+    tools: [...transferTools.getToolsForTravelAdvisor(), ...travelRecommendToolKit.getTools()],
     systemPrompt: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations 
        based on the user's interests by using all the tools and following all the Steps 1 through 4 provided to you `
       + ` Follow these steps to use the tools to help you recommend travel destinations based on user's interest `

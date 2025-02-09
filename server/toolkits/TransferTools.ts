@@ -69,12 +69,12 @@ export class TransferTools {
     return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
   }
 
-  getTransferToWeatherAdvisor() {
-    return this.transferToWeatherAdvisor
+  getToolsForWeatherAdvisor(): StructuredTool[] {
+    return [this.transferToTravelAdvisor, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
   }
 
-  getTransferToTravelAdvisor() {
-    return this.transferToTravelAdvisor
+  getToolsForTravelAdvisor(): StructuredTool[] {
+    return [this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
   }
 
   getTransferToolsByName() {
