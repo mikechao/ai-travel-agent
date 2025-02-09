@@ -15,15 +15,14 @@ class GeocodeTool extends StructuredTool {
 
   protected async _call(input: { location: string }) {
     const location = input.location
-    consola.info(`geocodeTool call for ${location}`)
+    consola.debug({tag: 'geocodeTool', message: `geocodeTool call for ${location}`})
     const data = await opencage.geocode({ q: `${location}`, key: `${runtimeConfig.opencageAPIKey}` })
     const place = data.results[0]
-    consola.log('place.geometry', place.geometry)
     const result = {
       location: place.formatted,
       ...place.geometry,
     }
-    consola.log('result', result)
+    consola.debug({tag: 'geocodeTool', message: `result ${result}`})
     return JSON.stringify(result)
   }
 }

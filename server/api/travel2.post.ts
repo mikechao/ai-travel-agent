@@ -118,14 +118,14 @@ export default defineLazyEventHandler(async () => {
             return llmOutput
           }
           else {
-            consola.debug({tag: 'handleOutput', message: 'no json to parse'})
+            consola.debug({tag: 'handleOutput', message: 'previous message was probably a ToolMessage, no json to parse'})
             // previous message was a ToolMessage
             const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: { response: text, goto: NodeNames.HumanNode }, aiMessage: output }
             return llmOutput
           }
         }
         // should be a tool call
-        consola.debug({tag: 'handleOutput', message: 'AIMessage.content has no length'})
+        consola.debug({tag: 'handleOutput', message: 'Should be tool call, AIMessage.content has no length'})
         return { hasParsedOutput: false, parsedOutput: { response: '', goto: '' }, aiMessage: output }
       }
 
@@ -148,7 +148,7 @@ export default defineLazyEventHandler(async () => {
       else {
         const aiMessage = result.aiMessage
         if (aiMessage.tool_calls && aiMessage.tool_calls.length === 1 && aiMessage.tool_calls[0].name.endsWith('Transfer')) {
-          consola.info('transfer tool used')
+          consola.debug({tag:'transferTool', message: 'transferTool found'})
           const toolCall = aiMessage.tool_calls[0]
           const transferTool = transferToolsByName.get(toolCall.name)
           if (!transferTool) {
@@ -158,6 +158,7 @@ export default defineLazyEventHandler(async () => {
           if (!transferLocation) {
             throw new Error(`transferLocationByToolName is missing ${toolCall.name}`)
           }
+          consola.debug({tag: 'transferTool', message: `From ${params.name} To ${transferLocation}`})
           const toolMessage = await transferTool.invoke(toolCall)
           return new Command({
             goto: transferLocation,
