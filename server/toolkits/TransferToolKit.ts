@@ -51,9 +51,9 @@ class TransferToHotelAdvisor extends StructuredTool {
 
 export class TransferToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
-  transferToWeatherAdvisor: StructuredTool
-  transferToTravelAdvisor: StructuredTool
-  transferToHotelAdvisor: StructuredTool
+  private readonly transferToWeatherAdvisor: StructuredTool
+  private readonly transferToTravelAdvisor: StructuredTool
+  private readonly transferToHotelAdvisor: StructuredTool
 
   constructor() {
     super()
