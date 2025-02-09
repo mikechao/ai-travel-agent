@@ -123,28 +123,34 @@ export default defineLazyEventHandler(async () => {
   const hotelAdvisor = makeAgent({
     name: NodeNames.HotelAdvisor,
     tools: [...transferTools.getToolsForHotelAdvisor(), ...hotelToolKit.getTools()],
-    systemPrompt: `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `
-      + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
-      + ` Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, 
-          tell the user you can get more details or a summary of reviews by other humans `
-      + ' The \'hotelReviewsTool\' can give you reviews provided by other people for you to summarize for the user '
-      + `When talking to the user be friendly, warm and playful with a sense of humor`
-      + `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `
-      + `If you need weather forecast and clothing to pack, ask \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help `
-      + 'Feel free to mention other agents by name, but call them synonyms of colleagues',
+    // @format:off
+    systemPrompt: [
+      `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `,
+      `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
+      `Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, tell the user you can get more details or a summary of reviews by other humans `,
+      'The \'hotelReviewsTool\' can give you reviews provided by other people for you to summarize for the user ',
+      `When talking to the user be friendly, warm and playful with a sense of humor `,
+      `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `,
+      `If you need weather forecast and clothing to pack, ask \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help `,
+      'Feel free to mention other agents by name, but call them synonyms of colleagues',
+    ].join('\n'),
+    // @format:on
   })
 
   const weatherAdvisor = makeAgent({
     name: NodeNames.WeatherAdvisor,
     tools: [...transferTools.getToolsForWeatherAdvisor(), ...weatherToolKit.getTools()],
-    systemPrompt: `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
-    for a given destination and duration. After getting the weather forecast do not tell the user 
-    the weather for each day, but tell the user what clothes to pack.  `
-      + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
-      + ` Then use the \'weatherForecastTool\' to get the weather `
-      + 'Talk to the user like a pirate and use pirate related emojis '
-      + `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `
-      + `If you need hotel recommendations, ask \'${NodeNames.HotelAdvisor}\' named Penny Restmore for help. `,
+    // @format:off
+    systemPrompt: [
+      `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast for a given destination and duration. `,
+      `After getting the weather forecast do not tell the user the weather for each day, but tell the user what clothes to pack.  `,
+      `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
+      `Then use the \'weatherForecastTool\' to get the weather `,
+      'Talk to the user like a pirate and use pirate related emojis ',
+      `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `,
+      `If you need hotel recommendations, ask \'${NodeNames.HotelAdvisor}\' named Penny Restmore for help. `,
+    ].join('\n'),
+    // @format:on
   })
 
   const travelAdvisor = makeAgent({
