@@ -223,7 +223,7 @@ export default defineLazyEventHandler(async () => {
     const input = isInitMessage(lastMessage) ? initMessage : new Command({ resume: lastMessage.content })
     const encoder = new TextEncoder()
     const config = { version: 'v2' as const, configurable: { thread_id: sessionId } }
-    const tags = [modelTag, toolTag, WeatherToolTags.WeatherSearch]
+    const tags = [modelTag, toolTag]
     return new ReadableStream({
       async start(controller) {
         try {
