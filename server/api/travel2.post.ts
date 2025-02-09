@@ -41,6 +41,7 @@ export default defineLazyEventHandler(async () => {
   })
 
   const embeddings = new OpenAIEmbeddings({
+    model: 'text-embedding-3-small',
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
