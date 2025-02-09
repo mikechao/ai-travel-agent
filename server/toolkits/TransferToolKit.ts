@@ -100,14 +100,14 @@ export class TransferToolKit extends BaseToolkit {
   }
 
   getToolsForHotelAdvisor(): StructuredTool[] {
-    return [this.transferToHuman, this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
+    return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
   }
 
   getToolsForWeatherAdvisor(): StructuredTool[] {
-    return [this.transferToHuman, this.transferToTravelAdvisor, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+    return [this.transferToTravelAdvisor, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
   }
 
   getToolsForTravelAdvisor(): StructuredTool[] {
-    return [this.transferToHuman, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+    return [this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
   }
 }
