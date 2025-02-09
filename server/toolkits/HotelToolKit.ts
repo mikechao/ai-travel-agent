@@ -3,6 +3,11 @@ import consola from 'consola'
 import { z } from 'zod'
 import { GeocodeToolKit } from './GeocodeToolKit'
 
+export const HotelToolTags = {
+  HotelSearch: 'hotel-search',
+  HotelDetails: 'hotel-details',
+} as const
+
 const runtimeConfig = useRuntimeConfig()
 
 interface LocationSearchResult {
@@ -107,6 +112,7 @@ class HotelDetailsTool extends StructuredTool {
 }
 
 export class HotelToolKit extends GeocodeToolKit {
+  private toolTags: Map<string, string>
   constructor() {
     super()
     this.tools.push(
@@ -114,5 +120,12 @@ export class HotelToolKit extends GeocodeToolKit {
       new HotelReviewsTool(),
       new HotelDetailsTool(),
     )
+    this.toolTags = new Map<string, string>()
+    this.toolTags.set('hotelSearchTool', HotelToolTags.HotelSearch)
+    this.toolTags.set('hotelDetailsTool', HotelToolTags.HotelDetails)
+  }
+
+  getToolTags(): Map<string, string> {
+    return this.toolTags
   }
 }
