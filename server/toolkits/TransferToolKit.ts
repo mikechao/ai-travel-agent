@@ -55,7 +55,6 @@ export class TransferToolKit extends BaseToolkit {
   transferToTravelAdvisor: StructuredTool
   transferToHotelAdvisor: StructuredTool
   transferToolsByName: Map<string, StructuredTool>
-  transferLocationByToolName: Map<string, NodeNames>
 
   constructor() {
     super()
@@ -73,11 +72,6 @@ export class TransferToolKit extends BaseToolkit {
     this.transferToolsByName.set(this.transferToWeatherAdvisor.name, this.transferToWeatherAdvisor)
     this.transferToolsByName.set(this.transferToTravelAdvisor.name, this.transferToTravelAdvisor)
     this.transferToolsByName.set(this.transferToHotelAdvisor.name, this.transferToHotelAdvisor)
-
-    this.transferLocationByToolName = new Map<string, NodeNames>()
-    this.transferLocationByToolName.set(this.transferToWeatherAdvisor.name, NodeNames.WeatherAdvisor)
-    this.transferLocationByToolName.set(this.transferToTravelAdvisor.name, NodeNames.TravelAdvisor)
-    this.transferLocationByToolName.set(this.transferToHotelAdvisor.name, NodeNames.HotelAdvisor)
   }
 
   getToolsForHotelAdvisor(): StructuredTool[] {
