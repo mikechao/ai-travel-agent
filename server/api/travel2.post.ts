@@ -112,20 +112,20 @@ export default defineLazyEventHandler(async () => {
           const pattern = /```json(.*?)```/gs
           const matches = text.match(pattern)
           if (matches && matches.length) {
-            consola.info('found json to parse')
+            consola.debug({tag: 'handleOutput', message: 'found json to parse'})
             const result = await parser.parse(matches[0])
             const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: result, aiMessage: output }
             return llmOutput
           }
           else {
-            consola.info('no json to parse')
+            consola.debug({tag: 'handleOutput', message: 'no json to parse'})
             // previous message was a ToolMessage
             const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: { response: text, goto: NodeNames.HumanNode }, aiMessage: output }
             return llmOutput
           }
         }
         // should be a tool call
-        consola.info('AIMessage.content has no length')
+        consola.debug({tag: 'handleOutput', message: 'AIMessage.content has no length'})
         return { hasParsedOutput: false, parsedOutput: { response: '', goto: '' }, aiMessage: output }
       }
 
