@@ -1,5 +1,5 @@
 import type { AIMessage, AIMessageChunk, ToolMessage } from '@langchain/core/messages'
-import {  type StructuredToolInterface } from '@langchain/core/tools'
+import type { StructuredToolInterface } from '@langchain/core/tools'
 import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
 import { StructuredOutputParser } from '@langchain/core/output_parsers'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
@@ -8,14 +8,14 @@ import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph }
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
-import { consola }from 'consola'
+import { consola } from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
+import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
+import { NodeNames } from '~/types/enums'
 import { TransferTools } from '../toolkits/TransferTools'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit } from '../toolkits/WeatherToolKit'
-import { v4 as uuidv4 } from 'uuid'
-import { NodeNames } from '~/types/enums'
 
 interface ParsedOutput {
   response: string
@@ -38,7 +38,7 @@ export default defineLazyEventHandler(async () => {
     model: 'gpt-4o-mini',
     temperature: 0.6,
     apiKey: runtimeConfig.openaiAPIKey,
-    cache
+    cache,
   })
 
   const embeddings = new OpenAIEmbeddings({
@@ -111,20 +111,20 @@ export default defineLazyEventHandler(async () => {
           const pattern = /```json(.*?)```/gs
           const matches = text.match(pattern)
           if (matches && matches.length) {
-            consola.debug({tag: 'handleOutput', message: 'found json to parse'})
+            consola.debug({ tag: 'handleOutput', message: 'found json to parse' })
             const result = await parser.parse(matches[0])
             const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: result, aiMessage: output }
             return llmOutput
           }
           else {
-            consola.debug({tag: 'handleOutput', message: 'previous message was probably a ToolMessage, no json to parse'})
+            consola.debug({ tag: 'handleOutput', message: 'previous message was probably a ToolMessage, no json to parse' })
             // previous message was a ToolMessage
             const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: { response: text, goto: NodeNames.HumanNode }, aiMessage: output }
             return llmOutput
           }
         }
         // should be a tool call
-        consola.debug({tag: 'handleOutput', message: 'Should be tool call, AIMessage.content has no length'})
+        consola.debug({ tag: 'handleOutput', message: 'Should be tool call, AIMessage.content has no length' })
         return { hasParsedOutput: false, parsedOutput: { response: '', goto: '' }, aiMessage: output }
       }
 
@@ -147,7 +147,7 @@ export default defineLazyEventHandler(async () => {
       else {
         const aiMessage = result.aiMessage
         if (aiMessage.tool_calls && aiMessage.tool_calls.length === 1 && aiMessage.tool_calls[0].name.endsWith('Transfer')) {
-          consola.debug({tag:'transferTool', message: 'transferTool found'})
+          consola.debug({ tag: 'transferTool', message: 'transferTool found' })
           const toolCall = aiMessage.tool_calls[0]
           const transferTool = transferToolsByName.get(toolCall.name)
           if (!transferTool) {
@@ -157,14 +157,14 @@ export default defineLazyEventHandler(async () => {
           if (!transferLocation) {
             throw new Error(`transferLocationByToolName is missing ${toolCall.name}`)
           }
-          consola.debug({tag: 'transferTool', message: `From ${params.name} To ${transferLocation}`})
+          consola.debug({ tag: 'transferTool', message: `From ${params.name} To ${transferLocation}` })
           const toolMessage = await transferTool.invoke(toolCall)
           return new Command({
             goto: transferLocation,
             update: {
               messages: [aiMessage, toolMessage],
-              sender: params.name
-            }
+              sender: params.name,
+            },
           })
         }
         const toolMessages = []
@@ -179,7 +179,7 @@ export default defineLazyEventHandler(async () => {
             if (tag) {
               tags.push(tag)
             }
-            const toolMessage = await tool.invoke(toolCall, {tags})
+            const toolMessage = await tool.invoke(toolCall, { tags })
             toolMessages.push(toolMessage)
           }
         }
@@ -284,10 +284,9 @@ export default defineLazyEventHandler(async () => {
                 const aiMessageChunk = event.data.chunk as AIMessageChunk
                 if (aiMessageChunk.content.length) {
                   const content = aiMessageChunk.content as string
-                  const updatedContent = content.replace(/\n/g, '<br/>')
                   // we can filter the toolChunk to exclude the {response:... but it depends on
                   // how the model tokenizes and introduces overhead
-                  const part = formatDataStreamPart('text', updatedContent)
+                  const part = formatDataStreamPart('text', content)
                   controller.enqueue(encoder.encode(part))
                 }
               }
