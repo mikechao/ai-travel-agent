@@ -103,12 +103,4 @@ export class TransferTools extends BaseToolkit {
   getToolsForTravelAdvisor(): StructuredTool[] {
     return [this.transferToHuman, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
   }
-
-  getTransferToolsByName() {
-    return this.transferToolsByName
-  }
-
-  getTransferLocationByToolName() {
-    return this.transferLocationByToolName
-  }
 }
