@@ -12,7 +12,7 @@ class TransferToWeatherAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: 'weatherAdvisorTransfer', message: `called with ${JSON.stringify(input.agent)}` })
-    return `Successfully transferred to ${input.agent}`
+    return NodeNames.WeatherAdvisor
   }
 }
 
@@ -25,7 +25,7 @@ class TransferToTravelAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: 'travelAdvisorTransfer', message: `called with ${JSON.stringify(input.agent)}` })
-    return `Successfully transferred to ${input.agent}`
+    return NodeNames.TravelAdvisor
   }
 }
 
@@ -38,7 +38,20 @@ class TransferToHotelAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: 'hotelAdvisorTransfer', message: `called with ${JSON.stringify(input.agent)}` })
-    return `Successfully transferred to ${input.agent}`
+    return NodeNames.HotelAdvisor
+  }
+}
+
+class TransferToHuman extends StructuredTool {
+  name = 'humanTransfer'
+  description = `Gets input from the user, human, by transferring to the \'${NodeNames.HumanNode}\' node`
+  schema = z.object({
+    args: z.any(),
+  })
+
+  protected async _call(input: { args: any }) {
+    consola.debug({ tags: 'humanTransfer', message: `called with ${JSON.stringify(input)}` })
+    return NodeNames.HumanNode
   }
 }
 
@@ -46,6 +59,7 @@ export class TransferTools {
   transferToWeatherAdvisor: StructuredTool
   transferToTravelAdvisor: StructuredTool
   transferToHotelAdvisor: StructuredTool
+  transferToHuman: StructuredTool
   transferToolsByName: Map<string, StructuredTool>
   transferLocationByToolName: Map<string, NodeNames>
 
@@ -53,28 +67,31 @@ export class TransferTools {
     this.transferToWeatherAdvisor = new TransferToWeatherAdvisor()
     this.transferToTravelAdvisor = new TransferToTravelAdvisor()
     this.transferToHotelAdvisor = new TransferToHotelAdvisor()
+    this.transferToHuman = new TransferToHuman()
 
     this.transferToolsByName = new Map<string, StructuredTool>()
     this.transferToolsByName.set(this.transferToWeatherAdvisor.name, this.transferToWeatherAdvisor)
     this.transferToolsByName.set(this.transferToTravelAdvisor.name, this.transferToTravelAdvisor)
     this.transferToolsByName.set(this.transferToHotelAdvisor.name, this.transferToHotelAdvisor)
+    this.transferToolsByName.set(this.transferToHuman.name, this.transferToHuman)
 
     this.transferLocationByToolName = new Map<string, NodeNames>()
     this.transferLocationByToolName.set(this.transferToWeatherAdvisor.name, NodeNames.WeatherAdvisor)
     this.transferLocationByToolName.set(this.transferToTravelAdvisor.name, NodeNames.TravelAdvisor)
     this.transferLocationByToolName.set(this.transferToHotelAdvisor.name, NodeNames.HotelAdvisor)
+    this.transferLocationByToolName.set(this.transferToHuman.name, NodeNames.HumanNode)
   }
 
   getToolsForHotelAdvisor(): StructuredTool[] {
-    return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
+    return [this.transferToHuman, this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
   }
 
   getToolsForWeatherAdvisor(): StructuredTool[] {
-    return [this.transferToTravelAdvisor, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+    return [this.transferToHuman, this.transferToTravelAdvisor, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
   }
 
   getToolsForTravelAdvisor(): StructuredTool[] {
-    return [this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+    return [this.transferToHuman, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
   }
 
   getTransferToolsByName() {
