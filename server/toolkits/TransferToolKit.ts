@@ -8,7 +8,6 @@ export const TransferToolNames = {
   HotelTransfer: 'hotelAdvisorTransfer',
   TravelTransfer: 'travelAdvisorTransfer',
   WeatherTransfer: 'weatherAdvisorTransfer',
-  HumanTransfer: 'humanTransfer',
 } as const
 
 class TransferToWeatherAdvisor extends StructuredTool {
@@ -50,25 +49,11 @@ class TransferToHotelAdvisor extends StructuredTool {
   }
 }
 
-class TransferToHuman extends StructuredTool {
-  name = TransferToolNames.HumanTransfer
-  description = `Gets input from the user, human, by transferring to the \'${NodeNames.HumanNode}\' node`
-  schema = z.object({
-    args: z.any(),
-  })
-
-  protected async _call(input: { args: any }) {
-    consola.debug({ tags: TransferToolNames.HumanTransfer, message: `called with ${JSON.stringify(input)}` })
-    return NodeNames.HumanNode
-  }
-}
-
 export class TransferToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
   transferToWeatherAdvisor: StructuredTool
   transferToTravelAdvisor: StructuredTool
   transferToHotelAdvisor: StructuredTool
-  transferToHuman: StructuredTool
   transferToolsByName: Map<string, StructuredTool>
   transferLocationByToolName: Map<string, NodeNames>
 
@@ -77,26 +62,22 @@ export class TransferToolKit extends BaseToolkit {
     this.transferToWeatherAdvisor = new TransferToWeatherAdvisor()
     this.transferToTravelAdvisor = new TransferToTravelAdvisor()
     this.transferToHotelAdvisor = new TransferToHotelAdvisor()
-    this.transferToHuman = new TransferToHuman()
 
     this.tools = [
       this.transferToWeatherAdvisor,
       this.transferToTravelAdvisor,
       this.transferToHotelAdvisor,
-      this.transferToHuman,
     ]
 
     this.transferToolsByName = new Map<string, StructuredTool>()
     this.transferToolsByName.set(this.transferToWeatherAdvisor.name, this.transferToWeatherAdvisor)
     this.transferToolsByName.set(this.transferToTravelAdvisor.name, this.transferToTravelAdvisor)
     this.transferToolsByName.set(this.transferToHotelAdvisor.name, this.transferToHotelAdvisor)
-    this.transferToolsByName.set(this.transferToHuman.name, this.transferToHuman)
 
     this.transferLocationByToolName = new Map<string, NodeNames>()
     this.transferLocationByToolName.set(this.transferToWeatherAdvisor.name, NodeNames.WeatherAdvisor)
     this.transferLocationByToolName.set(this.transferToTravelAdvisor.name, NodeNames.TravelAdvisor)
     this.transferLocationByToolName.set(this.transferToHotelAdvisor.name, NodeNames.HotelAdvisor)
-    this.transferLocationByToolName.set(this.transferToHuman.name, NodeNames.HumanNode)
   }
 
   getToolsForHotelAdvisor(): StructuredTool[] {
