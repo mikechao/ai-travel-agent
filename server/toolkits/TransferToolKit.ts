@@ -68,15 +68,16 @@ export class TransferToolKit extends BaseToolkit {
     ]
   }
 
-  getToolsForHotelAdvisor(): StructuredTool[] {
-    return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
-  }
-
-  getToolsForWeatherAdvisor(): StructuredTool[] {
-    return [this.transferToTravelAdvisor, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
-  }
-
-  getToolsForTravelAdvisor(): StructuredTool[] {
-    return [this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+  public getTransferTool(nodeName: NodeNames) {
+    switch (nodeName) {
+      case NodeNames.WeatherAdvisor:
+        return [this.transferToTravelAdvisor, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+      case NodeNames.HotelAdvisor:
+        return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
+      case NodeNames.TravelAdvisor:
+        return [this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+      default:
+        throw new Error(`No transfer tools for ${nodeName}`)
+    }
   }
 }

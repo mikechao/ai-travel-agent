@@ -122,7 +122,7 @@ export default defineLazyEventHandler(async () => {
 
   const hotelAdvisor = makeAgent({
     name: NodeNames.HotelAdvisor,
-    tools: [...transferTools.getToolsForHotelAdvisor(), ...hotelToolKit.getTools()],
+    tools: [...transferTools.getTransferTool(NodeNames.HotelAdvisor), ...hotelToolKit.getTools()],
     // @format:off
     systemPrompt: [
       `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `,
@@ -139,7 +139,7 @@ export default defineLazyEventHandler(async () => {
 
   const weatherAdvisor = makeAgent({
     name: NodeNames.WeatherAdvisor,
-    tools: [...transferTools.getToolsForWeatherAdvisor(), ...weatherToolKit.getTools()],
+    tools: [...transferTools.getTransferTool(NodeNames.WeatherAdvisor), ...weatherToolKit.getTools()],
     // @format:off
     systemPrompt: [
       `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast for a given destination and duration. `,
@@ -155,7 +155,7 @@ export default defineLazyEventHandler(async () => {
 
   const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
-    tools: [...transferTools.getToolsForTravelAdvisor(), ...travelRecommendToolKit.getTools()],
+    tools: [...transferTools.getTransferTool(NodeNames.TravelAdvisor), ...travelRecommendToolKit.getTools()],
     // @format: off
     systemPrompt: [
       `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations based on the user's interests by using all the tools and following all the Steps 1 through 4 provided to you `,
