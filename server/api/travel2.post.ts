@@ -58,6 +58,7 @@ export default defineLazyEventHandler(async () => {
   travelRecommendToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
   weatherToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
   hotelToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
+  transferTools.getTools().map(tool => toolsByName.set(tool.name, tool))
 
   const toolTagsByToolName = new Map<string, string>()
   weatherToolKit.getToolTags().forEach((tag, toolName) => {
@@ -85,13 +86,6 @@ export default defineLazyEventHandler(async () => {
   }) {
     return async (state: typeof AgentState.State) => {
       consola.info(`${params.name} messages length ${state.messages.length}`)
-      const possibleDestinations = ['end', ...params.destinations] as const
-      const outputSchema = z.object({
-        response: z.string().describe(`A human readable response to the original question or the AI's response to a tool message. Will be streamed back to the user.`),
-        goto: z.enum(possibleDestinations).describe('The next agent to call, must be one of the specified values.'),
-      })
-      const parser = StructuredOutputParser.fromZodSchema(outputSchema)
-
       const modelWithTools = model.bindTools(params.tools)
 
       const messages = [
@@ -102,111 +96,41 @@ export default defineLazyEventHandler(async () => {
         ...state.messages,
       ]
 
-      const prompt = await ChatPromptTemplate.fromMessages([
-        [
-          'system',
-          `Answer the user query. Do not wrap tool arguments or tool calls  
-          Only wrap the message content in \`json\` tags\n{format_instructions}`,
-        ],
-        new MessagesPlaceholder('messages'),
-      ]).partial({
-        format_instructions: parser.getFormatInstructions(),
-      })
-
-      const handleOutput = async (output: AIMessage) => {
-        const text = output.content as string
-        if (text.length) {
-          const pattern = /```json(.*?)```/gs
-          const matches = text.match(pattern)
-          if (matches && matches.length) {
-            consola.debug({ tag: 'handleOutput', message: 'found json to parse' })
-            try {
-              const result = await parser.parse(matches[0])
-              const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: result, aiMessage: output }
-              consola.debug({ tag: 'handleOutput', message: 'parsed successfully' })
-              return llmOutput
-            }
-            catch (error) {
-              consola.error(`Error parsing output ${error}\n ${text}`)
-              const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: { response: text, goto: params.name }, aiMessage: output }
-              return llmOutput
-            }
+      const aiMessage = await modelWithTools.invoke(messages, { tags: [modelTag] })
+      if (aiMessage.tool_calls && aiMessage.tool_calls.length) {
+        let transferToolGoTo = ''
+        consola.debug({ tag: `${params.name}-tool`, message: `Got ${aiMessage.tool_calls.length} tool calls` })
+        const toolMessages = []
+        for (const toolCall of aiMessage.tool_calls) {
+          const tool = toolsByName.get(toolCall.name)
+          if (!tool) {
+            throw new Error(`No tool for ${toolCall.name}`)
           }
-          else {
-            consola.debug({ tag: 'handleOutput', message: 'previous message was probably a ToolMessage, no json to parse' })
-            // previous message was a ToolMessage
-            const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: { response: text, goto: NodeNames.HumanNode }, aiMessage: output }
-            return llmOutput
+          consola.debug({ tag: `${params.name}-tool`, message: `Calling tool ${tool.name}` })
+          const toolMessage = await tool.invoke(toolCall)
+          toolMessages.push(toolMessage)
+          if (toolCall.name.endsWith('Transfer')) {
+            transferToolGoTo = toolMessage.content
           }
         }
-        // should be a tool call
-        consola.debug({ tag: 'handleOutput', message: 'Should be tool call, AIMessage.content has no length' })
-        return { hasParsedOutput: false, parsedOutput: { response: '', goto: '' }, aiMessage: output }
-      }
-
-      const chain = prompt.pipe(modelWithTools).pipe(new RunnableLambda({ func: handleOutput }))
-      const result = await chain.invoke({ messages }, { tags: [modelTag] })
-      if (result.hasParsedOutput) {
-        const parsedOutput = result.parsedOutput
+        const goto = transferToolGoTo.length ? transferToolGoTo : params.name
+        consola.debug({ tag: `${params.name}-tool`, message: `goto ${goto}` })
         return new Command({
-          goto: parsedOutput.goto === 'end' ? NodeNames.HumanNode : parsedOutput.goto,
+          goto,
           update: {
-            messages: {
-              role: 'assistant',
-              content: parsedOutput.response,
-              name: params.name,
-            },
+            messages: [aiMessage, ...toolMessages],
             sender: params.name,
           },
         })
       }
-      else {
-        const aiMessage = result.aiMessage
-        if (aiMessage.tool_calls && aiMessage.tool_calls.length === 1 && aiMessage.tool_calls[0].name.endsWith('Transfer')) {
-          consola.debug({ tag: 'transferTool', message: 'transferTool found' })
-          const toolCall = aiMessage.tool_calls[0]
-          const transferTool = transferToolsByName.get(toolCall.name)
-          if (!transferTool) {
-            throw new Error(`transferToolsByName is missing ${toolCall.name}`)
-          }
-          const transferLocation = transferLocationByToolName.get(toolCall.name)
-          if (!transferLocation) {
-            throw new Error(`transferLocationByToolName is missing ${toolCall.name}`)
-          }
-          consola.debug({ tag: 'transferTool', message: `From ${params.name} To ${transferLocation}` })
-          const toolMessage = await transferTool.invoke(toolCall)
-          return new Command({
-            goto: transferLocation,
-            update: {
-              messages: [aiMessage, toolMessage],
-              sender: params.name,
-            },
-          })
-        }
-        const toolMessages = []
-        if (aiMessage.tool_calls) {
-          for (const toolCall of aiMessage.tool_calls) {
-            const tool = params.tools.find(t => t.name === toolCall.name)
-            if (!tool) {
-              throw new Error(`tool not found! for toolCall ${toolCall}`)
-            }
-            const tags = [toolTag]
-            const tag = toolTagsByToolName.get(tool.name)
-            if (tag) {
-              tags.push(tag)
-            }
-            const toolMessage = await tool.invoke(toolCall, { tags })
-            toolMessages.push(toolMessage)
-          }
-        }
-        return new Command({
-          goto: params.name,
-          update: {
-            messages: [aiMessage, ...toolMessages],
-            sender: 'toolCall',
-          },
-        })
-      }
+      consola.debug({ tag: `${params.name}`, message: 'going to human node' })
+      return new Command({
+        goto: NodeNames.HumanNode,
+        update: {
+          messages: [aiMessage],
+          sender: params.name,
+        },
+      })
     }
   }
 
