@@ -12,7 +12,7 @@ export const TransferToolNames = {
 
 class TransferToWeatherAdvisor extends StructuredTool {
   name = TransferToolNames.WeatherTransfer
-  description = 'Provides weather forecasts and clothing to pack advice by transferring to the \'weatherAdvisor\' named Petey the Pirate'
+  description = 'Provides weather forecasts and clothing to pack advice by transferring to the agent named Petey the Pirate'
   schema = z.object({
     agent: z.any(),
   })
@@ -25,7 +25,7 @@ class TransferToWeatherAdvisor extends StructuredTool {
 
 class TransferToTravelAdvisor extends StructuredTool {
   name = TransferToolNames.TravelTransfer
-  description = `Provides travel destinations recommendations by transferring to the agent \'travelAdvisor\' named Pluto the Pup`
+  description = `Provides travel destinations recommendations by transferring to the agent named Pluto the Pup`
   schema = z.object({
     agent: z.any(),
   })
@@ -38,7 +38,7 @@ class TransferToTravelAdvisor extends StructuredTool {
 
 class TransferToHotelAdvisor extends StructuredTool {
   name = TransferToolNames.HotelTransfer
-  description = `Provides hotel recommendations, search and details by transferring to the agent \'${NodeNames.HotelAdvisor}' named Penny Restmore`
+  description = `Provides hotel recommendations, search and details by transferring to the agent named Penny Restmore`
   schema = z.object({
     agent: z.any(),
   })
