@@ -88,8 +88,13 @@ export default defineLazyEventHandler(async () => {
           if (!tool) {
             throw new Error(`No tool for ${toolCall.name}`)
           }
+          const toolTags: string[] = [toolTag]
+          const tag = toolTagsByToolName.get(tool.name)
+          if (tag) {
+            toolTags.push(tag)
+          }
           consola.debug({ tag: `${params.name}-tool`, message: `Calling tool ${tool.name}` })
-          const toolMessage = await tool.invoke(toolCall)
+          const toolMessage = await tool.invoke(toolCall, { tags: toolTags })
           toolMessages.push(toolMessage)
           if (toolCall.name.endsWith('Transfer')) {
             transferToolGoTo = toolMessage.content
