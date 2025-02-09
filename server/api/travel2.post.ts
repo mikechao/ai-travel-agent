@@ -53,9 +53,11 @@ export default defineLazyEventHandler(async () => {
   const transferTools = new TransferTools()
   const transferToolsByName = new Map<string, StructuredToolInterface>()
   transferToolsByName.set(transferTools.getTransferToWeatherAdvisorTool().name, transferTools.getTransferToWeatherAdvisorTool())
+  transferToolsByName.set(transferTools.getTransferToTravelAdvisor().name, transferTools.getTransferToTravelAdvisor())
 
   const transferLocationByToolName = new Map<string, NodeNames>()
   transferLocationByToolName.set(transferTools.getTransferToWeatherAdvisorTool().name, NodeNames.WeatherAdvisor)
+  transferLocationByToolName.set(transferTools.getTransferToTravelAdvisor().name, NodeNames.TravelAdvisor)
 
   const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
   const weatherToolKit = new WeatherToolKit()
@@ -204,7 +206,7 @@ export default defineLazyEventHandler(async () => {
   const weatherAdvisor = makeAgent({
     name: NodeNames.WeatherAdvisor,
     destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
-    tools: [ ...weatherToolKit.getTools()],
+    tools: [transferTools.getTransferToTravelAdvisor(), ...weatherToolKit.getTools()],
     systemPrompt: `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast 
     for a given destination and duration. After getting the weather forecast do not tell the user 
     the weather for each day, but tell the user what clothes to pack.  `

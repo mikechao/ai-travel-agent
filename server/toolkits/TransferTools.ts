@@ -15,13 +15,32 @@ class TransferToWeatherAdvisor extends StructuredTool {
   }
 }
 
+class TransferToTravelAdvisor extends StructuredTool {
+  name = 'travelAdvisorTransfer'
+  description = `Provides travel destinations recommendations by transferring to the agent \'travelAdvisor\' named Pluto the Pup`
+  schema = z.object({
+    agent: z.any()
+  })
+  protected async _call(input: {agent: any}) {
+    consola.debug({tag: 'travelAdvisorTransfer', message: `called with ${input.agent}`})
+    return `Successfully transferred to ${input.agent}`
+  }
+}
+
 export class TransferTools {
   transferToWeatherAdvisor: StructuredTool
+  transferToTravelAdvisor: StructuredTool
+
   constructor() {
     this.transferToWeatherAdvisor = new TransferToWeatherAdvisor()
+    this.transferToTravelAdvisor = new TransferToTravelAdvisor()
   }
 
   getTransferToWeatherAdvisorTool() {
     return this.transferToWeatherAdvisor
+  }
+
+  getTransferToTravelAdvisor() {
+    return this.transferToTravelAdvisor
   }
 }
