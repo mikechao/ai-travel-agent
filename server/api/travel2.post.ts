@@ -10,6 +10,7 @@ import { LocalFileCache } from 'langchain/cache/file_system'
 import { v4 as uuidv4 } from 'uuid'
 import { NodeNames } from '~/types/enums'
 import { HotelToolKit, HotelToolTags } from '../toolkits/HotelToolKit'
+import { SightseeingToolKit } from '../toolkits/SightseeingToolKit'
 import { TransferToolKit, TransferToolNames } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
@@ -36,17 +37,22 @@ export default defineLazyEventHandler(async () => {
   const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
   const weatherToolKit = new WeatherToolKit()
   const hotelToolKit = new HotelToolKit()
+  const sightseeingToolKit = new SightseeingToolKit()
   const toolsByName = new Map<string, StructuredToolInterface>()
   travelRecommendToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
   weatherToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
   hotelToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
   transferTools.getTools().map(tool => toolsByName.set(tool.name, tool))
+  sightseeingToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
 
   const toolTagsByToolName = new Map<string, string>()
   weatherToolKit.getToolTags().forEach((tag, toolName) => {
     toolTagsByToolName.set(toolName, tag)
   })
   hotelToolKit.getToolTags().forEach((tag, toolName) => {
+    toolTagsByToolName.set(toolName, tag)
+  })
+  sightseeingToolKit.getToolTags().forEach((tag, toolName) => {
     toolTagsByToolName.set(toolName, tag)
   })
 
