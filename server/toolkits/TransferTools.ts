@@ -1,6 +1,7 @@
 import { StructuredTool } from '@langchain/core/tools'
 import consola from 'consola'
 import { z } from 'zod'
+import { NodeNames } from '~/types/enums'
 
 enum TransferToolName {
   WeatherAdvisorTransfer = 'weatherAdvisorTransfer',
@@ -36,6 +37,7 @@ export class TransferTools {
   transferToWeatherAdvisor: StructuredTool
   transferToTravelAdvisor: StructuredTool
   transferToolsByName: Map<string, StructuredTool>
+  transferLocationByToolName: Map<string, NodeNames>
 
   constructor() {
     this.transferToWeatherAdvisor = new TransferToWeatherAdvisor()
@@ -43,6 +45,9 @@ export class TransferTools {
     this.transferToolsByName = new Map<string, StructuredTool>()
     this.transferToolsByName.set(this.transferToWeatherAdvisor.name, this.transferToWeatherAdvisor)
     this.transferToolsByName.set(this.transferToTravelAdvisor.name, this.transferToTravelAdvisor)
+    this.transferLocationByToolName = new Map<string, NodeNames>()
+    this.transferLocationByToolName.set(this.transferToWeatherAdvisor.name, NodeNames.WeatherAdvisor)
+    this.transferLocationByToolName.set(this.transferToTravelAdvisor.name, NodeNames.TravelAdvisor)
   }
 
   getTransferToWeatherAdvisor() {
@@ -55,5 +60,9 @@ export class TransferTools {
 
   getTransferToolsByName() {
     return this.transferToolsByName
+  }
+
+  getTransferLocationByToolName() {
+    return this.transferLocationByToolName
   }
 }

@@ -15,6 +15,7 @@ import { TransferTools } from '../toolkits/TransferTools'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit } from '../toolkits/WeatherToolKit'
 import { v4 as uuidv4 } from 'uuid'
+import { NodeNames } from '~/types/enums'
 
 interface ParsedOutput {
   response: string
@@ -45,18 +46,9 @@ export default defineLazyEventHandler(async () => {
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
-  enum NodeNames {
-    TravelAdvisor = 'travelAdvisor',
-    HumanNode = 'humanNode',
-    WeatherAdvisor = 'weatherAdvisor',
-  }
-
   const transferTools = new TransferTools()
   const transferToolsByName = transferTools.getTransferToolsByName()
-
-  const transferLocationByToolName = new Map<string, NodeNames>()
-  transferLocationByToolName.set(transferTools.getTransferToWeatherAdvisor().name, NodeNames.WeatherAdvisor)
-  transferLocationByToolName.set(transferTools.getTransferToTravelAdvisor().name, NodeNames.TravelAdvisor)
+  const transferLocationByToolName = transferTools.getTransferLocationByToolName()
 
   const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
   const weatherToolKit = new WeatherToolKit()
