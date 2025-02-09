@@ -15,7 +15,7 @@ import { z } from 'zod'
 import { NodeNames } from '~/types/enums'
 import { TransferTools } from '../toolkits/TransferTools'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
-import { WeatherToolKit } from '../toolkits/WeatherToolKit'
+import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
 
 interface ParsedOutput {
   response: string
@@ -56,9 +56,10 @@ export default defineLazyEventHandler(async () => {
   travelRecommendToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
   weatherToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
 
-  const weatherToolTag = 'weather-tool'
   const toolTagsByToolName = new Map<string, string>()
-  toolTagsByToolName.set(weatherToolKit.getWeatherSearchTool().name, weatherToolTag)
+  weatherToolKit.getToolTags().forEach((tag, toolName) => {
+    toolTagsByToolName.set(toolName, tag)
+  })
 
   const checkpointer = PostgresSaver.fromConnString(
     runtimeConfig.postgresURL,
@@ -98,7 +99,8 @@ export default defineLazyEventHandler(async () => {
       const prompt = await ChatPromptTemplate.fromMessages([
         [
           'system',
-          'Answer the user query. Wrap the output in `json` tags\n{format_instructions}',
+          `Answer the user query. Do not wrap tool arguments or tool calls  
+          Only wrap the message content in \`json\` tags\n{format_instructions}`,
         ],
         new MessagesPlaceholder('messages'),
       ]).partial({
@@ -112,9 +114,17 @@ export default defineLazyEventHandler(async () => {
           const matches = text.match(pattern)
           if (matches && matches.length) {
             consola.debug({ tag: 'handleOutput', message: 'found json to parse' })
-            const result = await parser.parse(matches[0])
-            const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: result, aiMessage: output }
-            return llmOutput
+            try {
+              const result = await parser.parse(matches[0])
+              const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: result, aiMessage: output }
+              consola.debug({ tag: 'handleOutput', message: 'parsed successfully' })
+              return llmOutput
+            }
+            catch (error) {
+              consola.error(`Error parsing output ${error}\n ${text}`)
+              const llmOutput: LLMOutput = { hasParsedOutput: true, parsedOutput: { response: text, goto: params.name }, aiMessage: output }
+              return llmOutput
+            }
           }
           else {
             consola.debug({ tag: 'handleOutput', message: 'previous message was probably a ToolMessage, no json to parse' })
@@ -274,7 +284,7 @@ export default defineLazyEventHandler(async () => {
     const input = isInitMessage(lastMessage) ? initMessage : new Command({ resume: lastMessage.content })
     const encoder = new TextEncoder()
     const config = { version: 'v2' as const, configurable: { thread_id: sessionId } }
-    const tags = [modelTag, toolTag, weatherToolTag]
+    const tags = [modelTag, toolTag, WeatherToolTags.WeatherSearch]
     return new ReadableStream({
       async start(controller) {
         try {
@@ -295,7 +305,7 @@ export default defineLazyEventHandler(async () => {
               if (event.data.output && (event.data.output as ToolMessage).content.length) {
                 const content = (event.data.output as ToolMessage).content as string
                 const id = uuidv4()
-                if (event.tags.includes(weatherToolTag)) {
+                if (event.tags.includes(WeatherToolTags.WeatherSearch)) {
                   // 2 will send it to data from useChat
                   // 8 will send it to message.annotations on the client side
                   const part = `2:[{"id":"${id}","type":"weather","data":${content}}]\n`
