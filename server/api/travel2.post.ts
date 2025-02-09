@@ -37,7 +37,7 @@ export default defineLazyEventHandler(async () => {
     model: 'gpt-4o-mini',
     temperature: 0.6,
     apiKey: runtimeConfig.openaiAPIKey,
-    cache,
+    cache
   })
 
   const embeddings = new OpenAIEmbeddings({
@@ -228,7 +228,7 @@ export default defineLazyEventHandler(async () => {
           present the results of this tool to the user `
       + ` Step 4. When the user select a title or url use the \'searchSummaryTool\' to generate a summary and present the results to the user`
       + ` Be sure to bark a lot and use dog related emojis `
-      + ` If you need weather forecast and clothing to pack, ask \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help`
+      + ` If you need weather forecast and clothing to pack, ask the agent \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help`
       + ` Feel free to mention the other agents by name, but call them your colleagues or a synonym
          like partner, coworker, buddy, associate.`,
   })
@@ -275,7 +275,7 @@ export default defineLazyEventHandler(async () => {
     const initMessage = {
       messages: [
         new SystemMessage({ id: 'initMessage', name: 'initMessage', content: `Use the tools and agents you have to figure out what to ask the user.
-            Introduce yourself and give the user a summary of your skills and knowledge in a list format.` }),
+            Introduce yourself and give the user a summary of your skills and the other agents in a list format.` }),
       ],
     }
     const input = isInitMessage(lastMessage) ? initMessage : new Command({ resume: lastMessage.content })
