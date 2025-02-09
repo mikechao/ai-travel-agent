@@ -27,8 +27,14 @@ class WeatherSearchTool extends StructuredTool {
 export class WeatherToolKit extends GeocodeToolKit {
   // this.tools do not need to define this, as it will
   // shadow/overwrite the parent class
+  weatherSearchTool: StructuredTool 
   constructor() {
     super()
-    this.tools.push(new WeatherSearchTool())
+    this.weatherSearchTool = new WeatherSearchTool()
+    this.tools.push(this.weatherSearchTool)
+  }
+
+  getWeatherSearchTool() {
+    return this.weatherSearchTool
   }
 }

@@ -1,5 +1,5 @@
-import type { AIMessage, AIMessageChunk } from '@langchain/core/messages'
-import { tool, type StructuredToolInterface } from '@langchain/core/tools'
+import type { AIMessage, AIMessageChunk, ToolMessage } from '@langchain/core/messages'
+import {  type StructuredToolInterface } from '@langchain/core/tools'
 import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
 import { StructuredOutputParser } from '@langchain/core/output_parsers'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
@@ -8,12 +8,13 @@ import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph }
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
-import consola from 'consola'
+import { consola }from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
 import { z } from 'zod'
 import { TransferTools } from '../toolkits/TransferTools'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit } from '../toolkits/WeatherToolKit'
+import { v4 as uuidv4 } from 'uuid'
 
 interface ParsedOutput {
   response: string
@@ -31,6 +32,7 @@ export default defineLazyEventHandler(async () => {
 
   const cache = await LocalFileCache.create('langchain-cache-travel')
   const modelTag = 'stream-out'
+  const toolTag = 'tool-out'
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0.6,
@@ -60,6 +62,10 @@ export default defineLazyEventHandler(async () => {
   const toolsByName = new Map<string, StructuredToolInterface>()
   travelRecommendToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
   weatherToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
+
+  const weatherToolTag = 'weather-tool'
+  const toolTagsByToolName = new Map<string, string>()
+  toolTagsByToolName.set(weatherToolKit.getWeatherSearchTool().name, weatherToolTag)
 
   const checkpointer = PostgresSaver.fromConnString(
     runtimeConfig.postgresURL,
@@ -175,7 +181,12 @@ export default defineLazyEventHandler(async () => {
             if (!tool) {
               throw new Error(`tool not found! for toolCall ${toolCall}`)
             }
-            const toolMessage = await tool.invoke(toolCall)
+            const tags = [toolTag]
+            const tag = toolTagsByToolName.get(tool.name)
+            if (tag) {
+              tags.push(tag)
+            }
+            const toolMessage = await tool.invoke(toolCall, {tags})
             toolMessages.push(toolMessage)
           }
         }
@@ -270,7 +281,7 @@ export default defineLazyEventHandler(async () => {
     const input = isInitMessage(lastMessage) ? initMessage : new Command({ resume: lastMessage.content })
     const encoder = new TextEncoder()
     const config = { version: 'v2' as const, configurable: { thread_id: sessionId } }
-    const tags = [modelTag]
+    const tags = [modelTag, toolTag, weatherToolTag]
     return new ReadableStream({
       async start(controller) {
         try {
@@ -285,6 +296,18 @@ export default defineLazyEventHandler(async () => {
                   // how the model tokenizes and introduces overhead
                   const part = formatDataStreamPart('text', updatedContent)
                   controller.enqueue(encoder.encode(part))
+                }
+              }
+            }
+            if (event.event === 'on_tool_end' && event.tags?.includes(toolTag)) {
+              if (event.data.output && (event.data.output as ToolMessage).content.length) {
+                const content = (event.data.output as ToolMessage).content as string
+                const id = uuidv4()
+                if (event.tags.includes(weatherToolTag)) {
+                  // 2 will send it to data from useChat
+                  // 8 will send it to message.annotations on the client side
+                  const part = `2:[{"id":"${id}","type":"weather","data":${content}}]\n`
+                  controller.enqueue(part)
                 }
               }
             }
