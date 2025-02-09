@@ -197,7 +197,7 @@ export default defineLazyEventHandler(async () => {
       ends: [NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
     })
     .addNode(NodeNames.WeatherAdvisor, weatherAdvisor, {
-      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
+      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.HotelAdvisor],
     })
     .addNode(NodeNames.HotelAdvisor, hotelAdvisor, {
       ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],

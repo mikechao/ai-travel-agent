@@ -71,7 +71,7 @@ export class TransferToolKit extends BaseToolkit {
   public getTransferTool(nodeName: NodeNames) {
     switch (nodeName) {
       case NodeNames.WeatherAdvisor:
-        return [this.transferToTravelAdvisor, this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+        return [this.transferToTravelAdvisor, this.transferToHotelAdvisor]
       case NodeNames.HotelAdvisor:
         return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
       case NodeNames.TravelAdvisor:
