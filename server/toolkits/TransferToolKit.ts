@@ -56,7 +56,7 @@ class TransferToHuman extends StructuredTool {
   }
 }
 
-export class TransferTools extends BaseToolkit {
+export class TransferToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
   transferToWeatherAdvisor: StructuredTool
   transferToTravelAdvisor: StructuredTool

@@ -10,7 +10,7 @@ import { LocalFileCache } from 'langchain/cache/file_system'
 import { v4 as uuidv4 } from 'uuid'
 import { NodeNames } from '~/types/enums'
 import { HotelToolKit } from '../toolkits/HotelToolKit'
-import { TransferTools } from '../toolkits/TransferTools'
+import { TransferToolKit } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
 
@@ -32,7 +32,7 @@ export default defineLazyEventHandler(async () => {
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
-  const transferTools = new TransferTools()
+  const transferTools = new TransferToolKit()
   const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
   const weatherToolKit = new WeatherToolKit()
   const hotelToolKit = new HotelToolKit()
