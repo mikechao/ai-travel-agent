@@ -59,9 +59,8 @@ watch(data, (newData) => {
 })
 
 function renderMessage(message: Message): string {
-  const result = message.content.replaceAll(`{"response":"`, '')
-    .replace(/","goto":.*?\}/g, '')
-    .replaceAll(`\\n`, '<br/>')
+  const result = message.content
+    .replaceAll(`\n`, '<br/>')
   return result
 }
 
