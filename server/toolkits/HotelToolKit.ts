@@ -77,12 +77,42 @@ class HotelReviewsTool extends StructuredTool {
   }
 }
 
+class HotelDetailsTool extends StructuredTool {
+  name = 'hotelDetailsTool'
+  description = 'Used to get additional details about a hotel, needs location_id from hotelSearchTool'
+  schema = z.object({
+    locationId: z.string().describe('The location_id from previous results of the tool named hotelSearchTool'),
+  })
+
+  protected async _call({ locationId }: { locationId: string }) {
+    consola.debug({ tag: 'hotelDetailsTool', message: `called with locationId: ${locationId}` })
+    const locationDetailsURL = new URL(`https://api.content.tripadvisor.com/api/v1/location/${locationId}/details`)
+    locationDetailsURL.searchParams.set('key', `${runtimeConfig.tripAdvisorAPIKey}`)
+    consola.debug({ tag: 'hotelDetailsTool', message: `locationDetailsURL ${locationDetailsURL.toString()}` })
+
+    try {
+      const response = await $fetch(locationDetailsURL.toString(), {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+        },
+      })
+      return JSON.stringify(response)
+    }
+    catch (error) {
+      consola.error('error fetching location details', error)
+      return 'Error fetching location details'
+    }
+  }
+}
+
 export class HotelToolKit extends GeocodeToolKit {
   constructor() {
     super()
     this.tools.push(
       new HotelSearchTool(),
       new HotelReviewsTool(),
+      new HotelDetailsTool(),
     )
   }
 }
