@@ -210,6 +210,21 @@ export default defineLazyEventHandler(async () => {
     }
   }
 
+  const hotelAdvisor = makeAgent({
+    name: NodeNames.HotelAdvisor,
+    destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
+    tools: [...hotelToolKit.getTools()],
+    systemPrompt: `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `
+      + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
+      + ` Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, 
+          tell the user you can get more details or a summary of reviews by other humans `
+      + ' The \'hotelReviewsTool\' can give you reviews provided by other people for you to summarize for the user '
+      + `When talking to the user be friendly, warm and playful with a sense of humor`
+      + `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `
+      + `If you need weather forecast and clothing to pack, ask \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help `
+      + 'Feel free to mention other agents by name, but call them synonyms of colleagues',
+  })
+
   const weatherAdvisor = makeAgent({
     name: NodeNames.WeatherAdvisor,
     destinations: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
@@ -220,7 +235,8 @@ export default defineLazyEventHandler(async () => {
       + ` If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `
       + ` Then use the \'weatherForecastTool\' to get the weather `
       + 'Talk to the user like a pirate and use pirate related emojis '
-      + `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `,
+      + `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `
+      + `If you need hotel recommendations, ask \'${NodeNames.HotelAdvisor}\' named Penny Restmore for help. `,
   })
 
   const travelAdvisor = makeAgent({
@@ -237,7 +253,8 @@ export default defineLazyEventHandler(async () => {
           present the results of this tool to the user `
       + ` Step 4. When the user select a title or url use the \'searchSummaryTool\' to generate a summary and present the results to the user`
       + ` Be sure to bark a lot and use dog related emojis `
-      + ` If you need weather forecast and clothing to pack, ask the agent \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help`
+      + ` If you need weather forecast and clothing to pack, ask the agent \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help `
+      + ` If you need hotel recommendations, ask \'${NodeNames.HotelAdvisor}\' named Penny Restmore for help. `
       + ` Feel free to mention the other agents by name, but call them your colleagues or a synonym
          like partner, coworker, buddy, associate.`,
   })
@@ -261,12 +278,15 @@ export default defineLazyEventHandler(async () => {
 
   const builder = new StateGraph(AgentState)
     .addNode(NodeNames.TravelAdvisor, travelAdvisor, {
-      ends: [NodeNames.HumanNode, NodeNames.WeatherAdvisor],
+      ends: [NodeNames.HumanNode, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
     })
     .addNode(NodeNames.HumanNode, humanNode, {
-      ends: [NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
+      ends: [NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
     })
     .addNode(NodeNames.WeatherAdvisor, weatherAdvisor, {
+      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
+    })
+    .addNode(NodeNames.HotelAdvisor, hotelAdvisor, {
       ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
     })
     .addEdge(START, NodeNames.TravelAdvisor)
