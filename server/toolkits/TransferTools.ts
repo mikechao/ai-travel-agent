@@ -3,32 +3,28 @@ import consola from 'consola'
 import { z } from 'zod'
 import { NodeNames } from '~/types/enums'
 
-enum TransferToolName {
-  WeatherAdvisorTransfer = 'weatherAdvisorTransfer',
-  TravelAdvisorTransfer = 'travelAdvisorTransfer'
-}
-
 class TransferToWeatherAdvisor extends StructuredTool {
-  name = TransferToolName.WeatherAdvisorTransfer
+  name = 'weatherAdvisorTransfer'
   description = 'Provides weather forecasts and clothing to pack advice by transferring to the \'weatherAdvisor\' named Petey the Pirate'
   schema = z.object({
     agent: z.any(),
   })
 
-  protected async _call(input: {agent: any}) {
-    consola.debug({tag: TransferToolName.WeatherAdvisorTransfer, message: `called with ${JSON.stringify(input.agent)}`})
+  protected async _call(input: { agent: any }) {
+    consola.debug({ tag: 'weatherAdvisorTransfer', message: `called with ${JSON.stringify(input.agent)}` })
     return `Successfully transferred to ${input.agent}`
   }
 }
 
 class TransferToTravelAdvisor extends StructuredTool {
-  name = TransferToolName.TravelAdvisorTransfer
+  name = 'travelAdvisorTransfer'
   description = `Provides travel destinations recommendations by transferring to the agent \'travelAdvisor\' named Pluto the Pup`
   schema = z.object({
-    agent: z.any()
+    agent: z.any(),
   })
-  protected async _call(input: {agent: any}) {
-    consola.debug({tag: TransferToolName.TravelAdvisorTransfer, message: `called with ${JSON.stringify(input.agent)}`})
+
+  protected async _call(input: { agent: any }) {
+    consola.debug({ tag: 'travelAdvisorTransfer', message: `called with ${JSON.stringify(input.agent)}` })
     return `Successfully transferred to ${input.agent}`
   }
 }
