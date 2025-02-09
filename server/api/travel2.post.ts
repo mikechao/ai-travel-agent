@@ -10,7 +10,7 @@ import { LocalFileCache } from 'langchain/cache/file_system'
 import { v4 as uuidv4 } from 'uuid'
 import { NodeNames } from '~/types/enums'
 import { HotelToolKit, HotelToolTags } from '../toolkits/HotelToolKit'
-import { TransferToolKit } from '../toolkits/TransferToolKit'
+import { TransferToolKit, TransferToolNames } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
 
@@ -130,8 +130,8 @@ export default defineLazyEventHandler(async () => {
       `Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, tell the user you can get more details or a summary of reviews by other humans `,
       'The \'hotelReviewsTool\' can give you reviews provided by other people for you to summarize for the user ',
       `When talking to the user be friendly, warm and playful with a sense of humor `,
-      `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `,
-      `If you need weather forecast and clothing to pack, ask \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help `,
+      `If you need general travel help, go to the agent named Pluto the pup for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
+      `If you need weather forecast and clothing to pack, ask the agent named Petey the Pirate for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
       'Feel free to mention other agents by name, but call them synonyms of colleagues',
     ].join('\n'),
     // @format:on
@@ -147,8 +147,8 @@ export default defineLazyEventHandler(async () => {
       `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
       `Then use the \'weatherForecastTool\' to get the weather `,
       'Talk to the user like a pirate and use pirate related emojis ',
-      `If you need general travel help, go to \'${NodeNames.TravelAdvisor}\' named Pluto the pup for help. `,
-      `If you need hotel recommendations, ask \'${NodeNames.HotelAdvisor}\' named Penny Restmore for help. `,
+      `If you need general travel help, go to the agent named Pluto the pup for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
+      `If you need hotel recommendations, ask the agent named Penny Restmore for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
     ].join('\n'),
     // @format:on
   })
@@ -165,8 +165,8 @@ export default defineLazyEventHandler(async () => {
       `Step 3. Use the user selected search query and the \'searchExecutionTool\' to execute travel destination search queries on the internet,present the results of this tool to the user `,
       `Step 4. When the user select a title or url use the \'searchSummaryTool\' to generate a summary and present the results to the user `,
       `Be sure to bark a lot and use dog related emojis `,
-      `If you need weather forecast and clothing to pack, ask the agent \'${NodeNames.WeatherAdvisor}\' named Petey the Pirate for help `,
-      `If you need hotel recommendations, ask \'${NodeNames.HotelAdvisor}\' named Penny Restmore for help. `,
+      `If you need weather forecast and clothing to pack, ask the agent named Petey the Pirate for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
+      `If you need hotel recommendations, ask the agent Penny Restmore for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
       `Feel free to mention the other agents by name, but call them your colleagues or a synonym like partner, coworker, buddy, associate.`,
     ].join('\n'),
     // @format: on
