@@ -52,12 +52,10 @@ export default defineLazyEventHandler(async () => {
   }
 
   const transferTools = new TransferTools()
-  const transferToolsByName = new Map<string, StructuredToolInterface>()
-  transferToolsByName.set(transferTools.getTransferToWeatherAdvisorTool().name, transferTools.getTransferToWeatherAdvisorTool())
-  transferToolsByName.set(transferTools.getTransferToTravelAdvisor().name, transferTools.getTransferToTravelAdvisor())
+  const transferToolsByName = transferTools.getTransferToolsByName()
 
   const transferLocationByToolName = new Map<string, NodeNames>()
-  transferLocationByToolName.set(transferTools.getTransferToWeatherAdvisorTool().name, NodeNames.WeatherAdvisor)
+  transferLocationByToolName.set(transferTools.getTransferToWeatherAdvisor().name, NodeNames.WeatherAdvisor)
   transferLocationByToolName.set(transferTools.getTransferToTravelAdvisor().name, NodeNames.TravelAdvisor)
 
   const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
@@ -220,7 +218,7 @@ export default defineLazyEventHandler(async () => {
   const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
     destinations: [NodeNames.HumanNode, NodeNames.WeatherAdvisor],
-    tools: [transferTools.getTransferToWeatherAdvisorTool(), ...travelRecommendToolKit.getTools()],
+    tools: [transferTools.getTransferToWeatherAdvisor(), ...travelRecommendToolKit.getTools()],
     systemPrompt: `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations 
        based on the user's interests by using all the tools and following all the Steps 1 through 4 provided to you `
       + ` Follow these steps to use the tools to help you recommend travel destinations based on user's interest `
