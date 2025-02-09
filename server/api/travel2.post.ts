@@ -1,9 +1,6 @@
-import type { AIMessage, AIMessageChunk, ToolMessage } from '@langchain/core/messages'
+import type { AIMessageChunk, ToolMessage } from '@langchain/core/messages'
 import type { StructuredToolInterface } from '@langchain/core/tools'
 import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
-import { StructuredOutputParser } from '@langchain/core/output_parsers'
-import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-import { RunnableLambda } from '@langchain/core/runnables'
 import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph'
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
@@ -11,7 +8,6 @@ import { formatDataStreamPart } from 'ai'
 import { consola } from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
 import { v4 as uuidv4 } from 'uuid'
-import { z } from 'zod'
 import { NodeNames } from '~/types/enums'
 import { HotelToolKit } from '../toolkits/HotelToolKit'
 import { TransferTools } from '../toolkits/TransferTools'
@@ -37,9 +33,6 @@ export default defineLazyEventHandler(async () => {
   })
 
   const transferTools = new TransferTools()
-  const transferToolsByName = transferTools.getTransferToolsByName()
-  const transferLocationByToolName = transferTools.getTransferLocationByToolName()
-
   const travelRecommendToolKit = new TravelRecommendToolKit(model, embeddings)
   const weatherToolKit = new WeatherToolKit()
   const hotelToolKit = new HotelToolKit()
