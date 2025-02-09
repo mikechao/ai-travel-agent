@@ -9,7 +9,7 @@ import { consola } from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
 import { v4 as uuidv4 } from 'uuid'
 import { NodeNames } from '~/types/enums'
-import { HotelToolKit } from '../toolkits/HotelToolKit'
+import { HotelToolKit, HotelToolTags } from '../toolkits/HotelToolKit'
 import { TransferToolKit } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
@@ -242,6 +242,10 @@ export default defineLazyEventHandler(async () => {
                   // 2 will send it to data from useChat
                   // 8 will send it to message.annotations on the client side
                   const part = `2:[{"id":"${id}","type":"weather","data":${content}}]\n`
+                  controller.enqueue(part)
+                }
+                if (event.tags.includes(HotelToolTags.HotelSearch)) {
+                  const part = `2:[{"id":"${id}","type":"hotel-search","data":${content}}]\n`
                   controller.enqueue(part)
                 }
               }
