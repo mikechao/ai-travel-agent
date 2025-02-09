@@ -18,17 +18,6 @@ import { TransferTools } from '../toolkits/TransferTools'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
 
-interface ParsedOutput {
-  response: string
-  goto: string
-}
-
-interface LLMOutput {
-  parsedOutput: ParsedOutput
-  aiMessage: AIMessage
-  hasParsedOutput: boolean
-}
-
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
 
