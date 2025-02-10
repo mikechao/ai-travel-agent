@@ -4,7 +4,9 @@ import Dialog from 'primevue/dialog'
 import Dock from 'primevue/dock'
 import LocationList from './LocationList.vue'
 import WeatherCard from './weather/WeatherCard.vue'
+import { useToast } from "primevue/usetoast"
 
+const toast = useToast()
 const dataItemStore = useDataItemStore()
 
 const weatherData = ref()
@@ -153,9 +155,20 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
       break
   }
 }
+
+onMounted(() => {
+  toast.add({ severity: 'info', summary: 'Results will be shown on this side', detail: 'For example:\nCan you show me the weather in San Francisco,CA?', group:'tr'})
+})
 </script>
 
 <template>
+  <div class="card flex justify-center">
+    <Toast position="top-left" group="tr">
+      <template #messageicon>
+        <font-awesome icon="fa-regular fa-lightbulb" />
+      </template>
+    </Toast>
+  </div>
   <div>
     <Dock :model="menuItems" position="left">
       <template #item="{ item }">
@@ -275,4 +288,11 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
 </template>
 
 <style scoped>
+.card {
+    background: var(--card-background);
+    border: var(--card-border);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
 </style>

@@ -71,6 +71,8 @@ export default defineNuxtConfig({
         'primevue/galleria',
         'primevue/divider',
         'primevue/carousel',
+        'primevue/toast',
+        'primevue/usetoast'
       ],
     },
   },
@@ -111,6 +113,7 @@ export default defineNuxtConfig({
         'face-sad-tear',
         'sun',
         'moon',
+        'lightbulb'
       ],
     },
   },
