@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@ai-sdk/vue':
-        specifier: ^1.1.8
-        version: 1.1.8(vue@3.5.13(typescript@5.7.3))(zod@3.24.1)
+        specifier: ^1.1.12
+        version: 1.1.12(vue@3.5.13(typescript@5.7.3))(zod@3.24.1)
       '@langchain/community':
         specifier: ^0.3.28
         version: 0.3.28(@browserbasehq/sdk@2.2.0)(@browserbasehq/stagehand@1.11.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.82.0(ws@8.18.0)(zod@3.24.1))(zod@3.24.1))(@ibm-cloud/watsonx-ai@1.4.0(@langchain/core@0.3.37(openai@4.82.0(ws@8.18.0)(zod@3.24.1))))(@langchain/core@0.3.37(openai@4.82.0(ws@8.18.0)(zod@3.24.1)))(axios@1.7.9)(cheerio@1.0.0)(duck-duck-scrape@2.2.7)(ibm-cloud-sdk-core@5.1.2)(ignore@5.3.2)(ioredis@5.4.2)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.82.0(ws@8.18.0)(zod@3.24.1))(pg@8.13.1)(playwright@1.50.1)(ws@8.18.0)
@@ -175,6 +175,15 @@ packages:
       zod:
         optional: true
 
+  '@ai-sdk/ui-utils@1.1.11':
+    resolution: {integrity: sha512-1SC9W4VZLcJtxHRv4Y0aX20EFeaEP6gUvVqoKLBBtMLOgtcZrv/F/HQRjGavGugiwlS3dsVza4X+E78fiwtlTA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
+
   '@ai-sdk/ui-utils@1.1.8':
     resolution: {integrity: sha512-nbok53K1EalO2sZjBLFB33cqs+8SxiL6pe7ekZ7+5f2MJTwdvpShl6d9U4O8fO3DnZ9pYLzaVC0XNMxnJt030Q==}
     engines: {node: '>=18'}
@@ -184,8 +193,8 @@ packages:
       zod:
         optional: true
 
-  '@ai-sdk/vue@1.1.8':
-    resolution: {integrity: sha512-lQHKCKM2obWHO45sMvzYMfNhBICptGhk1ozTqm4nbi+ZEbSXqLNBbJBfhl0onnt7xfIYdklnwwggHrIu6ufbwg==}
+  '@ai-sdk/vue@1.1.12':
+    resolution: {integrity: sha512-Jo7iBASf+lzeZV6qK3f+3KrGnvPB1aJM/RnPrObOcoAN8JxnusAEPM7z5llFlhG3avqXBYmzuQgo7vDcey3Drg==}
     engines: {node: '>=18'}
     peerDependencies:
       vue: ^3.3.4
@@ -1678,6 +1687,9 @@ packages:
 
   '@types/node@18.19.74':
     resolution: {integrity: sha512-HMwEkkifei3L605gFdV+/UwtpxP6JSzM+xFk2Ia6DNFSwSVBRh9qp5Tgf4lNFOMfPVuU0WnkcWpXZpgn5ufO4A==}
+
+  '@types/node@18.19.75':
+    resolution: {integrity: sha512-UIksWtThob6ZVSyxcOqCLOUNg/dyO1Qvx4McgeuhrEtHTLFTf7BBhEazaE4K806FGTPtzd/2sE90qn4fVr7cyw==}
 
   '@types/node@22.13.0':
     resolution: {integrity: sha512-ClIbNe36lawluuvq3+YYhnIN2CELi+6q8NpnM7PYp4hBn/TatfboPgVSm2rwKRfnV2M+Ty9GWDFI64KEe+kysA==}
@@ -4710,16 +4722,12 @@ packages:
   readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
 
-  readable-stream@3.6.2:
-    resolution: {integrity: sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==}
-    engines: {node: '>= 6'}
-
   readable-stream@4.7.0:
     resolution: {integrity: sha512-oIGGmcpTLwPga8Bn6/Z75SVaH1z5dUut2ibSyAMVhmUggWpmDn2dapB0n7f8nwaSiRtepAsfJyfXIO5DCVAODg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  readable-web-to-node-stream@3.0.2:
-    resolution: {integrity: sha512-ePeK6cc1EcKLEhJFt/AebMCLL+GgSKhuygrZ/GLaKZYEecIgIECf4UaUuaByiGtzckwR4ain9VzUh95T1exYGw==}
+  readable-web-to-node-stream@3.0.3:
+    resolution: {integrity: sha512-In3boYjBnbGVrLuuRu/Ath/H6h1jgk30nAsk/71tCare1dTVoe1oMBGRn5LGf0n3c1BcHwwAqpraxX4AUAP5KA==}
     engines: {node: '>=8'}
 
   readdir-glob@1.1.3:
@@ -4875,6 +4883,11 @@ packages:
 
   semver@7.7.0:
     resolution: {integrity: sha512-DrfFnPzblFmNrIZzg5RzHegbiRWg7KMR7btwi2yjHwx06zsUbO5g613sVwEV7FTwmzJu+Io0lJe2GJ3LxqpvBQ==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.7.1:
+    resolution: {integrity: sha512-hlq8tAfn0m/61p4BVRcPzIGr6LKiMwo4VM6dGi6pt4qcRkmNzTcWq6eCEjEh+qXjkMDvPlOFFSGwQjoEa6gyMA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -5772,6 +5785,14 @@ snapshots:
       react: 19.0.0
       zod: 3.24.1
 
+  '@ai-sdk/ui-utils@1.1.11(zod@3.24.1)':
+    dependencies:
+      '@ai-sdk/provider': 1.0.7
+      '@ai-sdk/provider-utils': 2.1.6(zod@3.24.1)
+      zod-to-json-schema: 3.24.1(zod@3.24.1)
+    optionalDependencies:
+      zod: 3.24.1
+
   '@ai-sdk/ui-utils@1.1.8(zod@3.24.1)':
     dependencies:
       '@ai-sdk/provider': 1.0.7
@@ -5780,10 +5801,10 @@ snapshots:
     optionalDependencies:
       zod: 3.24.1
 
-  '@ai-sdk/vue@1.1.8(vue@3.5.13(typescript@5.7.3))(zod@3.24.1)':
+  '@ai-sdk/vue@1.1.12(vue@3.5.13(typescript@5.7.3))(zod@3.24.1)':
     dependencies:
       '@ai-sdk/provider-utils': 2.1.6(zod@3.24.1)
-      '@ai-sdk/ui-utils': 1.1.8(zod@3.24.1)
+      '@ai-sdk/ui-utils': 1.1.11(zod@3.24.1)
       swrv: 1.1.0(vue@3.5.13(typescript@5.7.3))
     optionalDependencies:
       vue: 3.5.13(typescript@5.7.3)
@@ -5854,7 +5875,7 @@ snapshots:
 
   '@anthropic-ai/sdk@0.27.3':
     dependencies:
-      '@types/node': 18.19.74
+      '@types/node': 18.19.75
       '@types/node-fetch': 2.6.12
       abort-controller: 3.0.0
       agentkeepalive: 4.6.0
@@ -6063,7 +6084,7 @@ snapshots:
 
   '@browserbasehq/sdk@2.2.0':
     dependencies:
-      '@types/node': 18.19.74
+      '@types/node': 18.19.75
       '@types/node-fetch': 2.6.12
       abort-controller: 3.0.0
       agentkeepalive: 4.6.0
@@ -6329,7 +6350,7 @@ snapshots:
   '@ibm-cloud/watsonx-ai@1.4.0(@langchain/core@0.3.37(openai@4.82.0(ws@8.18.0)(zod@3.24.1)))':
     dependencies:
       '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.37(openai@4.82.0(ws@8.18.0)(zod@3.24.1)))
-      '@types/node': 18.19.74
+      '@types/node': 18.19.75
       extend: 3.0.2
       ibm-cloud-sdk-core: 5.1.2
     transitivePeerDependencies:
@@ -7222,6 +7243,10 @@ snapshots:
   '@types/node@10.14.22': {}
 
   '@types/node@18.19.74':
+    dependencies:
+      undici-types: 5.26.5
+
+  '@types/node@18.19.75':
     dependencies:
       undici-types: 5.26.5
 
@@ -8672,7 +8697,7 @@ snapshots:
 
   file-type@16.5.4:
     dependencies:
-      readable-web-to-node-stream: 3.0.2
+      readable-web-to-node-stream: 3.0.3
       strtok3: 6.3.0
       token-types: 4.2.1
 
@@ -9224,7 +9249,7 @@ snapshots:
       lodash.isstring: 4.0.1
       lodash.once: 4.1.1
       ms: 2.1.3
-      semver: 7.7.0
+      semver: 7.7.1
 
   jwa@1.4.1:
     dependencies:
@@ -10766,12 +10791,6 @@ snapshots:
       string_decoder: 1.1.1
       util-deprecate: 1.0.2
 
-  readable-stream@3.6.2:
-    dependencies:
-      inherits: 2.0.4
-      string_decoder: 1.3.0
-      util-deprecate: 1.0.2
-
   readable-stream@4.7.0:
     dependencies:
       abort-controller: 3.0.0
@@ -10780,9 +10799,10 @@ snapshots:
       process: 0.11.10
       string_decoder: 1.3.0
 
-  readable-web-to-node-stream@3.0.2:
+  readable-web-to-node-stream@3.0.3:
     dependencies:
-      readable-stream: 3.6.2
+      process: 0.11.10
+      readable-stream: 4.7.0
 
   readdir-glob@1.1.3:
     dependencies:
@@ -10927,6 +10947,8 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.0: {}
+
+  semver@7.7.1: {}
 
   send@0.19.0:
     dependencies:
