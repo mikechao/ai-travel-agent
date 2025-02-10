@@ -18,9 +18,14 @@ import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
 export default defineLazyEventHandler(async () => {
   const runtimeConfig = useRuntimeConfig()
 
-  const cache = await LocalFileCache.create('langchain-cache-travel')
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
+
+  const cache = runtimeConfig.dev
+  ? await LocalFileCache.create('langchain-cache-travel')
+  : undefined
+  consola.info(`cache is undefined ${cache === undefined}`)
+
   const model = new ChatOpenAI({
     model: 'gpt-4o-mini',
     temperature: 0.6,

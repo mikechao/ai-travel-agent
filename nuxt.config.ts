@@ -6,13 +6,14 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   runtimeConfig: {
+    dev: process.env.NODE_ENV !== 'production',
     openaiAPIKey: '',
     weatherAPIKey: '',
     tripAdvisorAPIKey: process.env.NUXT_TRIPADVISOR_API_KEY,
     opencageAPIKey: process.env.NUXT_OPENCAGE_API_KEY,
     braveAPIKey: process.env.NUXT_BRAVE_API_KEY,
     postgresURL: process.env.NUXT_POSTGRES_URL,
-    consolaLevel: process.env.NUXT_CONSOLE_LEVEL || 'info'
+    consolaLevel: process.env.NUXT_CONSOLE_LEVEL || 'info',
   },
   modules: [
     '@nuxtjs/tailwindcss',
