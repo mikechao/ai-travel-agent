@@ -15,6 +15,7 @@ import { SightseeingToolKit, SightseeingToolTags } from '../toolkits/Sightseeing
 import { TransferToolKit, TransferToolNames } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
+import { createStreamEventHandlers } from '../utils/streamHandlers'
 
 interface IteratorResult {
   value: any
@@ -270,65 +271,38 @@ export default defineLazyEventHandler(async () => {
     const tags = [modelTag, toolTag]
     return new ReadableStream({
       async start(controller) {
+        const handlers = createStreamEventHandlers()
         try {
           const eventIterator = graph.streamEvents(input, config, { includeTags: tags })
-
-          // Add timeout promise
-          const timeout = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Stream timeout')), 15000),
-          )
 
           while (true) {
             try {
               // Race between next event and timeout
               const { value: event, done } = await Promise.race([
                 eventIterator.next(),
-                timeout,
+                new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error('Stream timeout')), 15000),
+                ),
               ]) as IteratorResult
 
               if (done)
                 break
 
               if (event.event === 'on_chat_model_stream' && event.tags?.includes(modelTag)) {
-                // ... existing chat model stream handling ...
-                if (isAIMessageChunk(event.data.chunk)) {
-                  const aiMessageChunk = event.data.chunk as AIMessageChunk
-                  if (aiMessageChunk.content.length) {
-                    const content = aiMessageChunk.content as string
-                    // we can filter the aiMessageChunk.content but depends
-                    // how the model tokenizes and introduces overhead
-                    const part = formatDataStreamPart('text', content)
-                    controller.enqueue(encoder.encode(part))
-                  }
-                }
+                handlers.handleChatModelStream(event, controller, encoder)
               }
               if (event.event === 'on_tool_end' && event.tags?.includes(toolTag)) {
-                // ... existing tool end handling ...
-                if (event.data.output && (event.data.output as ToolMessage).content.length) {
-                  const content = (event.data.output as ToolMessage).content as string
-                  const id = uuidv4()
-                  if (event.tags.includes(WeatherToolTags.WeatherSearch)) {
-                    // 2 will send it to data from useChat
-                    // 8 will send it to message.annotations on the client side
-                    const part = `2:[{"id":"${id}","type":"weather","data":${content}}]\n`
-                    controller.enqueue(part)
-                  }
-                  if (event.tags.includes(HotelToolTags.HotelSearch)) {
-                    const part = `2:[{"id":"${id}","type":"hotel-search","data":${content}}]\n`
-                    controller.enqueue(part)
-                  }
-                  if (event.tags.includes(SightseeingToolTags.SightSearch)) {
-                    const part = `2:[{"id":"${id}","type":"sight-search","data":${content}}]\n`
-                    controller.enqueue(part)
-                  }
-                }
+                handlers.handleToolEnd(event, controller)
               }
             }
             catch (error) {
               consola.error('Stream error:', error)
               // Send error message to client
-              const errorPart = formatDataStreamPart('text', 'Oops looks like I took too long, sorry :(')
-              controller.enqueue(encoder.encode(errorPart))
+              controller.enqueue(
+                encoder.encode(
+                  formatDataStreamPart('text', 'Oops looks like I took too long, sorry :('),
+                ),
+              )
               break
             }
           }
@@ -337,13 +311,8 @@ export default defineLazyEventHandler(async () => {
           consola.error('Stream start error:', error)
         }
         finally {
-          try {
-            await Promise.resolve() // Ensure any pending microtasks complete
-            controller.close()
-          }
-          catch (error) {
-            consola.error('Error closing stream:', error)
-          }
+          await Promise.resolve()
+          controller.close()
         }
       },
     })
