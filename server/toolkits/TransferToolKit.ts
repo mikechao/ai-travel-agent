@@ -59,7 +59,7 @@ class TransferToSightseeingAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.SightseeingTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    return NodeNames.TravelAdvisor
+    return NodeNames.SightseeingAdvisor
   }
 }
 
