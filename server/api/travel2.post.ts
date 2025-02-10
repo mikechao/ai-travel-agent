@@ -138,6 +138,7 @@ export default defineLazyEventHandler(async () => {
       `When talking to the user be friendly, warm and playful with a sense of humor `,
       `If you need general travel help, go to the agent named Pluto the pup for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
       `If you need weather forecast and clothing to pack, ask the agent named Petey the Pirate for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
+      `If you need sightseeing or attractions recommendations, ask the agent Polly Parrot for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
       'Feel free to mention other agents by name, but call them synonyms of colleagues',
     ].join('\n'),
     // @format:on
@@ -155,6 +156,7 @@ export default defineLazyEventHandler(async () => {
       'Talk to the user like a pirate and use pirate related emojis ',
       `If you need general travel help, go to the agent named Pluto the pup for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
       `If you need hotel recommendations, ask the agent named Penny Restmore for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
+      `If you need sightseeing or attractions recommendations, ask the agent Polly Parrot for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
     ].join('\n'),
     // @format:on
   })
@@ -173,6 +175,7 @@ export default defineLazyEventHandler(async () => {
       `Be sure to bark a lot and use dog related emojis `,
       `If you need weather forecast and clothing to pack, ask the agent named Petey the Pirate for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
       `If you need hotel recommendations, ask the agent Penny Restmore for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
+      `If you need sightseeing or attractions recommendations, ask the agent Polly Parrot for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
       `Feel free to mention the other agents by name, but call them your colleagues or a synonym like partner, coworker, buddy, associate.`,
     ].join('\n'),
     // @format: on
@@ -180,7 +183,7 @@ export default defineLazyEventHandler(async () => {
 
   const sightseeingAdvisor = makeAgent({
     name: NodeNames.SightseeingAdvisor,
-    tools: [...sightseeingToolKit.getTools()],
+    tools: [...transferTools.getTransferTool(NodeNames.SightseeingAdvisor), ...sightseeingToolKit.getTools()],
     // @format: off
     systemPrompt: [
       `Your name is Polly Parrot and you are a travel expert that can provide specific sightseeing or attractions recommendations for a given destination. `,
@@ -215,19 +218,19 @@ export default defineLazyEventHandler(async () => {
 
   const builder = new StateGraph(AgentState)
     .addNode(NodeNames.TravelAdvisor, travelAdvisor, {
-      ends: [NodeNames.HumanNode, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
+      ends: [NodeNames.HumanNode, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor, NodeNames.SightseeingAdvisor],
     })
     .addNode(NodeNames.HumanNode, humanNode, {
-      ends: [NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
+      ends: [NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor, NodeNames.SightseeingAdvisor],
     })
     .addNode(NodeNames.WeatherAdvisor, weatherAdvisor, {
-      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.HotelAdvisor],
+      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.HotelAdvisor, NodeNames.SightseeingAdvisor],
     })
     .addNode(NodeNames.HotelAdvisor, hotelAdvisor, {
-      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
+      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.SightseeingAdvisor],
     })
     .addNode(NodeNames.SightseeingAdvisor, sightseeingAdvisor, {
-      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.WeatherAdvisor],
+      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.HotelAdvisor],
     })
     .addEdge(START, NodeNames.TravelAdvisor)
 

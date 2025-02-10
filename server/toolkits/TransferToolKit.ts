@@ -8,6 +8,7 @@ export const TransferToolNames = {
   HotelTransfer: 'hotelAdvisorTransfer',
   TravelTransfer: 'travelAdvisorTransfer',
   WeatherTransfer: 'weatherAdvisorTransfer',
+  SightseeingTransfer: 'sightseeingTransfer',
 } as const
 
 class TransferToWeatherAdvisor extends StructuredTool {
@@ -49,33 +50,51 @@ class TransferToHotelAdvisor extends StructuredTool {
   }
 }
 
+class TransferToSightseeingAdvisor extends StructuredTool {
+  name = TransferToolNames.SightseeingTransfer
+  description = ``
+  schema = z.object({
+    agent: z.any(),
+  })
+
+  protected async _call(input: { agent: any }) {
+    consola.debug({ tag: TransferToolNames.SightseeingTransfer, message: `called with ${JSON.stringify(input.agent)}` })
+    return NodeNames.TravelAdvisor
+  }
+}
+
 export class TransferToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
   private readonly transferToWeatherAdvisor: StructuredTool
   private readonly transferToTravelAdvisor: StructuredTool
   private readonly transferToHotelAdvisor: StructuredTool
+  private readonly transferToSightseeingAdvisor: StructuredTool
 
   constructor() {
     super()
     this.transferToWeatherAdvisor = new TransferToWeatherAdvisor()
     this.transferToTravelAdvisor = new TransferToTravelAdvisor()
     this.transferToHotelAdvisor = new TransferToHotelAdvisor()
+    this.transferToSightseeingAdvisor = new TransferToSightseeingAdvisor()
 
     this.tools = [
       this.transferToWeatherAdvisor,
       this.transferToTravelAdvisor,
       this.transferToHotelAdvisor,
+      this.transferToSightseeingAdvisor,
     ]
   }
 
   public getTransferTool(nodeName: NodeNames) {
     switch (nodeName) {
       case NodeNames.WeatherAdvisor:
-        return [this.transferToTravelAdvisor, this.transferToHotelAdvisor]
+        return [this.transferToTravelAdvisor, this.transferToHotelAdvisor, this.transferToSightseeingAdvisor]
       case NodeNames.HotelAdvisor:
-        return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor]
+        return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor, this.transferToSightseeingAdvisor]
       case NodeNames.TravelAdvisor:
-        return [this.transferToWeatherAdvisor, this.transferToHotelAdvisor]
+        return [this.transferToWeatherAdvisor, this.transferToHotelAdvisor, this.transferToSightseeingAdvisor]
+      case NodeNames.SightseeingAdvisor:
+        return [this.transferToWeatherAdvisor, this.transferToTravelAdvisor, this.transferToHotelAdvisor]
       default:
         throw new Error(`No transfer tools for ${nodeName}`)
     }
