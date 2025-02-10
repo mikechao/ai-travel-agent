@@ -91,7 +91,7 @@ function formSubmit(_event: FormSubmitEvent) {
             <div
               v-if="message.content.length > 0"
               class="mb-0 px-2 rounded-lg shadow-lg text-surface-700 dark:text-surface-0 "
-              :class="[message.role === 'user' ? 'bg-primary-100 dark:bg-primary-900 text-right' : 'bg-surface-100 dark:bg-surface-900']"
+              :class="[message.role === 'user' ? 'bg-primary-100 dark:bg-primary-900 text-right self-end' : 'bg-surface-100 dark:bg-surface-900 self-start']"
             >
               <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
               <div v-html="renderMessage(message)" />
