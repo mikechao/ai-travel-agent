@@ -129,12 +129,14 @@ class SearchSummaryTool extends StructuredTool {
 
   protected async _call(input: { searchResult: SearchResult }, _runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig) {
     consola.debug({ tag: `searchSummaryTool`, message: 'called' })
+    const before = performance.now()
     const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings })
     try {
       const url = input.searchResult.url
       const query = input.searchResult.query
       const result = await browser.invoke(`"${url}","${query}"`, parentConfig)
-      consola.debug({ tag: `searchSummaryTool`, message: ` got results` })
+      const after = performance.now()
+      consola.debug({ tag: `searchSummaryTool`, message: `got results in ${after - before} ms` })
       return JSON.stringify(result)
     }
     catch (error) {
