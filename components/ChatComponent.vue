@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { type Message, useChat } from '@ai-sdk/vue'
 import { Form, type FormSubmitEvent } from '@primevue/forms'
+import MarkdownIt from 'markdown-it'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -58,10 +59,16 @@ watch(data, (newData) => {
   }
 })
 
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  breaks: true,
+})
 function renderMessage(message: Message): string {
-  const result = message.content
-    .replaceAll(`\n`, '<br/>')
-  return result
+  return md.render(message.content)
+  // const result = message.content
+  //   .replaceAll(`\n`, '<br/>')
+  // return result
 }
 
 function formSubmit(_event: FormSubmitEvent) {
