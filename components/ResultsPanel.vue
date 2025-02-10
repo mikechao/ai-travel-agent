@@ -157,12 +157,12 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
 }
 
 onMounted(() => {
-  toast.add({ severity: 'info', summary: 'Results will be shown on this side', detail: 'For example:\nCan you show me the weather in San Francisco,CA?', group:'tr'})
+  toast.add({ severity: 'info', summary: 'Results from chat will be shown on this side', detail: 'For example:\nCan you show me the weather in San Francisco,CA?', group:'tr'})
 })
 </script>
 
 <template>
-  <div class="card flex justify-center">
+  <div class="flex justify-center">
     <Toast position="top-left" group="tr">
       <template #messageicon>
         <font-awesome icon="fa-regular fa-lightbulb" />
@@ -288,11 +288,4 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.card {
-    background: var(--card-background);
-    border: var(--card-border);
-    padding: 2rem;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-}
 </style>
