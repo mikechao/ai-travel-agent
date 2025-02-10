@@ -63,12 +63,10 @@ const md = new MarkdownIt({
   html: true,
   linkify: true,
   breaks: true,
+  typographer: true,
 })
 function renderMessage(message: Message): string {
   return md.render(message.content)
-  // const result = message.content
-  //   .replaceAll(`\n`, '<br/>')
-  // return result
 }
 
 function formSubmit(_event: FormSubmitEvent) {
