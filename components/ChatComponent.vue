@@ -149,26 +149,4 @@ function formSubmit(_event: FormSubmitEvent) {
   margin-bottom: 1rem;
 }
 
-.message {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  max-width: 80%;
-}
-
-.message.user {
-  align-self: flex-end;
-  background-color: #007bff;
-  color: white;
-}
-
-.message.assistant {
-  align-self: flex-start;
-  background-color: #f1f1f1;
-  color: black;
-}
-
-.input-form {
-  display: flex;
-  gap: 0.5rem;
-}
 </style>
