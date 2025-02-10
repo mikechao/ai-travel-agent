@@ -40,7 +40,7 @@ class SearchQueryTool extends StructuredTool {
 
   protected async _call(input: { interest: string }, _runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig): Promise<any> {
     const { interest } = input
-    consola.debug({tag: 'searchQueryTool', message: `searchQueryTool called with ${interest}`})
+    consola.debug({ tag: 'searchQueryTool', message: `searchQueryTool called with ${interest}` })
 
     const queryPrompt = `You are a search query generator tasked with creating 
     targeted search queries to gather specific travel information or ideas related
@@ -65,7 +65,7 @@ class SearchQueryTool extends StructuredTool {
       { role: 'user', content: `Please generate a list of search queries related to my travel interest of ${interest}` },
     ], parentConfig)
 
-    consola.debug({tag:'searchQueryTool', message: `result ${result}` })
+    consola.debug({ tag: 'searchQueryTool', message: `result ${JSON.stringify(result)}` })
     return JSON.stringify(result)
   }
 }
@@ -86,7 +86,7 @@ class SearchExecutionTool extends StructuredTool {
 
   protected async _call(input: { query: string }) {
     const { query } = input
-    consola.debug({tag: 'searchExecutionTool', message: `_call with ${query}`})
+    consola.debug({ tag: 'searchExecutionTool', message: `_call with ${query}` })
     const results: SearchResult[] = []
     try {
       const webSearchResult = await this.braveSearch.webSearch(query, {
@@ -102,7 +102,7 @@ class SearchExecutionTool extends StructuredTool {
     catch (error) {
       consola.error('error executing search', error)
     }
-    consola.debug({tag: 'searchExecutionTool', message: `searchExecutionTool found ${results.length}`})
+    consola.debug({ tag: 'searchExecutionTool', message: `searchExecutionTool found ${results.length}` })
     return JSON.stringify(results)
   }
 }
@@ -128,13 +128,13 @@ class SearchSummaryTool extends StructuredTool {
   }
 
   protected async _call(input: { searchResult: SearchResult }, _runManager?: CallbackManagerForToolRun, parentConfig?: ToolRunnableConfig) {
-    consola.debug({tag: `searchSummaryTool`, message: 'called'})
+    consola.debug({ tag: `searchSummaryTool`, message: 'called' })
     const browser = new WebBrowser({ model: this.model, embeddings: this.embeddings })
     try {
       const url = input.searchResult.url
       const query = input.searchResult.query
       const result = await browser.invoke(`"${url}","${query}"`, parentConfig)
-      consola.debug({tag: `searchSummaryTool`, message: ` got results`})
+      consola.debug({ tag: `searchSummaryTool`, message: ` got results` })
       return JSON.stringify(result)
     }
     catch (error) {
@@ -147,9 +147,9 @@ class SearchSummaryTool extends StructuredTool {
 export class TravelRecommendToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
 
-  searchQueryTool: StructuredTool
-  searchExecutionTool: StructuredTool
-  searchSummaryTool: StructuredTool
+  private readonly searchQueryTool: StructuredTool
+  private readonly searchExecutionTool: StructuredTool
+  private readonly searchSummaryTool: StructuredTool
   constructor(llm: BaseChatModel, embeddings: EmbeddingsInterface) {
     super()
     this.searchQueryTool = new SearchQueryTool(llm)
