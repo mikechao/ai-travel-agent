@@ -10,7 +10,7 @@ import { LocalFileCache } from 'langchain/cache/file_system'
 import { v4 as uuidv4 } from 'uuid'
 import { NodeNames } from '~/types/enums'
 import { HotelToolKit, HotelToolTags } from '../toolkits/HotelToolKit'
-import { SightseeingToolKit } from '../toolkits/SightseeingToolKit'
+import { SightseeingToolKit, SightseeingToolTags } from '../toolkits/SightseeingToolKit'
 import { TransferToolKit, TransferToolNames } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
@@ -282,6 +282,10 @@ export default defineLazyEventHandler(async () => {
                 }
                 if (event.tags.includes(HotelToolTags.HotelSearch)) {
                   const part = `2:[{"id":"${id}","type":"hotel-search","data":${content}}]\n`
+                  controller.enqueue(part)
+                }
+                if (event.tags.includes(SightseeingToolTags.SightSearch)) {
+                  const part = `2:[{"id":"${id}","type":"sight-search","data":${content}}]\n`
                   controller.enqueue(part)
                 }
               }
