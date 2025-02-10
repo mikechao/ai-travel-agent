@@ -1,5 +1,6 @@
 import type { AIMessageChunk, ToolMessage } from '@langchain/core/messages'
 import type { StructuredToolInterface } from '@langchain/core/tools'
+import { setMaxListeners } from 'node:events'
 import { isAIMessageChunk, SystemMessage } from '@langchain/core/messages'
 import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph'
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
@@ -16,14 +17,19 @@ import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit, WeatherToolTags } from '../toolkits/WeatherToolKit'
 
 export default defineLazyEventHandler(async () => {
+  // set listeners to 15 to suppress warning,
+  // need to figure out where it comes from
+  // by using "NODE_OPTIONS='--trace-warnings' nuxt dev"
+  // in dev package.json
+  setMaxListeners(15)
   const runtimeConfig = useRuntimeConfig()
 
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
 
   const cache = runtimeConfig.dev
-  ? await LocalFileCache.create('langchain-cache-travel')
-  : undefined
+    ? await LocalFileCache.create('langchain-cache-travel')
+    : undefined
   consola.info(`cache is undefined ${cache === undefined}`)
 
   const model = new ChatOpenAI({
