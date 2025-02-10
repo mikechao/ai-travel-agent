@@ -159,14 +159,29 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
   }
 }
 
+const toastDetails = [
+  'For example:\nCan you show me the weather in San Francisco,CA?',
+  'For example:\nCan you suggest some sights to see near San Francisco,CA?',
+  'For example:\nCan you show me some hotels near San Francisco,CA?',
+]
+
+const randomToastDetail = computed(() =>
+  toastDetails[Math.floor(Math.random() * toastDetails.length)],
+)
+
 onMounted(() => {
-  toast.add({ severity: 'info', summary: 'Results from chat will be shown on this side', detail: 'For example:\nCan you show me the weather in San Francisco,CA?', group: 'tr' })
+  toast.add({
+    severity: 'info',
+    summary: 'Results from chat will be shown on this side',
+    detail: randomToastDetail.value,
+    group: 'initial',
+  })
 })
 </script>
 
 <template>
   <div class="flex justify-center">
-    <Toast position="top-left" group="tr">
+    <Toast position="top-left" group="initial">
       <template #messageicon>
         <font-awesome icon="fa-regular fa-lightbulb" />
       </template>
