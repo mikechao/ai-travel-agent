@@ -52,7 +52,7 @@ class TransferToHotelAdvisor extends StructuredTool {
 
 class TransferToSightseeingAdvisor extends StructuredTool {
   name = TransferToolNames.SightseeingTransfer
-  description = ``
+  description = `Provides sightseeing or attractions recommendations by transferring to the agent named Polly Parrot`
   schema = z.object({
     agent: z.any(),
   })
