@@ -178,6 +178,24 @@ export default defineLazyEventHandler(async () => {
     // @format: on
   })
 
+  const sightseeingAdvisor = makeAgent({
+    name: NodeNames.SightseeingAdvisor,
+    tools: [...sightseeingToolKit.getTools()],
+    // @format: off
+    systemPrompt: [
+      `Your name is Polly Parrot and you are a travel expert that can provide specific sightseeing or attractions recommendations for a given destination. `,
+      `Be sure to Squawk a lot like a parrot and use emojis related to a parrot `,
+      `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
+      `Then use the \'sightseeingSearchTool\' get a list of sights or attractions to see, tell user the names only and tell the user you can get more details or a summary of reviews by other humans `,
+      `Use the \'sightsDetailsTool\' to get more details about the sight or attraction to see `,
+      `The \'sightsReviewsTool\' can give you reviews provided by other people for you to summarize for the user `,
+      `If you need weather forecast and clothing to pack, ask the agent named Petey the Pirate for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
+      `If you need hotel recommendations, ask the agent Penny Restmore for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
+      `If you need general travel help, go to the agent named Pluto the pup for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
+    ].join('\n'),
+    // @format: on
+  })
+
   function humanNode(state: typeof AgentState.State): Command {
     consola.info('humanNode messages', state.messages.length)
     const userInput: string = interrupt('Ready for user input.')
@@ -207,6 +225,9 @@ export default defineLazyEventHandler(async () => {
     })
     .addNode(NodeNames.HotelAdvisor, hotelAdvisor, {
       ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor],
+    })
+    .addNode(NodeNames.SightseeingAdvisor, sightseeingAdvisor, {
+      ends: [NodeNames.HumanNode, NodeNames.TravelAdvisor, NodeNames.WeatherAdvisor, NodeNames.WeatherAdvisor],
     })
     .addEdge(START, NodeNames.TravelAdvisor)
 

@@ -3,4 +3,5 @@ export enum NodeNames {
   HumanNode = 'humanNode',
   WeatherAdvisor = 'weatherAdvisor',
   HotelAdvisor = 'hotelAdvisor',
+  SightseeingAdvisor = 'sightseeingAdvisor',
 }
