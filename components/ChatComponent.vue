@@ -65,6 +65,13 @@ const md = new MarkdownIt({
   breaks: true,
   typographer: true,
 })
+
+md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+  // Add Tailwind CSS classes to style links
+  tokens[idx].attrPush(['class', 'p-button-link'])
+  return self.renderToken(tokens, idx, options)
+}
+
 function renderMessage(message: Message): string {
   return md.render(message.content)
 }
