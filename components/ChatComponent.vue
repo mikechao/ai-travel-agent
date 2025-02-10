@@ -12,7 +12,7 @@ import { useDataItemStore } from '~/stores/dataItemStore'
 const dataItemStore = useDataItemStore()
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
-  api: '/api/travel2',
+  api: '/api/travel',
   body: computed(() => ({
     sessionId,
     messages: messages.value.length > 0 ? [messages.value[messages.value.length - 1]] : [],
@@ -148,5 +148,4 @@ function formSubmit(_event: FormSubmitEvent) {
   border-radius: 4px;
   margin-bottom: 1rem;
 }
-
 </style>
