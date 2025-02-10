@@ -2,9 +2,9 @@
 import type { MenuItem, MenuItemCommandEvent } from 'primevue/menuitem'
 import Dialog from 'primevue/dialog'
 import Dock from 'primevue/dock'
+import { useToast } from 'primevue/usetoast'
 import LocationList from './LocationList.vue'
 import WeatherCard from './weather/WeatherCard.vue'
-import { useToast } from "primevue/usetoast"
 
 const toast = useToast()
 const dataItemStore = useDataItemStore()
@@ -99,6 +99,7 @@ function processDataItem(dataItem: DataItem) {
       currentZIndex += 1
       weatherZIndex.value = currentZIndex
       displayWeather.value = true
+      toast.removeAllGroups()
       break
     }
     case 'hotel-search': {
@@ -109,6 +110,7 @@ function processDataItem(dataItem: DataItem) {
       currentZIndex += 1
       hotelsZIndex.value = currentZIndex
       displayHotels.value = true
+      toast.removeAllGroups()
       break
     }
     case 'sight-search': {
@@ -119,6 +121,7 @@ function processDataItem(dataItem: DataItem) {
       currentZIndex += 1
       sightsZIndex.value = currentZIndex
       displaySights.value = true
+      toast.removeAllGroups()
       break
     }
     default:
@@ -157,7 +160,7 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
 }
 
 onMounted(() => {
-  toast.add({ severity: 'info', summary: 'Results from chat will be shown on this side', detail: 'For example:\nCan you show me the weather in San Francisco,CA?', group:'tr'})
+  toast.add({ severity: 'info', summary: 'Results from chat will be shown on this side', detail: 'For example:\nCan you show me the weather in San Francisco,CA?', group: 'tr' })
 })
 </script>
 
