@@ -78,6 +78,7 @@ export default defineNuxtConfig({
         'primevue/tabpanel',
         'primevue/tabpanels',
         'primevue/tabs',
+        'markdown-it',
       ],
     },
   },
