@@ -587,6 +587,93 @@ and black suspenders nods and smiles<br/>
     const { messages } = body
     consola.info('messages', messages)
 
+    if (messages[0].content === 'query') {
+      const queries = {
+        queries: [
+          'Best travel destinations for cat lovers',
+          'Cat-themed travel spots around the world',
+          'Top cities with cat cafes and cat attractions',
+          'Unique travel experiences for cat enthusiasts',
+          'Cat lover travel blogs and itineraries',
+        ],
+      }
+      const content = JSON.stringify(queries)
+      const id = uuidv4()
+      const part = `2:[{"id":"${id}","type":"search-query","data":${content}}]\n`
+      return new ReadableStream({
+        async start(controller) {
+          controller.enqueue(part)
+          controller.close()
+        },
+      })
+    }
+
+    if (messages[0].content === 'execute') {
+      const results: SearchResult[] = []
+      results.push({
+        query: `best travel destinations for cat lovers`,
+        url: `https://www.amatravel.ca/articles/travelling-destinations-for-cat-lovers`,
+        title: `Travelling Destinations for Cat Lovers | AMA Travel`,
+        description: `Why a Belgium <strong>cat</strong> festival, Malaysian <strong>cat</strong> museum, and Disneyland (Disneyland?) are some of the must-hits on every <strong>cat</strong>-<strong>lovers</strong> <strong>travel</strong> list.`,
+      })
+      results.push({
+        query: `best travel destinations for cat lovers`,
+        url: `https://expatexplore.com/blog/worlds-top-destinations-cat-lovers/`,
+        title: `Top Destinations For Cat Lovers - Cat Cafes - Expat Explore`,
+        description: `From exploring ancient cultures to discovering modern <strong>cat</strong> cafes - let Expat Explore be your guide to the <strong>best</strong> <strong>destinations</strong> <strong>for</strong> <strong>cat</strong> <strong>lovers</strong> around the world!`,
+      })
+      results.push({
+        query: `best travel destinations for cat lovers`,
+        url: `https://www.countryandtownhouse.com/travel/best-holiday-destinations-for-cat-lovers/`,
+        title: `Best Holiday Destinations For Cat Lovers - Travel`,
+        description: `Looking for the <strong>best</strong> countries to visit to see stray <strong>cats</strong>? This is the purrfect guide to the ultimate holiday <strong>destinations</strong> <strong>for</strong> <strong>cat</strong> <strong>lovers</strong>.`,
+      })
+      results.push({
+        query: `best travel destinations for cat lovers`,
+        url: `https://www.ministryofcat.com/blog/best-cat-friendly-travel-destinations`,
+        title: `Best Cat-Friendly Travel Destinations | Ministry of Cat | Cat Cafe in Phnom Penh`,
+        description: `Additionally, Amsterdam&#x27;s many ... easy to <strong>travel</strong> around the city with your <strong>cat</strong> in tow. Japan is a country that has a deep appreciation <strong>for</strong> <strong>cats</strong>, and Tokyo is no exception. <strong>Cat</strong> cafes, where customers can sip coffee while petting <strong>cats</strong>, are a popular attraction in the city. Additionally, there are many <strong>cat</strong>-themed shops and even a <strong>cat</strong> island, Tashirojima, where <strong>cats</strong> outnumber humans. Paris may be known as the city of love, but it&#x27;s also a great <strong>destination</strong> <strong>for</strong> <strong>cat</strong> <strong>lovers</strong>...`,
+      })
+      results.push({
+        query: `best travel destinations for cat lovers`,
+        url: `https://www.vacationsmadeeasy.com/TheBLT/Americas13BestTouristAttractionsforCatLovers.html`,
+        title: `America’s 13 Best Tourist Attractions for Cat Lovers`,
+        description: `To the delight of <strong>cat</strong> <strong>lovers</strong> everywhere, North America has officially jumped on the <strong>Cat</strong> Café wagon, with <strong>Cat</strong> Town Café[1] being the very first to open its doors in 2014. A <strong>cat</strong> café is a blend of a café and an adoption center, where adoptable <strong>cats</strong> are free to roam the establishment while ...`,
+      })
+      const content = JSON.stringify(results)
+      const id = uuidv4()
+      const part = `2:[{"id":"${id}","type":"search-execution","data":${content}}]\n`
+      return new ReadableStream({
+        async start(controller) {
+          controller.enqueue(part)
+          controller.close()
+        },
+      })
+    }
+
+    if (messages[0].content === 'summary') {
+      const results = `|-
+The text does not provide specific travel destinations for cat lovers, but it does mention cat cafes as a point of interest for this audience.
+
+Here are some relevant links you might find interesting:
+
+### Relevant Links:
+- [Expat Explore Home Page](https://expatexplore.com/) - Discover guided tours across the globe, designed by expats.
+- [Expat Explore Blog Home](https://expatexplore.com/blog/) - Explore various blog posts for travel tips and inspiration.
+- [Privacy Policy](https://expatexplore.com/privacy-policy/) - Review the privacy policy for Expat Explore.
+- [Expat Explore Facebook](https://www.facebook.com/ExpatExploreTravel/) - Join the Expat Explore community on Facebook.
+- [Expat Explore Instagram](https://www.instagram.com/expatexplore/) - Follow Expat Explore on Instagram for travel inspiration.`
+      const content = JSON.stringify(results)
+      const id = uuidv4()
+      const part = `2:[{"id":"${id}","type":"search-summary","data":${content}}]\n`
+      return new ReadableStream({
+        async start(controller) {
+          controller.enqueue(part)
+          controller.close()
+        },
+      })
+    }
+
     if (messages[0].content === 'piece') {
       const result = await piece()
       return new ReadableStream({
