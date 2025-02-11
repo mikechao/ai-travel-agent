@@ -6,6 +6,7 @@ import TabList from 'primevue/tablist'
 import TabPanel from 'primevue/tabpanel'
 import TabPanels from 'primevue/tabpanels'
 import Tabs from 'primevue/tabs'
+import MarkdownIt from 'markdown-it'
 
 defineProps({
   queries: {
@@ -24,11 +25,34 @@ defineProps({
       return { summary: '' }
     },
   },
+  activeTab: {
+    type: String,
+    default: () => "queries"
+  }
 })
+
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  breaks: true,
+  typographer: true,
+})
+
+md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+  tokens[idx].attrPush(['class', 'p-button-link'])
+  tokens[idx].attrPush(['target', '_blank'])
+  tokens[idx].attrPush(['rel', 'noopener noreferrer'])
+  return self.renderToken(tokens, idx, options)
+}
+
+function renderSearchResult(result: SearchResult) {
+  const markdown = `# [${result.title}](${result.url})\n\n **Description:** ${result.description}`
+  return md.render(markdown)
+}
 </script>
 
 <template>
-  <Tabs value="queries">
+  <Tabs :value="activeTab">
     <TabList>
       <Tab value="queries">
         Search Queries
@@ -61,9 +85,15 @@ defineProps({
         </div>
       </TabPanel>
       <TabPanel value="results">
-        <p class="m-0">
-          Search results go here
-        </p>
+        <div v-if="results.length > 0">
+          <div v-for="(result, index) in results">
+            <div v-html="renderSearchResult(result)" :key="index"/>
+            <Divider />
+          </div>
+        </div>
+        <div v-else>
+          No results
+        </div>
       </TabPanel>
       <TabPanel value="summary">
         <p class="m-0">

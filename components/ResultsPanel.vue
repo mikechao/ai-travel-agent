@@ -22,7 +22,9 @@ const displaySights = ref(false)
 
 const displaySettings = ref(false)
 
+const activeTab = ref()
 const searchQueryData = ref()
+const searchResultData = ref()
 const displayRecommend = ref(false)
 
 const baseZIndex = 5000
@@ -141,6 +143,18 @@ function processDataItem(dataItem: DataItem) {
     }
     case DataItemTypes.SearchQuery: {
       searchQueryData.value = dataItem.data
+      activeTab.value = 'queries'
+      recommendMenuItem.disabled = false
+      menuItems.value = [...menuItems.value]
+      currentZIndex += 1
+      recommendZIndex.value = currentZIndex
+      displayRecommend.value = true
+      toast.removeAllGroups()
+      break
+    }
+    case DataItemTypes.SearchExecution: {
+      searchResultData.value = dataItem.data
+      activeTab.value = 'results'
       recommendMenuItem.disabled = false
       menuItems.value = [...menuItems.value]
       currentZIndex += 1
@@ -356,7 +370,7 @@ onMounted(() => {
           <font-awesome icon="fa-solid fa-magnifying-glass-plus" class="mr-1" />Recommendations
         </span>
       </template>
-      <TravelRecommend :queries="searchQueryData" />
+      <TravelRecommend :active-tab="activeTab" :queries="searchQueryData" :results="searchResultData"/>
     </Dialog>
   </div>
 </template>
