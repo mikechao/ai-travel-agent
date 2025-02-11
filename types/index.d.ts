@@ -24,9 +24,11 @@ declare global {
     palette: ColorPalette
   }
 
+  type DataItemType = 'weather' | 'hotel-search' | 'sight-search' | 'search-query' | 'search-execution' | 'search-summary'
+
   interface DataItem {
     id: string
-    type: string
+    type: DataItemType
     data: string
   }
 
