@@ -24,6 +24,7 @@ const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   },
   onFinish: (message) => {
     console.log('Chat finished:', message)
+    isLoading.value = false
   },
   onError: (error) => {
     console.error('error', error)
