@@ -2,6 +2,7 @@ import type { CallbackManagerForToolRun } from '@langchain/core/callbacks/manage
 import type { EmbeddingsInterface } from '@langchain/core/embeddings'
 import type { BaseLanguageModelInterface } from '@langchain/core/language_models/base'
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models'
+import type { ToolMessage } from '@langchain/core/messages'
 import type { StructuredToolInterface, ToolRunnableConfig } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import { BraveSearch } from 'brave-search/dist/braveSearch.js'
@@ -135,8 +136,9 @@ class SearchSummaryTool extends StructuredTool {
       const query = input.searchResult.query
       const result = await browser.invoke(`"${url}","${query}"`, parentConfig)
       const after = performance.now()
+      const toolMessage = result as ToolMessage
       consola.debug({ tag: `searchSummaryTool`, message: `got results in ${after - before} ms` })
-      return JSON.stringify(result)
+      return JSON.stringify(toolMessage.content)
     }
     catch (error) {
       consola.error('error using browser', error)
