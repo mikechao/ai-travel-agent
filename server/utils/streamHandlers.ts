@@ -4,6 +4,7 @@ import { formatDataStreamPart } from 'ai'
 import { v4 as uuidv4 } from 'uuid'
 import { HotelToolTags } from '../toolkits/HotelToolKit'
 import { SightseeingToolTags } from '../toolkits/SightseeingToolKit'
+import { TravelRecommendToolTags } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolTags } from '../toolkits/WeatherToolKit'
 
 export interface StreamEventHandlers {
@@ -33,6 +34,7 @@ export function createStreamEventHandlers(): StreamEventHandlers {
           [WeatherToolTags.WeatherSearch]: 'weather',
           [HotelToolTags.HotelSearch]: 'hotel-search',
           [SightseeingToolTags.SightSearch]: 'sight-search',
+          [TravelRecommendToolTags.SearchQuery]: 'search-query',
         }
 
         for (const [tag, type] of Object.entries(toolOutputTypes)) {
