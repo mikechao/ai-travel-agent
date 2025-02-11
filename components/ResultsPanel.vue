@@ -25,6 +25,7 @@ const displaySettings = ref(false)
 const activeTab = ref()
 const searchQueryData = ref()
 const searchResultData = ref()
+const searchSummaryData = ref()
 const displayRecommend = ref(false)
 
 const baseZIndex = 5000
@@ -162,6 +163,16 @@ function processDataItem(dataItem: DataItem) {
       displayRecommend.value = true
       toast.removeAllGroups()
       break
+    }
+    case DataItemTypes.SearchSummary: {
+      searchSummaryData.value = dataItem.data
+      activeTab.value = 'summary'
+      recommendMenuItem.disabled = false
+      menuItems.value = [...menuItems.value]
+      currentZIndex += 1
+      recommendZIndex.value = currentZIndex
+      displayRecommend.value = true
+      toast.removeAllGroups()
     }
     default:
       console.error(`Unknown DataItem type ${dataItem.type}`)
@@ -370,7 +381,7 @@ onMounted(() => {
           <font-awesome icon="fa-solid fa-magnifying-glass-plus" class="mr-1" />Recommendations
         </span>
       </template>
-      <TravelRecommend :active-tab="activeTab" :queries="searchQueryData" :results="searchResultData"/>
+      <TravelRecommend :active-tab="activeTab" :queries="searchQueryData" :results="searchResultData" :summary="searchSummaryData"/>
     </Dialog>
   </div>
 </template>

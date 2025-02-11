@@ -49,6 +49,10 @@ function renderSearchResult(result: SearchResult) {
   const markdown = `# [${result.title}](${result.url})\n\n **Description:** ${result.description}`
   return md.render(markdown)
 }
+
+function renderSummary(summary: SearchSummary) {
+  return md.render(summary.summary)
+}
 </script>
 
 <template>
@@ -96,9 +100,12 @@ function renderSearchResult(result: SearchResult) {
         </div>
       </TabPanel>
       <TabPanel value="summary">
-        <p class="m-0">
-          Search summary go here
-        </p>
+        <div v-if="summary.summary.length">
+          <div v-html="renderSummary(summary)"></div>
+        </div>
+        <div v-else>
+          <p>No summary to show</p>
+        </div>
       </TabPanel>
     </TabPanels>
   </Tabs>
