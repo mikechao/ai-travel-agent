@@ -187,16 +187,4 @@ export class TravelRecommendToolKit extends BaseToolkit {
   getToolTags(): Map<string, string> {
     return this.toolTags
   }
-
-  getSearchQueryTool() {
-    return this.searchQueryTool
-  }
-
-  getSearchExecutionTool() {
-    return this.searchExecutionTool
-  }
-
-  getSearchSummaryTool() {
-    return this.searchSummaryTool
-  }
 }

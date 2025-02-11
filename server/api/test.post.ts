@@ -4,9 +4,7 @@ import { BraveSearch } from 'brave-search/dist/braveSearch.js'
 import consola from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { v4 as uuidv4 } from 'uuid'
-import { z } from 'zod'
 import { RunnableTools } from '../toolkits/RunnableTools'
-import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 
 // just a simple test endpoint that will return some text
 // or data based on certain content in the message
@@ -534,32 +532,6 @@ and black suspenders nods and smiles<br/>
     return allResults
   }
 
-  const toolKit = new TravelRecommendToolKit(model, embeddings)
-  async function tools() {
-    const searchQueryTool = toolKit.getSearchQueryTool()
-    const searchExecutionTool = toolKit.getSearchExecutionTool()
-    const searchSummaryTool = toolKit.getSearchSummaryTool()
-    const chain = searchQueryTool.pipe(searchExecutionTool).pipe(searchSummaryTool)
-    const tool = chain.asTool({
-      name: 'travelRecommendationTool',
-      description: `Generates travel recommendations when given a user's interest by generating queries, searching for those queries on the web and summarizing the search results`,
-      schema: z.object({
-        interest: z.string().describe(`The user's travel interest to generate search queries for`),
-      }),
-    })
-    try {
-      const before = performance.now()
-      const result = await tool.invoke({ interest: 'cats' })
-      const after = performance.now()
-      consola.info(`tool time ${after - before} ms`)
-      return JSON.stringify(result)
-    }
-    catch (error) {
-      consola.error('error invoking chain', error)
-      return 'Error happened'
-    }
-  }
-
   const runnableTools = new RunnableTools(model, embeddings)
   async function runnables() {
     const mapChain = runnableTools.createWholeChain()
@@ -628,17 +600,6 @@ and black suspenders nods and smiles<br/>
 
     if (messages[0].content === 'webbrowser') {
       const result = await webBrowser()
-      return new ReadableStream({
-        async start(controller) {
-          const text = formatDataStreamPart('text', result)
-          controller.enqueue(encoder.encode(text))
-          controller.close()
-        },
-      })
-    }
-
-    if (messages[0].content === 'tools') {
-      const result = await tools()
       return new ReadableStream({
         async start(controller) {
           const text = formatDataStreamPart('text', result)
