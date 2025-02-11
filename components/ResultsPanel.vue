@@ -29,6 +29,15 @@ const settingsZIndex = ref(baseZIndex)
 
 let currentZIndex = baseZIndex
 
+const recommendMenuItem: MenuItem = {
+  label: `Recommendations`,
+  icon: './recommend.png',
+  disabled: true,
+  command(_event: MenuItemCommandEvent) {
+    // for now do nothing
+  },
+}
+
 const weatherMenuItem: MenuItem = {
   label: 'Weather',
   icon: './weather-icon.webp',
@@ -77,7 +86,7 @@ const settingMenuItem: MenuItem = {
     displaySettings.value = true
   },
 }
-const menuItems: Ref<MenuItem[]> = ref([sightseeingMenuItem, hotelsMenuItem, weatherMenuItem, settingMenuItem])
+const menuItems: Ref<MenuItem[]> = ref([recommendMenuItem, sightseeingMenuItem, hotelsMenuItem, weatherMenuItem, settingMenuItem])
 
 const processedDataItemIds = new Set()
 
