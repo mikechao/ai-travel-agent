@@ -353,7 +353,7 @@ onMounted(() => {
     >
       <template #header>
         <span class="p-dialog-title">
-          <font-awesome icon="fa-solid fa-cloud-sun" class="mr-1" />Recommendations
+          <font-awesome icon="fa-solid fa-magnifying-glass-plus" class="mr-1" />Recommendations
         </span>
       </template>
       <TravelRecommend />

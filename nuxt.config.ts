@@ -112,6 +112,7 @@ export default defineNuxtConfig({
         'circle-info',
         'list',
         'comments',
+        'magnifying-glass-plus',
       ],
       regular: [
         'paper-plane',
