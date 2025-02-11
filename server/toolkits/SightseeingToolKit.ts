@@ -3,9 +3,9 @@ import consola from 'consola'
 import { z } from 'zod'
 import { GeocodeToolKit } from './GeocodeToolKit'
 
-export const SightseeingToolTags = {
-  SightSearch: 'sight-search',
-} as const
+export const SightseeingToolTags = Object.freeze({
+  SightSearch: 'sight-search' as const,
+})
 
 const runtimeConfig = useRuntimeConfig()
 
@@ -120,8 +120,9 @@ export class SightseeingToolKit extends GeocodeToolKit {
       new SightDetailsTool(),
       new SightsReviewTool(),
     )
-    this.toolTags = new Map<string, string>()
-    this.toolTags.set('sightseeingSearchTool', SightseeingToolTags.SightSearch)
+    this.toolTags = new Map<string, string>([
+      ['sightseeingSearchTool', SightseeingToolTags.SightSearch],
+    ])
   }
 
   /**

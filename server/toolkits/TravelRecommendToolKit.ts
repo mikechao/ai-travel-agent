@@ -9,11 +9,11 @@ import { consola } from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { z } from 'zod'
 
-export const TravelRecommendToolTags = {
-  SearchQuery: 'search-query',
-  SearchExecution: 'search-execution',
-  SearchSummary: 'search-summary',
-} as const
+export const TravelRecommendToolTags = Object.freeze({
+  SearchQuery: 'search-query' as const,
+  SearchExecution: 'search-execution' as const,
+  SearchSummary: 'search-summary' as const,
+})
 
 interface SearchResult {
   query: string
@@ -170,10 +170,11 @@ export class TravelRecommendToolKit extends BaseToolkit {
       this.searchExecutionTool,
       this.searchSummaryTool,
     ]
-    this.toolTags = new Map<string, string>()
-    this.toolTags.set('searchQueryTool', TravelRecommendToolTags.SearchQuery)
-    this.toolTags.set('searchExecutionTool', TravelRecommendToolTags.SearchExecution)
-    this.toolTags.set('searchSummaryTool', TravelRecommendToolTags.SearchSummary)
+    this.toolTags = new Map<string, string>([
+      [this.searchQueryTool.name, TravelRecommendToolTags.SearchQuery],
+      [this.searchExecutionTool.name, TravelRecommendToolTags.SearchExecution],
+      [this.searchSummaryTool.name, TravelRecommendToolTags.SearchSummary],
+    ])
   }
 
   /**

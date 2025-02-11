@@ -3,9 +3,9 @@ import consola from 'consola'
 import { z } from 'zod'
 import { GeocodeToolKit } from './GeocodeToolKit'
 
-export const WeatherToolTags = {
-  WeatherSearch: 'weather-tool',
-} as const
+export const WeatherToolTags = Object.freeze({
+  WeatherSearch: 'weather-tool' as const,
+})
 
 const runtimeConfig = useRuntimeConfig()
 
@@ -32,13 +32,14 @@ export class WeatherToolKit extends GeocodeToolKit {
   // this.tools do not need to define this, as it will
   // shadow/overwrite the parent class
   private readonly weatherSearchTool: StructuredTool
-  private toolTags: Map<string, string>
+  private readonly toolTags: Map<string, string>
   constructor() {
     super()
     this.weatherSearchTool = new WeatherSearchTool()
     this.tools.push(this.weatherSearchTool)
-    this.toolTags = new Map<string, string>()
-    this.toolTags.set(this.weatherSearchTool.name, WeatherToolTags.WeatherSearch)
+    this.toolTags = new Map<string, string>([
+      [this.weatherSearchTool.name, WeatherToolTags.WeatherSearch],
+    ])
   }
 
   /**

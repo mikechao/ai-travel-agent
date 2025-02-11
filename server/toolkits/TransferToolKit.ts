@@ -4,19 +4,19 @@ import consola from 'consola'
 import { z } from 'zod'
 import { NodeNames } from '~/types/enums'
 
-export const TransferToolTags = {
-  HotelTransfer: 'transfer-to-hotel',
-  TravelTransfer: 'transfer-to-travel',
-  WeatherTransfer: 'transfer-to-weather',
-  SightseeingTransfer: 'transfer-to-sights',
-} as const
+export const TransferToolTags = Object.freeze({
+  HotelTransfer: 'transfer-to-hotel' as const,
+  TravelTransfer: 'transfer-to-travel' as const,
+  WeatherTransfer: 'transfer-to-weather' as const,
+  SightseeingTransfer: 'transfer-to-sights' as const,
+})
 
-export const TransferToolNames = {
-  HotelTransfer: 'hotelAdvisorTransfer',
-  TravelTransfer: 'travelAdvisorTransfer',
-  WeatherTransfer: 'weatherAdvisorTransfer',
-  SightseeingTransfer: 'sightseeingTransfer',
-} as const
+export const TransferToolNames = Object.freeze({
+  HotelTransfer: 'hotelAdvisorTransfer' as const,
+  TravelTransfer: 'travelAdvisorTransfer' as const,
+  WeatherTransfer: 'weatherAdvisorTransfer' as const,
+  SightseeingTransfer: 'sightseeingTransfer' as const,
+})
 
 class TransferToWeatherAdvisor extends StructuredTool {
   name = TransferToolNames.WeatherTransfer
@@ -91,11 +91,12 @@ export class TransferToolKit extends BaseToolkit {
       this.transferToHotelAdvisor,
       this.transferToSightseeingAdvisor,
     ]
-    this.toolTags = new Map<string, string>()
-    this.toolTags.set(TransferToolNames.HotelTransfer, TransferToolTags.HotelTransfer)
-    this.toolTags.set(TransferToolNames.SightseeingTransfer, TransferToolTags.SightseeingTransfer)
-    this.toolTags.set(TransferToolNames.TravelTransfer, TransferToolTags.TravelTransfer)
-    this.toolTags.set(TransferToolNames.WeatherTransfer, TransferToolTags.WeatherTransfer)
+    this.toolTags = new Map<string, string>([
+      [TransferToolNames.HotelTransfer, TransferToolTags.HotelTransfer],
+      [TransferToolNames.SightseeingTransfer, TransferToolTags.SightseeingTransfer],
+      [TransferToolNames.TravelTransfer, TransferToolTags.TravelTransfer],
+      [TransferToolNames.WeatherTransfer, TransferToolTags.WeatherTransfer],
+    ])
   }
 
   public getTransferTool(nodeName: NodeNames) {

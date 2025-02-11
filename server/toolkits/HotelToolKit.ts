@@ -3,10 +3,10 @@ import consola from 'consola'
 import { z } from 'zod'
 import { GeocodeToolKit } from './GeocodeToolKit'
 
-export const HotelToolTags = {
-  HotelSearch: 'hotel-search',
-  HotelDetails: 'hotel-details',
-} as const
+export const HotelToolTags = Object.freeze({
+  HotelSearch: 'hotel-search' as const,
+  HotelDetails: 'hotel-details' as const,
+})
 
 const runtimeConfig = useRuntimeConfig()
 
@@ -120,9 +120,10 @@ export class HotelToolKit extends GeocodeToolKit {
       new HotelReviewsTool(),
       new HotelDetailsTool(),
     )
-    this.toolTags = new Map<string, string>()
-    this.toolTags.set('hotelSearchTool', HotelToolTags.HotelSearch)
-    this.toolTags.set('hotelDetailsTool', HotelToolTags.HotelDetails)
+    this.toolTags = new Map<string, string>([
+      ['hotelSearchTool', HotelToolTags.HotelSearch],
+      ['hotelDetailsTool', HotelToolTags.HotelDetails],
+    ])
   }
 
   /**
