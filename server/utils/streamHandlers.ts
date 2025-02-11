@@ -28,17 +28,19 @@ export function createStreamEventHandlers(): StreamEventHandlers {
     handleToolEnd(event, controller) {
       if (event.data.output && (event.data.output as ToolMessage).content.length) {
         const content = (event.data.output as ToolMessage).content as string
-        const id = uuidv4()
 
         const toolOutputTypes = {
           [WeatherToolTags.WeatherSearch]: 'weather',
           [HotelToolTags.HotelSearch]: 'hotel-search',
           [SightseeingToolTags.SightSearch]: 'sight-search',
           [TravelRecommendToolTags.SearchQuery]: 'search-query',
+          [TravelRecommendToolTags.SearchExecution]: 'search-execution',
+          [TravelRecommendToolTags.SearchSummary]: 'search-summary',
         }
 
         for (const [tag, type] of Object.entries(toolOutputTypes)) {
           if (event.tags.includes(tag)) {
+            const id = uuidv4()
             const part = `2:[{"id":"${id}","type":"${type}","data":${content}}]\n`
             controller.enqueue(part)
             break
