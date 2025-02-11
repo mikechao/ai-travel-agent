@@ -117,12 +117,12 @@ function formSubmit(_event: FormSubmitEvent) {
               class="mb-0 px-2 rounded-lg shadow-lg text-surface-700 dark:text-surface-0 "
               :class="[message.role === 'user' ? 'bg-primary-100 dark:bg-primary-900' : 'bg-surface-100 dark:bg-surface-900']"
             >
-              <div v-if="message.role !== 'user'" class="flex items-center justify-start gap-1">
-                <Avatar image="./chatAvatar.webp" shape="circle" size="normal" />
+              <div v-if="message.role !== 'user'" class="flex items-center justify-start gap-1 py-1">
+                <Avatar image="./chatAvatar.webp" shape="circle" size="normal" class="w-6 h-6" />
                 <strong>AI</strong>
               </div>
-              <div v-else class="flex items-center justify-start gap-1">
-                <font-awesome icon="fa-regular fa-circle-user" />
+              <div v-else class="flex items-center justify-start gap-1 py-1">
+                <font-awesome icon="fa-regular fa-circle-user" class="w-6 h-6 p-avatar p-avatar-image" />
                 <strong>You</strong>
               </div>
               <div v-html="renderMessage(message)" />
