@@ -652,18 +652,11 @@ and black suspenders nods and smiles<br/>
     }
 
     if (messages[0].content === 'summary') {
-      const results = `|-
-The text does not provide specific travel destinations for cat lovers, but it does mention cat cafes as a point of interest for this audience.
-
-Here are some relevant links you might find interesting:
-
-### Relevant Links:
-- [Expat Explore Home Page](https://expatexplore.com/) - Discover guided tours across the globe, designed by expats.
-- [Expat Explore Blog Home](https://expatexplore.com/blog/) - Explore various blog posts for travel tips and inspiration.
-- [Privacy Policy](https://expatexplore.com/privacy-policy/) - Review the privacy policy for Expat Explore.
-- [Expat Explore Facebook](https://www.facebook.com/ExpatExploreTravel/) - Join the Expat Explore community on Facebook.
-- [Expat Explore Instagram](https://www.instagram.com/expatexplore/) - Follow Expat Explore on Instagram for travel inspiration.`
-      const content = JSON.stringify(results)
+      const results = '### Best Travel Destinations for Cat Lovers\n\nThe text highlights various travel destinations that are ideal for cat lovers, specifically focusing on cat cafes, which are popular spots for feline enthusiasts to enjoy a cup of coffee while interacting with cats.\n\n### Relevant Links:\n- [Expat Explore Home Page](https://expatexplore.com/)\n- [Expat Explore Blog Home](https://expatexplore.com/blog/)\n- [Expat Explore Privacy Policy](https://expatexplore.com/privacy-policy/)\n- [Expat Explore Facebook](https://www.facebook.com/ExpatExploreTravel/)\n- [Expat Explore Instagram](https://www.instagram.com/expatexplore/)'
+      const summary = {
+        summary: results,
+      }
+      const content = JSON.stringify(summary)
       const id = uuidv4()
       const part = `2:[{"id":"${id}","type":"search-summary","data":${content}}]\n`
       return new ReadableStream({
