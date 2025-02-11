@@ -1,3 +1,5 @@
+import type { DataItemTypes } from './constants'
+
 export {}
 
 declare global {
@@ -24,7 +26,7 @@ declare global {
     palette: ColorPalette
   }
 
-  type DataItemType = 'weather' | 'hotel-search' | 'sight-search' | 'search-query' | 'search-execution' | 'search-summary'
+  type DataItemType = typeof DataItemTypes[keyof typeof DataItemTypes]
 
   interface DataItem {
     id: string

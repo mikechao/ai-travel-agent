@@ -3,6 +3,7 @@
   "extends": "./.nuxt/tsconfig.json",
   "includes": [
     "types/*.d.ts",
-    "types/enums.ts"
+    "types/enums.ts",
+    "types/constants.ts"
   ]
 }

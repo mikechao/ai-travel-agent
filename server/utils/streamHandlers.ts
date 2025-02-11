@@ -2,6 +2,7 @@ import type { AIMessageChunk, ToolMessage } from '@langchain/core/messages'
 import { isAIMessageChunk } from '@langchain/core/messages'
 import { formatDataStreamPart } from 'ai'
 import { v4 as uuidv4 } from 'uuid'
+import { DataItemTypes } from '../../types/constants'
 import { HotelToolTags } from '../toolkits/HotelToolKit'
 import { SightseeingToolTags } from '../toolkits/SightseeingToolKit'
 import { TravelRecommendToolTags } from '../toolkits/TravelRecommendToolKit'
@@ -30,12 +31,12 @@ export function createStreamEventHandlers(): StreamEventHandlers {
         const content = (event.data.output as ToolMessage).content as string
 
         const toolOutputTypes = {
-          [WeatherToolTags.WeatherSearch]: 'weather',
-          [HotelToolTags.HotelSearch]: 'hotel-search',
-          [SightseeingToolTags.SightSearch]: 'sight-search',
-          [TravelRecommendToolTags.SearchQuery]: 'search-query',
-          [TravelRecommendToolTags.SearchExecution]: 'search-execution',
-          [TravelRecommendToolTags.SearchSummary]: 'search-summary',
+          [WeatherToolTags.WeatherSearch]: DataItemTypes.Weather,
+          [HotelToolTags.HotelSearch]: DataItemTypes.HotelSearch,
+          [SightseeingToolTags.SightSearch]: DataItemTypes.SightSearch,
+          [TravelRecommendToolTags.SearchQuery]: DataItemTypes.SearchQuery,
+          [TravelRecommendToolTags.SearchExecution]: DataItemTypes.SearchExecution,
+          [TravelRecommendToolTags.SearchSummary]: DataItemTypes.SearchSummary,
         }
 
         for (const [tag, type] of Object.entries(toolOutputTypes)) {
