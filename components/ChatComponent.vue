@@ -115,9 +115,15 @@ function formSubmit(_event: FormSubmitEvent) {
             <div
               v-if="message.content.length > 0"
               class="mb-0 px-2 rounded-lg shadow-lg text-surface-700 dark:text-surface-0 "
-              :class="[message.role === 'user' ? 'bg-primary-100 dark:bg-primary-900 text-right self-end' : 'bg-surface-100 dark:bg-surface-900 self-start']"
+              :class="[message.role === 'user' ? 'bg-primary-100 dark:bg-primary-900' : 'bg-surface-100 dark:bg-surface-900']"
             >
-              <strong>{{ message.role === 'user' ? 'You' : 'AI' }}:</strong>
+              <div v-if="message.role !== 'user'" class="flex items-center justify-start gap-1">
+                <Avatar image="./chatAvatar.webp" shape="circle" size="normal" />
+                <strong>AI</strong>
+              </div>
+              <div v-else>
+                <strong>You</strong>
+              </div>
               <div v-html="renderMessage(message)" />
             </div>
           </div>
