@@ -72,7 +72,7 @@ export default defineNuxtConfig({
         'primevue/divider',
         'primevue/carousel',
         'primevue/toast',
-        'primevue/usetoast'
+        'primevue/usetoast',
       ],
     },
   },
@@ -113,7 +113,8 @@ export default defineNuxtConfig({
         'face-sad-tear',
         'sun',
         'moon',
-        'lightbulb'
+        'lightbulb',
+        'circle-user',
       ],
     },
   },

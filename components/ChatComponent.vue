@@ -121,7 +121,8 @@ function formSubmit(_event: FormSubmitEvent) {
                 <Avatar image="./chatAvatar.webp" shape="circle" size="normal" />
                 <strong>AI</strong>
               </div>
-              <div v-else>
+              <div v-else class="flex items-center justify-start gap-1">
+                <font-awesome icon="fa-regular fa-circle-user" />
                 <strong>You</strong>
               </div>
               <div v-html="renderMessage(message)" />
