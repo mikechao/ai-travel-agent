@@ -5,6 +5,7 @@ import Dock from 'primevue/dock'
 import { useToast } from 'primevue/usetoast'
 import { DataItemTypes } from '~/types/constants'
 import LocationList from './LocationList.vue'
+import TravelRecommend from './recommend/TravelRecommend.vue'
 import WeatherCard from './weather/WeatherCard.vue'
 
 const toast = useToast()
@@ -21,11 +22,15 @@ const displaySights = ref(false)
 
 const displaySettings = ref(false)
 
+const searchQueryData = ref()
+const displayRecommend = ref(false)
+
 const baseZIndex = 5000
 const weatherZIndex = ref(baseZIndex)
 const hotelsZIndex = ref(baseZIndex)
 const sightsZIndex = ref(baseZIndex)
 const settingsZIndex = ref(baseZIndex)
+const recommendZIndex = ref(baseZIndex)
 
 let currentZIndex = baseZIndex
 
@@ -134,6 +139,16 @@ function processDataItem(dataItem: DataItem) {
       toast.removeAllGroups()
       break
     }
+    case DataItemTypes.SearchQuery: {
+      searchQueryData.value = dataItem.data
+      recommendMenuItem.disabled = false
+      menuItems.value = [...menuItems.value]
+      currentZIndex += 1
+      recommendZIndex.value = currentZIndex
+      displayRecommend.value = true
+      toast.removeAllGroups()
+      break
+    }
     default:
       console.error(`Unknown DataItem type ${dataItem.type}`)
   }
@@ -151,7 +166,7 @@ function onDockItemClick(event: MouseEvent, item: MenuItem) {
   event.preventDefault()
 }
 
-function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
+function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings' | 'recommend') {
   currentZIndex += 1
   switch (type) {
     case 'weather':
@@ -165,6 +180,9 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings') {
       break
     case 'settings':
       settingsZIndex.value = currentZIndex
+      break
+    case 'recommend':
+      recommendZIndex.value = currentZIndex
       break
   }
 }
@@ -311,6 +329,34 @@ onMounted(() => {
         </span>
       </template>
       <SettingsPanel />
+    </Dialog>
+    <Dialog
+      v-model:visible="displayRecommend"
+      :base-z-index="recommendZIndex"
+      :modal="false"
+      position="left"
+      :keep-in-view-port="true"
+      :breakpoints="{ '960px': '50vw' }"
+      :style="{ width: '40vw' }"
+      :maximizable="true"
+      :pt="{
+        mask: {
+          style: {
+            zIndex: recommendZIndex,
+          },
+        },
+        header: {
+          class: 'px-4 py-2',
+        },
+      }"
+      @mousedown.stop="updateZIndex('recommend')"
+    >
+      <template #header>
+        <span class="p-dialog-title">
+          <font-awesome icon="fa-solid fa-cloud-sun" class="mr-1" />Recommendations
+        </span>
+      </template>
+      <TravelRecommend />
     </Dialog>
   </div>
 </template>
