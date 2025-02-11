@@ -9,6 +9,12 @@ import { consola } from 'consola'
 import { WebBrowser } from 'langchain/tools/webbrowser'
 import { z } from 'zod'
 
+export const TravelRecommendToolTags = {
+  SearchQuery: 'search-query',
+  SearchExecution: 'search-execution',
+  SearchSummary: 'search-summary',
+} as const
+
 interface SearchResult {
   query: string
   url: string
@@ -152,6 +158,8 @@ export class TravelRecommendToolKit extends BaseToolkit {
   private readonly searchQueryTool: StructuredTool
   private readonly searchExecutionTool: StructuredTool
   private readonly searchSummaryTool: StructuredTool
+  private toolTags: Map<string, string>
+
   constructor(llm: BaseChatModel, embeddings: EmbeddingsInterface) {
     super()
     this.searchQueryTool = new SearchQueryTool(llm)
@@ -162,6 +170,21 @@ export class TravelRecommendToolKit extends BaseToolkit {
       this.searchExecutionTool,
       this.searchSummaryTool,
     ]
+    this.toolTags = new Map<string, string>()
+    this.toolTags.set('searchQueryTool', TravelRecommendToolTags.SearchQuery)
+    this.toolTags.set('searchExecutionTool', TravelRecommendToolTags.SearchExecution)
+    this.toolTags.set('searchSummaryTool', TravelRecommendToolTags.SearchSummary)
+  }
+
+  /**
+   *
+   * @returns A Map where the key is the name of the tool
+   *
+   * And the value are tags that should be used when they are invoked
+   *
+   */
+  getToolTags(): Map<string, string> {
+    return this.toolTags
   }
 
   getSearchQueryTool() {

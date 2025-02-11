@@ -124,6 +124,13 @@ export class SightseeingToolKit extends GeocodeToolKit {
     this.toolTags.set('sightseeingSearchTool', SightseeingToolTags.SightSearch)
   }
 
+  /**
+   *
+   * @returns A Map where the key is the name of the tool
+   *
+   * And the value are tags that should be used when they are invoked
+   *
+   */
   getToolTags(): Map<string, string> {
     return this.toolTags
   }

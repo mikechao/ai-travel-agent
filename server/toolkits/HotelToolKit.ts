@@ -125,6 +125,13 @@ export class HotelToolKit extends GeocodeToolKit {
     this.toolTags.set('hotelDetailsTool', HotelToolTags.HotelDetails)
   }
 
+  /**
+   *
+   * @returns A Map where the key is the name of the tool
+   *
+   * And the value are tags that should be used when they are invoked
+   *
+   */
   getToolTags(): Map<string, string> {
     return this.toolTags
   }
