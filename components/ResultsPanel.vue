@@ -356,7 +356,7 @@ onMounted(() => {
           <font-awesome icon="fa-solid fa-magnifying-glass-plus" class="mr-1" />Recommendations
         </span>
       </template>
-      <TravelRecommend />
+      <TravelRecommend :queries="searchQueryData" />
     </Dialog>
   </div>
 </template>

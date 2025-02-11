@@ -4,6 +4,10 @@ export {}
 
 declare global {
 
+  interface SearchQueries {
+    queries: string[]
+  }
+
   interface SearchResult {
     query: string
     url: string
