@@ -484,29 +484,6 @@ export default defineLazyEventHandler(async () => {
     },
   ])
 
-  const text1 = `
-Two roads diverged in a yellow wood,<br/>
-And sorry I could not travel both<br/>
-And be one traveler, long I stood<br/>
-And looked down one as far as I could<br/>
-To where it bent in the undergrowth;<br/>
-<br/>
-The poem should be above weather data.<br/>
-<br/>
-`
-
-  const text2 = `
-<br/>
-The weather data should be above this poem<br/>
-Is this the last time I’ll admire the guys<br/>
-in their neon-yellow slickers, guiding us<br/>
-to our parking spots before we head up<br/>
- <br/>
-two flights to the passenger deck,<br/>
-to the cafeteria where a man in a black derby<br/>
-and black suspenders nods and smiles<br/>
- <br/>
-`
   // cSpell:enable
 
   const runtimeConfig = useRuntimeConfig()
@@ -578,9 +555,6 @@ and black suspenders nods and smiles<br/>
     return JSON.stringify(summaryResults)
   }
 
-  function delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }
   const encoder = new TextEncoder()
   return defineEventHandler(async (webEvent) => {
     const body = await readBody(webEvent)
@@ -742,18 +716,18 @@ and black suspenders nods and smiles<br/>
     }
     return new ReadableStream({
       async start(controller) {
-        for (const chunk of text1.split(' ')) {
-          // simulate some delay
-          await delay(50)
-          const part = formatDataStreamPart('text', chunk)
-          controller.enqueue(encoder.encode(part))
-        }
-        for (const chunk of text2.split(' ')) {
-          // simulate some delay
-          await delay(50)
-          const part = formatDataStreamPart('text', chunk)
-          controller.enqueue(encoder.encode(part))
-        }
+        const text = `hotel for some hotel Data<br/> 
+        sights for some sights Data<br/>
+        weather for some weather Data<br/>
+        runnables to run the chained runnable test<br/>
+        webbrowser to invoke the WebBrowser tool <br/>
+        piece to run the runnables one by one for timing <br/>
+        summary for searchSummaryTool data<br/>
+        execute for searchExecutionTool data<br/>
+        query for searchQueryTool data<br/>`
+        const part = formatDataStreamPart('text', text)
+        controller.enqueue(encoder.encode(part))
+
         controller.close() // Close the stream when done
       },
     })
