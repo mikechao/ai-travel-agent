@@ -14,6 +14,7 @@ import { TransferToolKit, TransferToolNames } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit } from '../toolkits/WeatherToolKit'
 import { createStreamEventHandlers } from '../utils/streamHandlers'
+import { StreamTimeoutError } from '../utils/streamTimeoutError'
 
 interface IteratorResult {
   value: any
@@ -279,7 +280,7 @@ export default defineLazyEventHandler(async () => {
               const { value: event, done } = await Promise.race([
                 eventIterator.next(),
                 new Promise((_, reject) =>
-                  setTimeout(() => reject(new Error('Stream timeout')), 15000),
+                  setTimeout(() => reject(new StreamTimeoutError()), 15000),
                 ),
               ]) as IteratorResult
 
@@ -294,13 +295,24 @@ export default defineLazyEventHandler(async () => {
               }
             }
             catch (error) {
-              consola.error('Stream error:', error)
-              // Send error message to client
-              controller.enqueue(
-                encoder.encode(
-                  formatDataStreamPart('text', 'Oops looks like I took too long, sorry :('),
-                ),
-              )
+              if (error instanceof StreamTimeoutError) {
+                consola.warn('Stream timeout occurred')
+                controller.enqueue(
+                  encoder.encode(
+                    formatDataStreamPart('text', '\nOops looks like I took too long, sorry :(\n'),
+                  ),
+                )
+              }
+              else {
+                // error could also be API error from the model
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+                consola.error('Stream error:', errorMessage)
+                controller.enqueue(
+                  encoder.encode(
+                    formatDataStreamPart('text', `\nAn error occurred: ${errorMessage}\n`),
+                  ),
+                )
+              }
               break
             }
           }
