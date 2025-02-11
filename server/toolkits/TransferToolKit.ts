@@ -4,6 +4,13 @@ import consola from 'consola'
 import { z } from 'zod'
 import { NodeNames } from '~/types/enums'
 
+export const TransferToolTags = {
+  HotelTransfer: 'transfer-to-hotel',
+  TravelTransfer: 'transfer-to-travel',
+  WeatherTransfer: 'transfer-to-weather',
+  SightseeingTransfer: 'transfer-to-sights',
+} as const
+
 export const TransferToolNames = {
   HotelTransfer: 'hotelAdvisorTransfer',
   TravelTransfer: 'travelAdvisorTransfer',
@@ -69,6 +76,7 @@ export class TransferToolKit extends BaseToolkit {
   private readonly transferToTravelAdvisor: StructuredTool
   private readonly transferToHotelAdvisor: StructuredTool
   private readonly transferToSightseeingAdvisor: StructuredTool
+  private readonly toolTags: Map<string, string>
 
   constructor() {
     super()
@@ -83,6 +91,11 @@ export class TransferToolKit extends BaseToolkit {
       this.transferToHotelAdvisor,
       this.transferToSightseeingAdvisor,
     ]
+    this.toolTags = new Map<string, string>()
+    this.toolTags.set(TransferToolNames.HotelTransfer, TransferToolTags.HotelTransfer)
+    this.toolTags.set(TransferToolNames.SightseeingTransfer, TransferToolTags.SightseeingTransfer)
+    this.toolTags.set(TransferToolNames.TravelTransfer, TransferToolTags.TravelTransfer)
+    this.toolTags.set(TransferToolNames.WeatherTransfer, TransferToolTags.WeatherTransfer)
   }
 
   public getTransferTool(nodeName: NodeNames) {
@@ -98,5 +111,16 @@ export class TransferToolKit extends BaseToolkit {
       default:
         throw new Error(`No transfer tools for ${nodeName}`)
     }
+  }
+
+  /**
+   *
+   * @returns A Map where the key is the name of the tool
+   *
+   * And the value are tags that should be used when they are invoked
+   *
+   */
+  getToolTags(): Map<string, string> {
+    return this.toolTags
   }
 }
