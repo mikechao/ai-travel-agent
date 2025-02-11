@@ -1,9 +1,27 @@
 <script setup lang="ts">
+import type { PropType } from 'vue'
 import Tab from 'primevue/tab'
 import TabList from 'primevue/tablist'
 import TabPanel from 'primevue/tabpanel'
 import TabPanels from 'primevue/tabpanels'
 import Tabs from 'primevue/tabs'
+
+defineProps({
+  queries: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
+  results: {
+    type: Array as PropType<SearchResult[]>,
+    default: () => [],
+  },
+  summary: {
+    type: Object as PropType<SearchSummary>,
+    default: () => {
+      return { summary: '' }
+    },
+  },
+})
 </script>
 
 <template>
