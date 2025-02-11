@@ -71,6 +71,9 @@ export default defineLazyEventHandler(async () => {
   sightseeingToolKit.getToolTags().forEach((tag, toolName) => {
     toolTagsByToolName.set(toolName, tag)
   })
+  travelRecommendToolKit.getToolTags().forEach((tag, toolName) => {
+    toolTagsByToolName.set(toolName, tag)
+  })
 
   const checkpointer = PostgresSaver.fromConnString(
     runtimeConfig.postgresURL,
