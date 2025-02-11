@@ -54,25 +54,14 @@ export default defineLazyEventHandler(async () => {
   const weatherToolKit = new WeatherToolKit()
   const hotelToolKit = new HotelToolKit()
   const sightseeingToolKit = new SightseeingToolKit()
+  const toolKits = [transferTools, travelRecommendToolKit, weatherToolKit, hotelToolKit, sightseeingToolKit]
   const toolsByName = new Map<string, StructuredToolInterface>()
-  travelRecommendToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
-  weatherToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
-  hotelToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
-  transferTools.getTools().map(tool => toolsByName.set(tool.name, tool))
-  sightseeingToolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
-
   const toolTagsByToolName = new Map<string, string>()
-  weatherToolKit.getToolTags().forEach((tag, toolName) => {
-    toolTagsByToolName.set(toolName, tag)
-  })
-  hotelToolKit.getToolTags().forEach((tag, toolName) => {
-    toolTagsByToolName.set(toolName, tag)
-  })
-  sightseeingToolKit.getToolTags().forEach((tag, toolName) => {
-    toolTagsByToolName.set(toolName, tag)
-  })
-  travelRecommendToolKit.getToolTags().forEach((tag, toolName) => {
-    toolTagsByToolName.set(toolName, tag)
+  toolKits.forEach((toolKit) => {
+    toolKit.getTools().map(tool => toolsByName.set(tool.name, tool))
+    toolKit.getToolTags().forEach((tag, toolName) => {
+      toolTagsByToolName.set(toolName, tag)
+    })
   })
 
   const checkpointer = PostgresSaver.fromConnString(
