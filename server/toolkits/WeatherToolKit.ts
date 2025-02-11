@@ -31,7 +31,7 @@ class WeatherSearchTool extends StructuredTool {
 export class WeatherToolKit extends GeocodeToolKit {
   // this.tools do not need to define this, as it will
   // shadow/overwrite the parent class
-  weatherSearchTool: StructuredTool
+  private readonly weatherSearchTool: StructuredTool
   private toolTags: Map<string, string>
   constructor() {
     super()
@@ -39,10 +39,6 @@ export class WeatherToolKit extends GeocodeToolKit {
     this.tools.push(this.weatherSearchTool)
     this.toolTags = new Map<string, string>()
     this.toolTags.set(this.weatherSearchTool.name, WeatherToolTags.WeatherSearch)
-  }
-
-  getWeatherSearchTool() {
-    return this.weatherSearchTool
   }
 
   /**
