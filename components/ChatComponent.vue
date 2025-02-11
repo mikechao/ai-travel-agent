@@ -10,7 +10,6 @@ import Panel from 'primevue/panel'
 import { v4 as uuidv4 } from 'uuid'
 import { useDataItemStore } from '~/stores/dataItemStore'
 
-const runtimeConfig = useRuntimeConfig()
 const dataItemStore = useDataItemStore()
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
@@ -21,14 +20,10 @@ const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   })),
   onResponse: (response) => {
     // You can handle any specific response processing here if needed
-    if (runtimeConfig.dev) {
-      console.log('Response received:', response)
-    }
+    console.log('Response received:', response)
   },
   onFinish: (message) => {
-    if (runtimeConfig.dev) {
-      console.log('Chat finished:', message)
-    }
+    console.log('Chat finished:', message)
     isLoading.value = false
   },
   onError: (error) => {

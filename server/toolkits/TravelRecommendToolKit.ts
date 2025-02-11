@@ -134,11 +134,28 @@ class SearchSummaryTool extends StructuredTool {
     try {
       const url = input.searchResult.url
       const query = input.searchResult.query
+      const tags: string[] = []
+      if (parentConfig) {
+        parentConfig.tags?.forEach(t => tags.push(t))
+        // clear out the tags from the parent
+        // so we do not trigger streamHandlers.handleToolEnd
+        // with the raw output of WebBrowser Tool
+        parentConfig.tags = []
+      }
       const result = await browser.invoke(`"${url}","${query}"`, parentConfig)
       const after = performance.now()
       const toolMessage = result as ToolMessage
+      if (tags.length) {
+        if (parentConfig) {
+          // restore the tags
+          parentConfig.tags = tags
+        }
+      }
       consola.debug({ tag: `searchSummaryTool`, message: `got results in ${after - before} ms` })
-      return JSON.stringify(toolMessage.content)
+      const summary = {
+        summary: toolMessage.content,
+      }
+      return JSON.stringify(summary)
     }
     catch (error) {
       consola.error('error using browser', error)
