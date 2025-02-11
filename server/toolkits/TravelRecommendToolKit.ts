@@ -15,13 +15,6 @@ export const TravelRecommendToolTags = Object.freeze({
   SearchSummary: 'search-summary' as const,
 })
 
-interface SearchResult {
-  query: string
-  url: string
-  title: string
-  description: string
-}
-
 // seems like we need this to workaround
 // vercel not being able to resolve it from
 // the brave-search package

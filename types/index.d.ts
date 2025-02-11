@@ -1,6 +1,14 @@
 export {}
 
 declare global {
+
+  interface SearchResult {
+    query: string
+    url: string
+    title: string
+    description: string
+  }
+
   type PaletteShade = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950
 
   type ColorPalette = {
