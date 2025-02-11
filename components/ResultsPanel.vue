@@ -3,6 +3,7 @@ import type { MenuItem, MenuItemCommandEvent } from 'primevue/menuitem'
 import Dialog from 'primevue/dialog'
 import Dock from 'primevue/dock'
 import { useToast } from 'primevue/usetoast'
+import { DataItemTypes } from '~/types/constants'
 import LocationList from './LocationList.vue'
 import WeatherCard from './weather/WeatherCard.vue'
 
@@ -91,7 +92,7 @@ watch(() => dataItemStore.dataItems, (newDataItems) => {
 
 function processDataItem(dataItem: DataItem) {
   switch (dataItem.type) {
-    case 'weather': {
+    case DataItemTypes.Weather: {
       weatherData.value = dataItem.data
       weatherMenuItem.disabled = false
       // force vue to detect changes in menuItems
@@ -102,7 +103,7 @@ function processDataItem(dataItem: DataItem) {
       toast.removeAllGroups()
       break
     }
-    case 'hotel-search': {
+    case DataItemTypes.HotelSearch: {
       hotelsData.value = dataItem.data
       hotelsMenuItem.disabled = false
       // force vue to detect changes in menuItems
@@ -113,7 +114,7 @@ function processDataItem(dataItem: DataItem) {
       toast.removeAllGroups()
       break
     }
-    case 'sight-search': {
+    case DataItemTypes.SightSearch: {
       sightseeingData.value = dataItem.data
       sightseeingMenuItem.disabled = false
       // force vue to detect changes in menuItems

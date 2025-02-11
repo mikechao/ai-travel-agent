@@ -13,7 +13,7 @@ import { useDataItemStore } from '~/stores/dataItemStore'
 const dataItemStore = useDataItemStore()
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
-  api: '/api/travel',
+  api: '/api/test',
   body: computed(() => ({
     sessionId,
     messages: messages.value.length > 0 ? [messages.value[messages.value.length - 1]] : [],
