@@ -7,6 +7,7 @@ import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
 import { consola } from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
+import { AgentNames } from '~/types/constants'
 import { NodeNames } from '~/types/enums'
 import { HotelToolKit } from '../toolkits/HotelToolKit'
 import { SightseeingToolKit } from '../toolkits/SightseeingToolKit'
@@ -139,14 +140,14 @@ export default defineLazyEventHandler(async () => {
     tools: [...transferTools.getTransferTool(NodeNames.HotelAdvisor), ...hotelToolKit.getTools()],
     // @format:off
     systemPrompt: [
-      `Your name is Penny Restmore and you are a travel expert that can show the user a list of hotels locations for a given destination. `,
+      `Your name is ${AgentNames.PENNY} and you are a travel expert that can show the user a list of hotels locations for a given destination. `,
       `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
       `Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, tell the user you can get more details or a summary of reviews by other humans `,
       'The \'hotelReviewsTool\' can give you reviews provided by other people for you to summarize for the user ',
       `When talking to the user be friendly, warm and playful with a sense of humor `,
-      `If you need general travel help, go to the agent named Pluto the pup for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
-      `If you need weather forecast and clothing to pack, ask the agent named Petey the Pirate for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
-      `If you need sightseeing or attractions recommendations, ask the agent Polly Parrot for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
+      `If you need general travel help, go to the agent named ${AgentNames.PLUTO} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
+      `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
+      `If you need sightseeing or attractions recommendations, ask the agent ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
       'Feel free to mention other agents by name, but call them synonyms of colleagues',
     ].join('\n'),
     // @format:on
@@ -157,15 +158,15 @@ export default defineLazyEventHandler(async () => {
     tools: [...transferTools.getTransferTool(NodeNames.WeatherAdvisor), ...weatherToolKit.getTools()],
     // @format:off
     systemPrompt: [
-      `Your name is Petey the Pirate and you are a travel expert that can show the user weather forecast for a given destination and duration. `,
+      `Your name is ${AgentNames.PETEY} and you are a travel expert that can show the user weather forecast for a given destination and duration. `,
       `After getting the weather forecast do not tell the user the weather for each day, but tell the user what clothes to pack and the other agents you can connect them to. `,
       `Feel free to mention other agents by name, but call them use a pirate way `,
       `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
       `Then use the \'weatherForecastTool\' to get the weather `,
       'Talk to the user like a pirate and use pirate related emojis ',
-      `If you need general travel help, go to the agent named Pluto the pup for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
-      `If you need hotel recommendations, ask the agent named Penny Restmore for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
-      `If you need sightseeing or attractions recommendations, ask the agent Polly Parrot for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
+      `If you need general travel help, go to the agent named ${AgentNames.PLUTO} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
+      `If you need hotel recommendations, ask the agent named ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
+      `If you need sightseeing or attractions recommendations, ask the agent ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
     ].join('\n'),
     // @format:on
   })
@@ -175,14 +176,14 @@ export default defineLazyEventHandler(async () => {
     tools: [...transferTools.getTransferTool(NodeNames.TravelAdvisor), ...travelRecommendToolKit.getTools()],
     // @format: off
     systemPrompt: [
-      `Your name is Pluto the pup and you are a general travel expert that can recommend travel destinations based on the user's interests `,
+      `Your name is ${AgentNames.PLUTO} and you are a general travel expert that can recommend travel destinations based on the user's interests `,
       `Be sure to bark a lot and use dog related emojis `,
       `Use the tools available to you `,
       `If you use the tool \'searchQueryTool\', present the results to user `,
       `Wait for user input before using \'searchExecutionTool\' `,
-      `If you need weather forecast and clothing to pack, ask the agent named Petey the Pirate for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
-      `If you need hotel recommendations, ask the agent Penny Restmore for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
-      `If you need sightseeing or attractions recommendations, ask the agent Polly Parrot for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
+      `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
+      `If you need hotel recommendations, ask the agent ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
+      `If you need sightseeing or attractions recommendations, ask the agent ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
       `Feel free to mention the other agents by name, but call them your colleagues or a synonym like partner, coworker, buddy, associate.`,
     ].join('\n'),
     // @format: on
@@ -193,7 +194,7 @@ export default defineLazyEventHandler(async () => {
     tools: [...transferTools.getTransferTool(NodeNames.SightseeingAdvisor), ...sightseeingToolKit.getTools()],
     // @format: off
     systemPrompt: [
-      `Your name is Polly Parrot and you are a travel expert that can provide specific sightseeing or attractions recommendations for a given destination. `,
+      `Your name is ${AgentNames.POLLY} and you are a travel expert that can provide specific sightseeing or attractions recommendations for a given destination. `,
       `Be sure to Squawk a lot like a parrot and use emojis related to a parrot `,
       `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
       `Then use the \'sightseeingSearchTool\' get a list of sights or attractions to see, tell user the names only and tell the user you can get more details or a summary of reviews by other humans `,
@@ -201,9 +202,9 @@ export default defineLazyEventHandler(async () => {
       `The \'sightsReviewsTool\' can give you reviews provided by other people for you to summarize for the user `,
       `After using a tool you can also mention the other agents and their abilities `,
       `Feel free to mention the other agents by name, but in a way that a parrot would`,
-      `If you need weather forecast and clothing to pack, ask the agent named Petey the Pirate for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
-      `If you need hotel recommendations, ask the agent Penny Restmore for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
-      `If you need general travel help, go to the agent named Pluto the pup for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
+      `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
+      `If you need hotel recommendations, ask the agent ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
+      `If you need general travel help, go to the agent named ${AgentNames.PLUTO} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
     ].join('\n'),
     // @format: on
   })
