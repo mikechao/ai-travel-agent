@@ -35,6 +35,12 @@ export default defineNuxtConfig({
     storageKey: 'ai-travel-agent-color-mode',
   },
   primevue: {
+    components: {
+      include: ['Tooltip', 'Toast'],
+    },
+    directives: {
+      include: ['tooltip'],
+    },
     options: {
       ripple: true,
       theme: {

@@ -73,6 +73,7 @@ function surfaceColorOutline(name: string) {
       <button
         v-for="primaryColor in primaryColors"
         :key="primaryColor.name"
+        v-tooltip.top="primaryColor.name"
         type="button"
         class="w-5 h-5 rounded-full cursor-pointer outline-2 outline"
         :class="primaryColorOutline(primaryColor.name)"
@@ -87,6 +88,7 @@ function surfaceColorOutline(name: string) {
       <button
         v-for="surfaceColor in surfaceColors"
         :key="surfaceColor.name"
+        v-tooltip.top="surfaceColor.name"
         type="button"
         class="w-5 h-5 rounded-full cursor-pointer outline-2 outline"
         :class="surfaceColorOutline(surfaceColor.name)"
