@@ -1,8 +1,14 @@
 import type { DataItemTypes } from './constants'
+import type { NodeNames } from './enums'
 
 export {}
 
 declare global {
+
+  interface AdvisorTransferResult {
+    goto: NodeNames
+    agentName: string
+  }
 
   interface SearchQueries {
     queries: string[]

@@ -27,7 +27,8 @@ class TransferToWeatherAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.WeatherTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    return NodeNames.WeatherAdvisor
+    const result: AdvisorTransferResult = { goto: NodeNames.WeatherAdvisor, agentName: 'Petey the Pirate' }
+    return JSON.stringify(result)
   }
 }
 
@@ -40,7 +41,8 @@ class TransferToTravelAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.TravelTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    return NodeNames.TravelAdvisor
+    const result: AdvisorTransferResult = { goto: NodeNames.TravelAdvisor, agentName: 'Pluto the Pup' }
+    return JSON.stringify(result)
   }
 }
 
@@ -53,7 +55,8 @@ class TransferToHotelAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.HotelTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    return NodeNames.HotelAdvisor
+    const result: AdvisorTransferResult = { goto: NodeNames.HotelAdvisor, agentName: 'Penny Restmore' }
+    return JSON.stringify(result)
   }
 }
 
@@ -66,7 +69,8 @@ class TransferToSightseeingAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.SightseeingTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    return NodeNames.SightseeingAdvisor
+    const result: AdvisorTransferResult = { goto: NodeNames.SightseeingAdvisor, agentName: 'Polly Parrot' }
+    return JSON.stringify(result)
   }
 }
 
