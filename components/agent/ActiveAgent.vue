@@ -17,23 +17,26 @@ function isActiveCSS(name: AgentName) {
   }
   return ''
 }
+const AgentToEmoji: Record<AgentName, string> = {
+  [AgentNames.PLUTO]: '🐶',
+  [AgentNames.PETEY]: '🏴‍☠️',
+  [AgentNames.PENNY]: '🏨',
+  [AgentNames.POLLY]: '🦜',
+}
 </script>
 
 <template>
   <div class="bg-transparent">
     <p>Active: {{ active.agentName }}</p>
     <div class="flex flex-row gap-3">
-      <p class="text-xl" :class="isActiveCSS(AgentNames.PLUTO)">
-        🐶
-      </p>
-      <p class="text-xl" :class="isActiveCSS(AgentNames.PETEY)">
-        🏴‍☠️
-      </p>
-      <p class="text-xl" :class="isActiveCSS(AgentNames.PENNY)">
-        🏨
-      </p>
-      <p class="text-xl" :class="isActiveCSS(AgentNames.POLLY)">
-        🦜
+      <p
+        v-for="(emoji, name) in AgentToEmoji"
+        :key="name"
+        class="text-xl transition-all duration-300"
+        :class="isActiveCSS(name)"
+        :aria-label="name"
+      >
+        {{ emoji }}
       </p>
     </div>
   </div>
