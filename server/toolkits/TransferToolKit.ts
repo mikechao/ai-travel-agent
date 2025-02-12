@@ -2,6 +2,7 @@ import type { StructuredToolInterface } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
 import consola from 'consola'
 import { z } from 'zod'
+import { AgentNames } from '~/types/constants'
 import { NodeNames } from '~/types/enums'
 
 export const TransferToolTags = Object.freeze({
@@ -27,7 +28,7 @@ class TransferToWeatherAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.WeatherTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    const result: AdvisorTransferResult = { goto: NodeNames.WeatherAdvisor, agentName: 'Petey the Pirate' }
+    const result: AdvisorTransferResult = { goto: NodeNames.WeatherAdvisor, agentName: AgentNames.PETEY }
     return JSON.stringify(result)
   }
 }
@@ -41,7 +42,10 @@ class TransferToTravelAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.TravelTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    const result: AdvisorTransferResult = { goto: NodeNames.TravelAdvisor, agentName: 'Pluto the Pup' }
+    const result: AdvisorTransferResult = {
+      goto: NodeNames.TravelAdvisor,
+      agentName: AgentNames.PETEY,
+    }
     return JSON.stringify(result)
   }
 }
@@ -55,7 +59,7 @@ class TransferToHotelAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.HotelTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    const result: AdvisorTransferResult = { goto: NodeNames.HotelAdvisor, agentName: 'Penny Restmore' }
+    const result: AdvisorTransferResult = { goto: NodeNames.HotelAdvisor, agentName: AgentNames.PENNY }
     return JSON.stringify(result)
   }
 }
@@ -69,7 +73,7 @@ class TransferToSightseeingAdvisor extends StructuredTool {
 
   protected async _call(input: { agent: any }) {
     consola.debug({ tag: TransferToolNames.SightseeingTransfer, message: `called with ${JSON.stringify(input.agent)}` })
-    const result: AdvisorTransferResult = { goto: NodeNames.SightseeingAdvisor, agentName: 'Polly Parrot' }
+    const result: AdvisorTransferResult = { goto: NodeNames.SightseeingAdvisor, agentName: AgentNames.POLLY }
     return JSON.stringify(result)
   }
 }

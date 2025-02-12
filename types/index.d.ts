@@ -1,4 +1,4 @@
-import type { DataItemTypes } from './constants'
+import type { AgentName, DataItemTypes } from './constants'
 import type { NodeNames } from './enums'
 
 export {}
@@ -7,7 +7,7 @@ declare global {
 
   interface AdvisorTransferResult {
     goto: NodeNames
-    agentName: string
+    agentName: AgentName
   }
 
   interface SearchQueries {

@@ -10,3 +10,12 @@ export const DataItemTypes = Object.freeze({
   TransferToWeather: 'transfer-to-weather' as const,
   TransferToSights: 'transfer-to-sights' as const,
 })
+
+export const AgentNames = Object.freeze({
+  PLUTO: 'Pluto the Pup',
+  PETEY: 'Petey the Pirate',
+  PENNY: 'Penny Restmore',
+  POLLY: 'Polly Parrot',
+} as const)
+
+export type AgentName = typeof AgentNames[keyof typeof AgentNames]
