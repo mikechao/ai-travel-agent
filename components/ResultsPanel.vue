@@ -111,6 +111,45 @@ watch(() => dataItemStore.dataItems, (newDataItems) => {
   }
 }, { deep: true })
 
+const dataItemHandlers = {
+  [DataItemTypes.SearchQuery]: {
+    dataRef: searchQueryData,
+    tab: 'queries',
+    zIndex: recommendZIndex,
+    display: displayRecommend,
+  },
+  [DataItemTypes.SearchExecution]: {
+    dataRef: searchResultData,
+    tab: 'results',
+    zIndex: recommendZIndex,
+    display: displayRecommend,
+  },
+  [DataItemTypes.SearchSummary]: {
+    dataRef: searchSummaryData,
+    tab: 'summary',
+    zIndex: recommendZIndex,
+    display: displayRecommend,
+  },
+}
+
+function handleDataItem(config: {
+  dataRef: Ref
+  tab?: string
+  zIndex: Ref<number>
+  display: Ref<boolean>
+}, data: string) {
+  config.dataRef.value = data
+  if (config.tab) {
+    activeTab.value = config.tab
+  }
+  recommendMenuItem.disabled = false
+  menuItems.value = [...menuItems.value]
+  currentZIndex += 1
+  config.zIndex.value = currentZIndex
+  config.display.value = true
+  toast.removeAllGroups()
+}
+
 function processDataItem(dataItem: DataItem) {
   switch (dataItem.type) {
     case DataItemTypes.Weather: {
@@ -146,37 +185,11 @@ function processDataItem(dataItem: DataItem) {
       toast.removeAllGroups()
       break
     }
-    case DataItemTypes.SearchQuery: {
-      searchQueryData.value = dataItem.data
-      activeTab.value = 'queries'
-      recommendMenuItem.disabled = false
-      menuItems.value = [...menuItems.value]
-      currentZIndex += 1
-      recommendZIndex.value = currentZIndex
-      displayRecommend.value = true
-      toast.removeAllGroups()
-      break
-    }
-    case DataItemTypes.SearchExecution: {
-      searchResultData.value = dataItem.data
-      activeTab.value = 'results'
-      recommendMenuItem.disabled = false
-      menuItems.value = [...menuItems.value]
-      currentZIndex += 1
-      recommendZIndex.value = currentZIndex
-      displayRecommend.value = true
-      toast.removeAllGroups()
-      break
-    }
+    case DataItemTypes.SearchQuery:
+    case DataItemTypes.SearchExecution:
     case DataItemTypes.SearchSummary: {
-      searchSummaryData.value = dataItem.data
-      activeTab.value = 'summary'
-      recommendMenuItem.disabled = false
-      menuItems.value = [...menuItems.value]
-      currentZIndex += 1
-      recommendZIndex.value = currentZIndex
-      displayRecommend.value = true
-      toast.removeAllGroups()
+      const config = dataItemHandlers[dataItem.type]
+      handleDataItem(config, dataItem.data)
       break
     }
     default:
