@@ -22,16 +22,16 @@ function isActiveCSS(name: string) {
   <div class="bg-transparent">
     <p>Active: {{ active.agentName }}</p>
     <div class="flex flex-row gap-2">
-      <p class="text-lg" :class="isActiveCSS('Pluto the Pup')">
+      <p class="text-xl" :class="isActiveCSS('Pluto the Pup')">
         🐶
       </p>
-      <p class="text-lg" :class="isActiveCSS('Petey the Pirate')">
+      <p class="text-xl" :class="isActiveCSS('Petey the Pirate')">
         🏴‍☠️
       </p>
-      <p class="text-lg" :class="isActiveCSS('Penny Restmore')">
+      <p class="text-xl" :class="isActiveCSS('Penny Restmore')">
         🏨
       </p>
-      <p class="text-lg" :class="isActiveCSS('Polly Parrot')">
+      <p class="text-xl" :class="isActiveCSS('Polly Parrot')">
         🦜
       </p>
     </div>
