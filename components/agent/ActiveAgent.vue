@@ -22,7 +22,7 @@ const AgentToEmoji: Record<AgentName, string> = {
   [AgentNames.PETEY]: '🏴‍☠️',
   [AgentNames.PENNY]: '🏨',
   [AgentNames.POLLY]: '🦜',
-}
+} as const
 </script>
 
 <template>
