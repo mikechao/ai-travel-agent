@@ -53,6 +53,10 @@ function renderSearchResult(result: SearchResult) {
 function renderSummary(summary: SearchSummary) {
   return md.render(summary.summary)
 }
+
+function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 </script>
 
 <template>
@@ -81,7 +85,7 @@ function renderSummary(summary: SearchSummary) {
             >
               <template #content>
                 <p class="text-surface-700 dark:text-surface-0">
-                  {{ query }}
+                  {{ capitalizeFirstLetter(query) }}
                 </p>
               </template>
             </Card>
