@@ -238,7 +238,7 @@ onMounted(() => {
 
 <template>
   <div class="flex justify-center">
-    <Toast position="top-left" group="initial">
+    <Toast position="top-left" group="initial" style="position: fixed; top: 20px; left: 90px;">
       <template #messageicon>
         <font-awesome icon="fa-regular fa-lightbulb" />
       </template>
