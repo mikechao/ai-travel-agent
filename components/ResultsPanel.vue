@@ -217,9 +217,10 @@ function updateZIndex(type: 'weather' | 'hotels' | 'sights' | 'settings' | 'reco
 }
 
 const toastDetails = [
-  'For example:\nCan you show me the weather in San Francisco,CA?',
-  'For example:\nCan you suggest some sights to see near San Francisco,CA?',
-  'For example:\nCan you show me some hotels near San Francisco,CA?',
+  'For example:\nCan you show me the weather in San Francisco, CA?',
+  'For example:\nCan you suggest some sights to see near San Francisco, CA?',
+  'For example:\nCan you show me some hotels near San Francisco, CA?',
+  'For example:\nCan you suggest travel destinations based on my interest in cats?',
 ]
 
 const randomToastDetail = computed(() =>
