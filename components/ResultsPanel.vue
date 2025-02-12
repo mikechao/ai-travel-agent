@@ -114,26 +114,48 @@ watch(() => dataItemStore.dataItems, (newDataItems) => {
 const dataItemHandlers = {
   [DataItemTypes.SearchQuery]: {
     dataRef: searchQueryData,
+    menuItem: recommendMenuItem,
     tab: 'queries',
     zIndex: recommendZIndex,
     display: displayRecommend,
   },
   [DataItemTypes.SearchExecution]: {
     dataRef: searchResultData,
+    menuItem: recommendMenuItem,
     tab: 'results',
     zIndex: recommendZIndex,
     display: displayRecommend,
   },
   [DataItemTypes.SearchSummary]: {
     dataRef: searchSummaryData,
+    menuItem: recommendMenuItem,
     tab: 'summary',
     zIndex: recommendZIndex,
     display: displayRecommend,
+  },
+  [DataItemTypes.Weather]: {
+    dataRef: weatherData,
+    menuItem: weatherMenuItem,
+    zIndex: weatherZIndex,
+    display: displayWeather,
+  },
+  [DataItemTypes.HotelSearch]: {
+    dataRef: hotelsData,
+    menuItem: hotelsMenuItem,
+    zIndex: hotelsZIndex,
+    display: displayHotels,
+  },
+  [DataItemTypes.SightSearch]: {
+    dataRef: sightseeingData,
+    menuItem: sightseeingMenuItem,
+    zIndex: sightsZIndex,
+    display: displaySights,
   },
 }
 
 function handleDataItem(config: {
   dataRef: Ref
+  menuItem: MenuItem
   tab?: string
   zIndex: Ref<number>
   display: Ref<boolean>
@@ -142,7 +164,7 @@ function handleDataItem(config: {
   if (config.tab) {
     activeTab.value = config.tab
   }
-  recommendMenuItem.disabled = false
+  config.menuItem.disabled = false
   menuItems.value = [...menuItems.value]
   currentZIndex += 1
   config.zIndex.value = currentZIndex
@@ -151,50 +173,8 @@ function handleDataItem(config: {
 }
 
 function processDataItem(dataItem: DataItem) {
-  switch (dataItem.type) {
-    case DataItemTypes.Weather: {
-      weatherData.value = dataItem.data
-      weatherMenuItem.disabled = false
-      // force vue to detect changes in menuItems
-      menuItems.value = [...menuItems.value]
-      currentZIndex += 1
-      weatherZIndex.value = currentZIndex
-      displayWeather.value = true
-      toast.removeAllGroups()
-      break
-    }
-    case DataItemTypes.HotelSearch: {
-      hotelsData.value = dataItem.data
-      hotelsMenuItem.disabled = false
-      // force vue to detect changes in menuItems
-      menuItems.value = [...menuItems.value]
-      currentZIndex += 1
-      hotelsZIndex.value = currentZIndex
-      displayHotels.value = true
-      toast.removeAllGroups()
-      break
-    }
-    case DataItemTypes.SightSearch: {
-      sightseeingData.value = dataItem.data
-      sightseeingMenuItem.disabled = false
-      // force vue to detect changes in menuItems
-      menuItems.value = [...menuItems.value]
-      currentZIndex += 1
-      sightsZIndex.value = currentZIndex
-      displaySights.value = true
-      toast.removeAllGroups()
-      break
-    }
-    case DataItemTypes.SearchQuery:
-    case DataItemTypes.SearchExecution:
-    case DataItemTypes.SearchSummary: {
-      const config = dataItemHandlers[dataItem.type]
-      handleDataItem(config, dataItem.data)
-      break
-    }
-    default:
-      console.error(`Unknown DataItem type ${dataItem.type}`)
-  }
+  const config = dataItemHandlers[dataItem.type]
+  handleDataItem(config, dataItem.data)
 }
 
 function onDockItemClick(event: MouseEvent, item: MenuItem) {
