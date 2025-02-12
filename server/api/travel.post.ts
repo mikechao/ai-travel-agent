@@ -110,7 +110,7 @@ export default defineLazyEventHandler(async () => {
           const toolMessage = await tool.invoke(toolCall, { tags: toolTags })
           toolMessages.push(toolMessage)
           if (toolCall.name.endsWith('Transfer')) {
-            transferToolGoTo = toolMessage.content
+            transferToolGoTo = JSON.parse(toolMessage.content).goto
           }
         }
         const goto = transferToolGoTo.length ? transferToolGoTo : params.name
