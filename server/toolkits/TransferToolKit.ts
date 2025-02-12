@@ -21,7 +21,7 @@ export const TransferToolNames = Object.freeze({
 
 class TransferToWeatherAdvisor extends StructuredTool {
   name = TransferToolNames.WeatherTransfer
-  description = 'Provides weather forecasts and clothing to pack advice by transferring to the agent named Petey the Pirate'
+  description = `Provides weather forecasts and clothing to pack advice by transferring to the agent named ${AgentNames.PETEY}`
   schema = z.object({
     agent: z.any(),
   })
@@ -35,7 +35,7 @@ class TransferToWeatherAdvisor extends StructuredTool {
 
 class TransferToTravelAdvisor extends StructuredTool {
   name = TransferToolNames.TravelTransfer
-  description = `Provides travel destinations recommendations by transferring to the agent named Pluto the Pup`
+  description = `Provides travel destinations recommendations by transferring to the agent named ${AgentNames.PLUTO}`
   schema = z.object({
     agent: z.any(),
   })
@@ -52,7 +52,7 @@ class TransferToTravelAdvisor extends StructuredTool {
 
 class TransferToHotelAdvisor extends StructuredTool {
   name = TransferToolNames.HotelTransfer
-  description = `Provides hotel recommendations, search and details by transferring to the agent named Penny Restmore`
+  description = `Provides hotel recommendations, search and details by transferring to the agent named ${AgentNames.PENNY}`
   schema = z.object({
     agent: z.any(),
   })
@@ -66,7 +66,7 @@ class TransferToHotelAdvisor extends StructuredTool {
 
 class TransferToSightseeingAdvisor extends StructuredTool {
   name = TransferToolNames.SightseeingTransfer
-  description = `Provides sightseeing or attractions recommendations by transferring to the agent named Polly Parrot`
+  description = `Provides sightseeing or attractions recommendations by transferring to the agent named ${AgentNames.POLLY}`
   schema = z.object({
     agent: z.any(),
   })
