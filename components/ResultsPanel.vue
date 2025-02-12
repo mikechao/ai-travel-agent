@@ -42,7 +42,11 @@ const recommendMenuItem: MenuItem = {
   icon: './recommend.png',
   disabled: true,
   command(_event: MenuItemCommandEvent) {
-    // for now do nothing
+    if (searchQueryData.value || searchResultData.value || searchSummaryData.value) {
+      currentZIndex += 1
+      recommendZIndex.value = currentZIndex
+      displayRecommend.value = true
+    }
   },
 }
 
