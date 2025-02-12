@@ -46,7 +46,7 @@ md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
 }
 
 function renderSearchResult(result: SearchResult) {
-  const markdown = `# [${result.title}](${result.url})\n\n **Description:** ${result.description}`
+  const markdown = `# [${result.title}](${result.url})\n\n ${result.description}`
   return md.render(markdown)
 }
 
