@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { DataItemTypes } from '../../types/constants'
 import { HotelToolTags } from '../toolkits/HotelToolKit'
 import { SightseeingToolTags } from '../toolkits/SightseeingToolKit'
+import { TransferToolTags } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolTags } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolTags } from '../toolkits/WeatherToolKit'
 
@@ -37,6 +38,10 @@ export function createStreamEventHandlers(): StreamEventHandlers {
           [TravelRecommendToolTags.SearchQuery]: DataItemTypes.SearchQuery,
           [TravelRecommendToolTags.SearchExecution]: DataItemTypes.SearchExecution,
           [TravelRecommendToolTags.SearchSummary]: DataItemTypes.SearchSummary,
+          [TransferToolTags.HotelTransfer]: DataItemTypes.TransferToHotel,
+          [TransferToolTags.SightseeingTransfer]: DataItemTypes.TransferToSights,
+          [TransferToolTags.TravelTransfer]: DataItemTypes.TransferToTravel,
+          [TransferToolTags.WeatherTransfer]: DataItemTypes.TransferToWeather,
         }
 
         for (const [tag, type] of Object.entries(toolOutputTypes)) {
