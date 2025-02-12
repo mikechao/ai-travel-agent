@@ -7,6 +7,7 @@ import TabList from 'primevue/tablist'
 import TabPanel from 'primevue/tabpanel'
 import TabPanels from 'primevue/tabpanels'
 import Tabs from 'primevue/tabs'
+import { capFirst } from '~/composables/capFirst'
 
 defineProps({
   queries: {
@@ -53,10 +54,6 @@ function renderSearchResult(result: SearchResult) {
 function renderSummary(summary: SearchSummary) {
   return md.render(summary.summary)
 }
-
-function capitalizeFirstLetter(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1)
-}
 </script>
 
 <template>
@@ -85,7 +82,7 @@ function capitalizeFirstLetter(str: string) {
             >
               <template #content>
                 <p class="text-surface-700 dark:text-surface-0">
-                  {{ capitalizeFirstLetter(query) }}
+                  {{ capFirst(query) }}
                 </p>
               </template>
             </Card>
