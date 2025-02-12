@@ -4,12 +4,15 @@ import Dialog from 'primevue/dialog'
 import Dock from 'primevue/dock'
 import { useToast } from 'primevue/usetoast'
 import { DataItemTypes } from '~/types/constants'
+import ActiveAgent from './agent/ActiveAgent.vue'
 import LocationList from './LocationList.vue'
 import TravelRecommend from './recommend/TravelRecommend.vue'
 import WeatherCard from './weather/WeatherCard.vue'
 
 const toast = useToast()
 const dataItemStore = useDataItemStore()
+
+const activeAgent = ref()
 
 const weatherData = ref()
 const displayWeather = ref(false)
@@ -151,10 +154,6 @@ const dataItemHandlers = {
     zIndex: sightsZIndex,
     display: displaySights,
   },
-  [DataItemTypes.TransferToHotel]: undefined,
-  [DataItemTypes.TransferToSights]: undefined,
-  [DataItemTypes.TransferToTravel]: undefined,
-  [DataItemTypes.TransferToWeather]: undefined,
 }
 
 function handleDataItem(config: {
@@ -177,9 +176,27 @@ function handleDataItem(config: {
 }
 
 function processDataItem(dataItem: DataItem) {
-  const config = dataItemHandlers[dataItem.type]
-  if (config) {
-    handleDataItem(config, dataItem.data)
+  switch (dataItem.type) {
+    case DataItemTypes.SearchQuery:
+    case DataItemTypes.SearchExecution:
+    case DataItemTypes.SearchSummary:
+    case DataItemTypes.Weather:
+    case DataItemTypes.HotelSearch:
+    case DataItemTypes.SightSearch: {
+      const config = dataItemHandlers[dataItem.type]
+      handleDataItem(config, dataItem.data)
+      break
+    }
+    case DataItemTypes.TransferToHotel:
+    case DataItemTypes.TransferToSights:
+    case DataItemTypes.TransferToTravel:
+    case DataItemTypes.TransferToWeather: {
+      activeAgent.value = dataItem.data
+      break
+    }
+    default: {
+      console.error('Unknown dataItem.type', dataItem.type)
+    }
   }
 }
 
@@ -253,6 +270,17 @@ onMounted(() => {
         <font-awesome icon="fa-regular fa-lightbulb" />
       </template>
     </Toast>
+  </div>
+  <div class="flex justify-center">
+    <ActiveAgent
+      :active="activeAgent"
+      :style="{
+        position: 'fixed',
+        bottom: '20px',
+        left: 'calc((100vw / 4))',
+        transform: 'translateX(-50%)',
+      }"
+    />
   </div>
   <div>
     <Dock :model="menuItems" position="left">
