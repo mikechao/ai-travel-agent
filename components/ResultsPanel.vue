@@ -173,6 +173,7 @@ function processDataItem(dataItem: DataItem) {
       recommendZIndex.value = currentZIndex
       displayRecommend.value = true
       toast.removeAllGroups()
+      break
     }
     default:
       console.error(`Unknown DataItem type ${dataItem.type}`)
@@ -381,7 +382,7 @@ onMounted(() => {
           <font-awesome icon="fa-solid fa-magnifying-glass-plus" class="mr-1" />Recommendations
         </span>
       </template>
-      <TravelRecommend :active-tab="activeTab" :queries="searchQueryData" :results="searchResultData" :summary="searchSummaryData"/>
+      <TravelRecommend :active-tab="activeTab" :queries="searchQueryData" :results="searchResultData" :summary="searchSummaryData" />
     </Dialog>
   </div>
 </template>
