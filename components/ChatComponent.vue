@@ -65,7 +65,7 @@ const md = new MarkdownIt({
   linkify: true,
   breaks: true,
   typographer: true,
-})
+}).disable(['list'])
 
 md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
   // Add Tailwind CSS classes to style links
