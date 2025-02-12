@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
+import MarkdownIt from 'markdown-it'
 import Card from 'primevue/card'
 import Tab from 'primevue/tab'
 import TabList from 'primevue/tablist'
 import TabPanel from 'primevue/tabpanel'
 import TabPanels from 'primevue/tabpanels'
 import Tabs from 'primevue/tabs'
-import MarkdownIt from 'markdown-it'
 
 defineProps({
   queries: {
@@ -27,8 +27,8 @@ defineProps({
   },
   activeTab: {
     type: String,
-    default: () => "queries"
-  }
+    default: () => 'queries',
+  },
 })
 
 const md = new MarkdownIt({
@@ -90,8 +90,8 @@ function renderSummary(summary: SearchSummary) {
       </TabPanel>
       <TabPanel value="results">
         <div v-if="results.length > 0">
-          <div v-for="(result, index) in results">
-            <div v-html="renderSearchResult(result)" :key="index"/>
+          <div v-for="(result, index) in results" :key="index">
+            <div v-html="renderSearchResult(result)" />
             <Divider />
           </div>
         </div>
@@ -101,7 +101,7 @@ function renderSummary(summary: SearchSummary) {
       </TabPanel>
       <TabPanel value="summary">
         <div v-if="summary.summary.length">
-          <div v-html="renderSummary(summary)"></div>
+          <div v-html="renderSummary(summary)" />
         </div>
         <div v-else>
           <p>No summary to show</p>
