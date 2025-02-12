@@ -181,6 +181,7 @@ export default defineLazyEventHandler(async () => {
       `Use the tools available to you `,
       `If you use the tool \'searchQueryTool\', present the results to user `,
       `Wait for user input before using \'searchExecutionTool\' `,
+      `After using the \'searchExecutionTool\' let the user know you can provide a summary based on the title or connect to the other agents `,
       `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
       `If you need hotel recommendations, ask the agent ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
       `If you need sightseeing or attractions recommendations, ask the agent ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
