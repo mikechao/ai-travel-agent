@@ -11,11 +11,11 @@ const options = ref<ThemeOption[]>([
   { icon: 'fa-regular fa-sun', text: 'Light' },
 ])
 
-const selectedMode = ref(
+const selectedMode = ref<ThemeOption>(
   options.value.find(opt => opt.text.toLowerCase() === colorMode.value) || options.value[0],
 )
 
-function onUpdate(newValue: ThemeOption | null) {
+function onUpdate(newValue: ThemeOption | null): void {
   // newValue might be null if the user attempts to deselect.
   // In that case, we do nothing.
   if (newValue) {
@@ -26,7 +26,7 @@ function onUpdate(newValue: ThemeOption | null) {
 
 // Intercept clicks on an option. If the option clicked is already selected,
 // stop propagation so that the SelectButton's own handler doesn’t clear the value.
-function handleOptionClick(event: Event, option: ThemeOption) {
+function handleOptionClick(event: Event, option: ThemeOption): void {
   if (option.text.toLowerCase() === colorMode.value) {
     event.stopPropagation()
     event.preventDefault()
