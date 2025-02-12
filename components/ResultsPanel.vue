@@ -151,6 +151,10 @@ const dataItemHandlers = {
     zIndex: sightsZIndex,
     display: displaySights,
   },
+  [DataItemTypes.TransferToHotel]: undefined,
+  [DataItemTypes.TransferToSights]: undefined,
+  [DataItemTypes.TransferToTravel]: undefined,
+  [DataItemTypes.TransferToWeather]: undefined,
 }
 
 function handleDataItem(config: {
@@ -174,7 +178,9 @@ function handleDataItem(config: {
 
 function processDataItem(dataItem: DataItem) {
   const config = dataItemHandlers[dataItem.type]
-  handleDataItem(config, dataItem.data)
+  if (config) {
+    handleDataItem(config, dataItem.data)
+  }
 }
 
 function onDockItemClick(event: MouseEvent, item: MenuItem) {
