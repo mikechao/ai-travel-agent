@@ -14,7 +14,7 @@ const { backgrounds, updateBackground, selectedBackground } = useBackground()
         v-for="bg in backgrounds"
         :key="bg.name"
         type="button"
-        class="relative h-20 rounded-lg overflow-hidden border-2 hover:border-primary transition-colors"
+        class="relative h-20 rounded-lg overflow-hidden border-2 hover:border-surface-600 transition-colors"
         :class="[bg.url === selectedBackground.url ? 'border-primary' : 'border-surface-200']"
         @click="updateBackground(bg)"
       >
