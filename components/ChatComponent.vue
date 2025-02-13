@@ -2,15 +2,19 @@
 <script setup lang="ts">
 import { type Message, useChat } from '@ai-sdk/vue'
 import { Form, type FormSubmitEvent } from '@primevue/forms'
-import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Panel from 'primevue/panel'
 import { v4 as uuidv4 } from 'uuid'
 import { useMarkdownIt } from '~/composables/useMarkdownIt'
 import { useDataItemStore } from '~/stores/dataItemStore'
+import { AgentToEmoji } from '~/types/constants'
 
 const dataItemStore = useDataItemStore()
+const activeAgentStore = useActiveAgentStore()
+const { activeAgent } = storeToRefs(activeAgentStore)
+const emojiToUse = computed(() => AgentToEmoji[activeAgent.value])
+
 const sessionId = uuidv4()
 const { messages, input, handleSubmit, isLoading, append, data } = useChat({
   api: '/api/travel',
@@ -82,7 +86,7 @@ function formSubmit(_event: FormSubmitEvent) {
   >
     <template #header>
       <div class="flex items-center gap-2">
-        <Avatar image="./chatAvatar.webp" shape="circle" size="large" />
+        <span class="text-2xl">{{ emojiToUse }}</span>
         <span class="font-bold text-xl">AI Travel Agent Chat</span>
       </div>
     </template>
@@ -95,14 +99,7 @@ function formSubmit(_event: FormSubmitEvent) {
               class="mb-0 px-2 rounded-lg shadow-lg text-surface-700 dark:text-surface-0 "
               :class="[message.role === 'user' ? 'bg-primary-100 dark:bg-primary-900' : 'bg-surface-100 dark:bg-surface-900']"
             >
-              <div v-if="message.role !== 'user'" class="flex items-center justify-start gap-1 py-1">
-                <Avatar image="./chatAvatar.webp" shape="circle" size="normal" class="w-6 h-6" />
-                <strong>AI</strong>
-              </div>
-              <div v-else class="flex items-center justify-start gap-1 py-1">
-                <font-awesome icon="fa-regular fa-circle-user" class="w-6 h-6 p-avatar p-avatar-image" />
-                <strong>You</strong>
-              </div>
+              <strong>{{ message.role === 'user' ? `You` : 'AI' }}</strong>
               <div v-html="renderMessage(message)" />
             </div>
           </div>
