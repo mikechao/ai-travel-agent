@@ -3,6 +3,7 @@ import type { MenuItem, MenuItemCommandEvent } from 'primevue/menuitem'
 import Dialog from 'primevue/dialog'
 import Dock from 'primevue/dock'
 import { useToast } from 'primevue/usetoast'
+import { useActiveAgentStore } from '~/stores/activeAgentStore'
 import { DataItemTypes } from '~/types/constants'
 import ActiveAgent from './agent/ActiveAgent.vue'
 import LocationList from './LocationList.vue'
@@ -11,6 +12,7 @@ import WeatherCard from './weather/WeatherCard.vue'
 
 const toast = useToast()
 const dataItemStore = useDataItemStore()
+const activeAgentStore = useActiveAgentStore()
 
 const activeAgent = ref()
 
@@ -191,6 +193,8 @@ function processDataItem(dataItem: DataItem) {
     case DataItemTypes.TransferToSights:
     case DataItemTypes.TransferToTravel:
     case DataItemTypes.TransferToWeather: {
+      const transferResult = dataItem.data as unknown as AdvisorTransferResult
+      activeAgentStore.setActiveAgent(transferResult.agentName)
       activeAgent.value = dataItem.data
       break
     }
