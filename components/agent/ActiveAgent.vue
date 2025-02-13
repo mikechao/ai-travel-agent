@@ -26,7 +26,7 @@ const AgentToEmoji: Record<AgentName, string> = {
 </script>
 
 <template>
-  <div class="bg-transparent">
+  <div class="bg-white/10 border border-white/10 rounded-xl p-1">
     <p>Active: {{ active.agentName }}</p>
     <div class="flex flex-row gap-3">
       <p

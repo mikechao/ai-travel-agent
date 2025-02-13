@@ -276,7 +276,7 @@ onMounted(() => {
       :active="activeAgent"
       :style="{
         position: 'fixed',
-        bottom: '10px',
+        bottom: '0px',
         left: 'calc((100vw / 4))',
         transform: 'translateX(-50%)',
       }"
