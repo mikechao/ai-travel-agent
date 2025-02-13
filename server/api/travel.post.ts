@@ -265,8 +265,8 @@ export default defineLazyEventHandler(async () => {
 
     const initMessage = {
       messages: [
-        new SystemMessage({ id: 'initMessage', name: 'initMessage', content: `Use the tools and agents you have to figure out what to ask the user.
-            Introduce yourself and give the user a summary of your skills and the other agents in a list format.` }),
+        new SystemMessage({ id: 'initMessage', name: 'initMessage', content: `Use the tools and agents you have to figure out what to ask the user.\n
+          Introduce yourself and give the user a summary of your skills and the other agents in a list format.` }),
       ],
     }
     const input = isInitMessage(lastMessage) ? initMessage : new Command({ resume: lastMessage.content })
