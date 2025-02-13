@@ -21,7 +21,9 @@ function isActiveCSS(name: AgentName) {
 
 <template>
   <div class="bg-white/10 border border-white/10 rounded-xl p-1">
-    <p>Active: {{ active.agentName }}</p>
+    <p class="text-surface-900 dark:text-surface-0">
+      Active: {{ active.agentName }}
+    </p>
     <div class="flex flex-row gap-3">
       <p
         v-for="(emoji, name) in AgentToEmoji"
