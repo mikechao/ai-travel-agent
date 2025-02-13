@@ -67,10 +67,10 @@ export default defineLazyEventHandler(async () => {
   })
 
   const AgentHelpText: Record<AgentName, string> = Object.freeze({
-    [AgentNames.PLUTO]: `If you need general travel help, ask the agent named ${AgentNames.PLUTO} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'.`,
-    [AgentNames.PETEY]: `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\'.`,
-    [AgentNames.PENNY]: `If you need hotel recommendations, ask the agent named ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'.`,
-    [AgentNames.POLLY]: `If you need sightseeing or attractions recommendations, ask the agent named ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'.`,
+    [AgentNames.PLUTO]: `If you need general travel help, ask the agent named ${AgentNames.PLUTO} ${AgentToEmoji[AgentNames.PLUTO]} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'.`,
+    [AgentNames.PETEY]: `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} ${AgentToEmoji[AgentNames.PETEY]} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\'.`,
+    [AgentNames.PENNY]: `If you need hotel recommendations, ask the agent named ${AgentNames.PENNY} ${AgentToEmoji[AgentNames.PENNY]} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'.`,
+    [AgentNames.POLLY]: `If you need sightseeing or attractions recommendations, ask the agent named ${AgentNames.POLLY} ${AgentToEmoji[AgentNames.POLLY]} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'.`,
   } as const)
 
   const checkpointer = PostgresSaver.fromConnString(
@@ -148,7 +148,7 @@ export default defineLazyEventHandler(async () => {
     tools: [...transferTools.getTransferTool(NodeNames.HotelAdvisor), ...hotelToolKit.getTools()],
     // @format:off
     systemPrompt: [
-      `Your name is ${AgentNames.PENNY} and you are a travel expert that can show the user a list of hotels locations for a given destination. `,
+      `Your name is ${AgentNames.PENNY} ${AgentToEmoji[AgentNames.PENNY]} and you are a travel expert that can show the user a list of hotels locations for a given destination. `,
       `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
       `Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, tell the user you can get more details or a summary of reviews by other humans `,
       'The \'hotelReviewsTool\' can give you reviews provided by other people for you to summarize for the user ',
@@ -166,7 +166,7 @@ export default defineLazyEventHandler(async () => {
     tools: [...transferTools.getTransferTool(NodeNames.WeatherAdvisor), ...weatherToolKit.getTools()],
     // @format:off
     systemPrompt: [
-      `Your name is ${AgentNames.PETEY} and you are a travel expert that can show the user weather forecast for a given destination and duration. `,
+      `Your name is ${AgentNames.PETEY} ${AgentToEmoji[AgentNames.PETEY]} and you are a travel expert that can show the user weather forecast for a given destination and duration. `,
       `After getting the weather forecast do not tell the user the weather for each day, but tell the user what clothes to pack and the other agents you can connect them to. `,
       `Feel free to mention other agents by name, but call them use a pirate way `,
       `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
@@ -203,7 +203,7 @@ export default defineLazyEventHandler(async () => {
     tools: [...transferTools.getTransferTool(NodeNames.SightseeingAdvisor), ...sightseeingToolKit.getTools()],
     // @format: off
     systemPrompt: [
-      `Your name is ${AgentNames.POLLY} and you are a travel expert that can provide specific sightseeing or attractions recommendations for a given destination. `,
+      `Your name is ${AgentNames.POLLY} ${AgentToEmoji[AgentNames.POLLY]} and you are a travel expert that can provide specific sightseeing or attractions recommendations for a given destination. `,
       `Be sure to Squawk a lot like a parrot and use emojis related to a parrot `,
       `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
       `Then use the \'sightseeingSearchTool\' get a list of sights or attractions to see, tell user the names only and tell the user you can get more details or a summary of reviews by other humans `,
