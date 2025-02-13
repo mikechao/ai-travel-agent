@@ -269,9 +269,23 @@ onMounted(() => {
         left: 'calc((100vw / 4))',
         transform: 'translateX(-50%)',
       }"
+      :pt="{
+        messageContent: {
+          class: 'bg-white/10 border border-white/10 rounded-xl',
+        },
+        message: {
+          class: 'bg-white/10 border border-white/10 rounded-xl',
+        },
+        summary: {
+          class: 'text-surface-900 dark:text-surface-200 font-semibold',
+        },
+        closeIcon: {
+          class: 'text-surface-900 dark:text-surface-200',
+        },
+      }"
     >
       <template #messageicon>
-        <font-awesome icon="fa-regular fa-lightbulb" />
+        <font-awesome icon="fa-regular fa-lightbulb" class="text-surface-900 dark:text-surface-200" />
       </template>
     </Toast>
   </div>
