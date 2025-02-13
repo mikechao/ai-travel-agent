@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import MarkdownIt from 'markdown-it'
 import Card from 'primevue/card'
 import Tab from 'primevue/tab'
 import TabList from 'primevue/tablist'
@@ -8,6 +7,7 @@ import TabPanel from 'primevue/tabpanel'
 import TabPanels from 'primevue/tabpanels'
 import Tabs from 'primevue/tabs'
 import { capFirst } from '~/composables/capFirst'
+import { useMarkdownIt } from '~/composables/useMarkdownIt'
 
 defineProps({
   queries: {
@@ -32,19 +32,7 @@ defineProps({
   },
 })
 
-const md = new MarkdownIt({
-  html: true,
-  linkify: true,
-  breaks: true,
-  typographer: true,
-})
-
-md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-  tokens[idx].attrPush(['class', 'p-button-link'])
-  tokens[idx].attrPush(['target', '_blank'])
-  tokens[idx].attrPush(['rel', 'noopener noreferrer'])
-  return self.renderToken(tokens, idx, options)
-}
+const md = useMarkdownIt()
 
 function renderSearchResult(result: SearchResult) {
   const markdown = `# [${result.title}](${result.url})\n\n ${result.description}`

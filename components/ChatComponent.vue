@@ -2,12 +2,12 @@
 <script setup lang="ts">
 import { type Message, useChat } from '@ai-sdk/vue'
 import { Form, type FormSubmitEvent } from '@primevue/forms'
-import MarkdownIt from 'markdown-it'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Panel from 'primevue/panel'
 import { v4 as uuidv4 } from 'uuid'
+import { useMarkdownIt } from '~/composables/useMarkdownIt'
 import { useDataItemStore } from '~/stores/dataItemStore'
 
 const dataItemStore = useDataItemStore()
@@ -60,24 +60,7 @@ watch(data, (newData) => {
   }
 })
 
-const md = new MarkdownIt({
-  html: true,
-  linkify: true,
-  breaks: true,
-  typographer: true,
-}).disable(['list'])
-
-md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-  // Add Tailwind CSS classes to style links
-  tokens[idx].attrPush(['class', 'p-button-link'])
-  // open links in new tab
-  tokens[idx].attrPush(['target', '_blank'])
-  // noopener to prevent new page accessing originating window
-  // noreferrer do not send refer header, protect privacy of user
-  // and prevent destination site from knowing where the visitor came from
-  tokens[idx].attrPush(['rel', 'noopener noreferrer'])
-  return self.renderToken(tokens, idx, options)
-}
+const md = useMarkdownIt()
 
 function renderMessage(message: Message): string {
   return md.render(message.content)
