@@ -1,4 +1,5 @@
 import type { StructuredToolInterface } from '@langchain/core/tools'
+import type { AgentName } from '~/types/constants'
 import { setMaxListeners } from 'node:events'
 import { SystemMessage } from '@langchain/core/messages'
 import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph'
@@ -64,6 +65,13 @@ export default defineLazyEventHandler(async () => {
       toolTagsByToolName.set(toolName, tag)
     })
   })
+
+  const AgentHelpText: Record<AgentName, string> = Object.freeze({
+    [AgentNames.PLUTO]: `If you need general travel help, ask the agent named ${AgentNames.PLUTO} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'.`,
+    [AgentNames.PETEY]: `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\'.`,
+    [AgentNames.PENNY]: `If you need hotel recommendations, ask the agent named ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'.`,
+    [AgentNames.POLLY]: `If you need sightseeing or attractions recommendations, ask the agent named ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'.`,
+  } as const)
 
   const checkpointer = PostgresSaver.fromConnString(
     runtimeConfig.postgresURL,
@@ -145,9 +153,9 @@ export default defineLazyEventHandler(async () => {
       `Then Use the \'hotelSearchTool\' to get a list of hotels and then tell the users the names of the hotels only, tell the user you can get more details or a summary of reviews by other humans `,
       'The \'hotelReviewsTool\' can give you reviews provided by other people for you to summarize for the user ',
       `When talking to the user be friendly, warm and playful with a sense of humor `,
-      `If you need general travel help, go to the agent named ${AgentNames.PLUTO} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
-      `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
-      `If you need sightseeing or attractions recommendations, ask the agent ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
+      `${AgentHelpText[AgentNames.PLUTO]} `,
+      `${AgentHelpText[AgentNames.PETEY]} `,
+      `${AgentHelpText[AgentNames.POLLY]} `,
       'Feel free to mention other agents by name, but call them synonyms of colleagues',
     ].join('\n'),
     // @format:on
@@ -164,9 +172,9 @@ export default defineLazyEventHandler(async () => {
       `If you do not have Latitude, Longitude and location use the \'geocodeTool\' to get it `,
       `Then use the \'weatherForecastTool\' to get the weather `,
       'Talk to the user like a pirate and use pirate related emojis ',
-      `If you need general travel help, go to the agent named ${AgentNames.PLUTO} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
-      `If you need hotel recommendations, ask the agent named ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
-      `If you need sightseeing or attractions recommendations, ask the agent ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
+      `${AgentHelpText[AgentNames.PLUTO]} `,
+      `${AgentHelpText[AgentNames.PENNY]} `,
+      `${AgentHelpText[AgentNames.POLLY]} `,
     ].join('\n'),
     // @format:on
   })
@@ -182,9 +190,9 @@ export default defineLazyEventHandler(async () => {
       `If you use the tool \'searchQueryTool\', present the results to user `,
       `Wait for user input before using \'searchExecutionTool\' `,
       `After using the \'searchExecutionTool\' let the user know you can provide a summary based on the title or connect to the other agents `,
-      `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
-      `If you need hotel recommendations, ask the agent ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
-      `If you need sightseeing or attractions recommendations, ask the agent ${AgentNames.POLLY} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'`,
+      `${AgentHelpText[AgentNames.PETEY]} `,
+      `${AgentHelpText[AgentNames.PENNY]} `,
+      `${AgentHelpText[AgentNames.POLLY]} `,
       `Feel free to mention the other agents by name, but call them your colleagues or a synonym like partner, coworker, buddy, associate.`,
     ].join('\n'),
     // @format: on
@@ -203,9 +211,9 @@ export default defineLazyEventHandler(async () => {
       `The \'sightsReviewsTool\' can give you reviews provided by other people for you to summarize for the user `,
       `After using a tool you can also mention the other agents and their abilities `,
       `Feel free to mention the other agents by name, but in a way that a parrot would`,
-      `If you need weather forecast and clothing to pack, ask the agent named ${AgentNames.PETEY} for help by using the tool named \'${TransferToolNames.WeatherTransfer}\' `,
-      `If you need hotel recommendations, ask the agent ${AgentNames.PENNY} for help by using the tool named \'${TransferToolNames.HotelTransfer}\'. `,
-      `If you need general travel help, go to the agent named ${AgentNames.PLUTO} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'. `,
+      `${AgentHelpText[AgentNames.PETEY]} `,
+      `${AgentHelpText[AgentNames.PENNY]} `,
+      `${AgentHelpText[AgentNames.PLUTO]} `,
     ].join('\n'),
     // @format: on
   })
