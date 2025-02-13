@@ -5,6 +5,9 @@ import { updatePrimaryColors } from '~/composables/updatePrimaryColors'
 import { updateSurfaceColors } from '~/composables/updateSurfaceColors'
 
 onMounted(() => {
+  // const { initBackground } = useBackground()
+  // initBackground()
+
   const colorMode = useColorMode()
   // have to use a watch here since color mode
   // is detected on the client side
