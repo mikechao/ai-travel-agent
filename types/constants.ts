@@ -26,3 +26,23 @@ export const AgentToEmoji: Record<AgentName, string> = Object.freeze({
   [AgentNames.PENNY]: '🏨',
   [AgentNames.POLLY]: '🦜',
 } as const)
+
+// not so sure this is needed...
+export const AgentDetails = Object.freeze({
+  [AgentNames.PLUTO]: {
+    name: AgentNames.PLUTO,
+    emoji: AgentToEmoji[AgentNames.PLUTO],
+  },
+  [AgentNames.PETEY]: {
+    name: AgentNames.PETEY,
+    emoji: AgentToEmoji[AgentNames.PETEY],
+  },
+  [AgentNames.PENNY]: {
+    name: AgentNames.PENNY,
+    emoji: AgentToEmoji[AgentNames.PENNY],
+  },
+  [AgentNames.POLLY]: {
+    name: AgentNames.POLLY,
+    emoji: AgentToEmoji[AgentNames.POLLY],
+  },
+} as const)

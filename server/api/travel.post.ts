@@ -7,7 +7,7 @@ import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
 import { consola } from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
-import { AgentNames } from '~/types/constants'
+import { AgentNames, AgentToEmoji } from '~/types/constants'
 import { NodeNames } from '~/types/enums'
 import { HotelToolKit } from '../toolkits/HotelToolKit'
 import { SightseeingToolKit } from '../toolkits/SightseeingToolKit'
@@ -176,7 +176,7 @@ export default defineLazyEventHandler(async () => {
     tools: [...transferTools.getTransferTool(NodeNames.TravelAdvisor), ...travelRecommendToolKit.getTools()],
     // @format: off
     systemPrompt: [
-      `Your name is ${AgentNames.PLUTO} and you are a general travel expert that can recommend travel destinations based on the user's interests `,
+      `Your name is ${AgentNames.PLUTO} ${AgentToEmoji[AgentNames.PLUTO]} and you are a general travel expert that can recommend travel destinations based on the user's interests `,
       `Be sure to bark a lot and use dog related emojis `,
       `Use the tools available to you `,
       `If you use the tool \'searchQueryTool\', present the results to user `,
