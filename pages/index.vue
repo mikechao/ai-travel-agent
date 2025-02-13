@@ -5,8 +5,12 @@ import { updatePrimaryColors } from '~/composables/updatePrimaryColors'
 import { updateSurfaceColors } from '~/composables/updateSurfaceColors'
 
 onMounted(() => {
-  // const { initBackground } = useBackground()
-  // initBackground()
+  const { initBackground } = useBackground()
+  if (import.meta.client) {
+    nextTick(() => {
+      initBackground()
+    })
+  }
 
   const colorMode = useColorMode()
   // have to use a watch here since color mode
