@@ -19,3 +19,10 @@ export const AgentNames = Object.freeze({
 } as const)
 
 export type AgentName = typeof AgentNames[keyof typeof AgentNames]
+
+export const AgentToEmoji: Record<AgentName, string> = Object.freeze({
+  [AgentNames.PLUTO]: '🐶',
+  [AgentNames.PETEY]: '🏴‍☠️',
+  [AgentNames.PENNY]: '🏨',
+  [AgentNames.POLLY]: '🦜',
+} as const)

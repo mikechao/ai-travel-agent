@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type AgentName, AgentNames } from '~/types/constants'
+import { type AgentName, AgentNames, AgentToEmoji } from '~/types/constants'
 import { NodeNames } from '~/types/enums'
 
 const props = defineProps({
@@ -17,12 +17,6 @@ function isActiveCSS(name: AgentName) {
   }
   return ''
 }
-const AgentToEmoji: Record<AgentName, string> = {
-  [AgentNames.PLUTO]: '🐶',
-  [AgentNames.PETEY]: '🏴‍☠️',
-  [AgentNames.PENNY]: '🏨',
-  [AgentNames.POLLY]: '🦜',
-} as const
 </script>
 
 <template>
