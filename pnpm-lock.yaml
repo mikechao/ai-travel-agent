@@ -45,8 +45,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5
       '@vesp/nuxt-fontawesome':
-        specifier: 1.2.0
-        version: 1.2.0(magicast@0.3.5)(rollup@4.34.0)
+        specifier: ^1.2.1
+        version: 1.2.1(magicast@0.3.5)(rollup@4.34.0)
       ai:
         specifier: ^4.1.38
         version: 4.1.38(react@19.0.0)(zod@3.24.1)
@@ -1775,8 +1775,8 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  '@vesp/nuxt-fontawesome@1.2.0':
-    resolution: {integrity: sha512-UvSDL6YNpPNse+FiAssP4SwYmRvmGYdxJh0Gv14S8IjEtmtJz75Binvkrba1IXBbEUPJ4SDfqLi98anletQpgg==}
+  '@vesp/nuxt-fontawesome@1.2.1':
+    resolution: {integrity: sha512-W7gaCQ8szFmOsMwBcxq22vyAV7wARQ8TK5wsd1we8Gt3KPFVQHj9ZYi738b4ePoeFxYGBEndh/uMLY6sIc+9HQ==}
 
   '@vitejs/plugin-vue-jsx@4.1.1':
     resolution: {integrity: sha512-uMJqv/7u1zz/9NbWAD3XdjaY20tKTf17XVfQ9zq4wY1BjsB/PjpJPMe2xiG39QpP4ZdhYNhm4Hvo66uJrykNLA==}
@@ -7375,7 +7375,7 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vesp/nuxt-fontawesome@1.2.0(magicast@0.3.5)(rollup@4.34.0)':
+  '@vesp/nuxt-fontawesome@1.2.1(magicast@0.3.5)(rollup@4.34.0)':
     dependencies:
       '@fortawesome/fontawesome-svg-core': 6.7.2
       '@nuxt/kit': 3.15.4(magicast@0.3.5)(rollup@4.34.0)

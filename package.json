@@ -26,7 +26,7 @@
     "@pinia/nuxt": "0.9.0",
     "@primevue/forms": "^4.2.5",
     "@primevue/themes": "^4.2.5",
-    "@vesp/nuxt-fontawesome": "1.2.0",
+    "@vesp/nuxt-fontawesome": "^1.2.1",
     "ai": "^4.1.38",
     "axios": "^1.7.9",
     "brave-search": "^0.6.5",
