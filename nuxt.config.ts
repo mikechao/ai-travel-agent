@@ -47,6 +47,9 @@ export default defineNuxtConfig({
           header: {
             class: 'px-4 py-2',
           },
+          root: {
+            class: 'overflow-hidden',
+          },
         },
         button: {
           root: {
