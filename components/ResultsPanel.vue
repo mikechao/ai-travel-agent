@@ -279,6 +279,17 @@ onMounted(() => {
         summary: {
           class: 'text-surface-900 dark:text-surface-200 font-semibold',
         },
+        closeButton: {
+          class: [
+            'w-8 h-8 rounded-full transition-colors duration-200',
+            'hover:bg-surface-100 dark:hover:bg-surface-800',
+            'focus:outline-none focus:outline-offset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface-400',
+            '!outline-surface-400',
+          ],
+          style: {
+            outline: 'none',
+          },
+        },
         closeIcon: {
           class: 'text-surface-900 dark:text-surface-200',
         },
