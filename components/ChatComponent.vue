@@ -91,7 +91,7 @@ function formSubmit(_event: FormSubmitEvent) {
       </div>
     </template>
     <template #default>
-      <div class="chat-container flex flex-col w-full mx-auto">
+      <div class="chat-container flex flex-col w-full mx-auto rounded-lg overflow-hidden">
         <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-0 px-2 border-2 border-gray-200 rounded-lg">
           <div v-for="message in messages" :key="message.id">
             <div
