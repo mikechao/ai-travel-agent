@@ -80,8 +80,6 @@ function toggleDetails(location: Location) {
                 :label="buttonStates.get(location.location_id) ? 'Hide Details' : 'Show Details'"
                 icon-pos="right"
                 size="small"
-                rounded
-                raised
                 :loading="locationIsLoading.get(location.location_id)"
                 @click="toggleDetails(location)"
               >

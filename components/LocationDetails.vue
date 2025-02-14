@@ -88,8 +88,6 @@ function getRankingString() {
           label="Reviews"
           size="small"
           icon-pos="right"
-          rounded
-          raised
           :loading="isReviewsLoading"
           @click="showReviews"
         >
@@ -123,8 +121,6 @@ function getRankingString() {
           type="button"
           label="Additional Ratings"
           size="small"
-          rounded
-          raised
           @click="displaySubratings = true"
         >
           <template #icon>
@@ -135,8 +131,6 @@ function getRankingString() {
           type="button"
           label="Amenities"
           size="small"
-          rounded
-          raised
           @click="displayAmenities = true"
         >
           <template #icon>

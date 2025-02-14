@@ -48,6 +48,11 @@ export default defineNuxtConfig({
             class: 'px-4 py-2',
           },
         },
+        button: {
+          root: {
+            class: 'p-button-raised p-button-rounded',
+          },
+        },
       },
       ripple: true,
       theme: {

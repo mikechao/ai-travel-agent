@@ -119,8 +119,6 @@ function formSubmit(_event: FormSubmitEvent) {
           label="Send"
           icon-pos="right"
           :loading="isLoading"
-          raised
-          rounded
         >
           <template #icon>
             <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
