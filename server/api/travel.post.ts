@@ -221,7 +221,7 @@ export default defineLazyEventHandler(async () => {
   function humanNode(state: typeof AgentState.State): Command {
     consola.info('humanNode messages', state.messages.length)
     const userInput: string = interrupt('Ready for user input.')
-    consola.info('userInput', userInput)
+    consola.debug('userInput', userInput)
     return new Command({
       goto: state.sender,
       update: {
