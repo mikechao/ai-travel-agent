@@ -42,6 +42,13 @@ export default defineNuxtConfig({
       include: ['tooltip'],
     },
     options: {
+      pt: {
+        dialog: {
+          header: {
+            class: 'px-4 py-2',
+          },
+        },
+      },
       ripple: true,
       theme: {
         preset: Nora,

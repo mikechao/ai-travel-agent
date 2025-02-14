@@ -334,9 +334,6 @@ onMounted(() => {
             zIndex: weatherZIndex,
           },
         },
-        header: {
-          class: 'px-4 py-2',
-        },
       }"
       @mousedown.stop="updateZIndex('weather')"
     >
@@ -362,9 +359,6 @@ onMounted(() => {
             zIndex: hotelsZIndex,
           },
         },
-        header: {
-          class: 'px-4 py-2',
-        },
       }"
       @mousedown.stop="updateZIndex('hotels')"
     >
@@ -389,9 +383,6 @@ onMounted(() => {
             zIndex: sightsZIndex,
           },
         },
-        header: {
-          class: 'px-4 py-2',
-        },
       }"
       @mousedown.stop="updateZIndex('sights')"
     >
@@ -412,9 +403,6 @@ onMounted(() => {
           style: {
             zIndex: settingsZIndex,
           },
-        },
-        header: {
-          class: 'px-4 py-2',
         },
       }"
       @mousedown.stop="updateZIndex('settings')"
@@ -440,9 +428,6 @@ onMounted(() => {
           style: {
             zIndex: recommendZIndex,
           },
-        },
-        header: {
-          class: 'px-4 py-2',
         },
       }"
       @mousedown.stop="updateZIndex('recommend')"
