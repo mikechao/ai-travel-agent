@@ -21,7 +21,7 @@ function getTime(localtime) {
 <template>
   <div
     :class="place.current.is_day === 1 ? 'bg-day' : 'bg-night'"
-    class="text-white p-7 rounded-lg shadow-lg gap-4 mb-4 relative overflow-hidden"
+    class="text-white p-6 rounded-lg shadow-lg gap-4 mb-0 relative overflow-hidden"
   >
     <!-- Location & time -->
     <div class="mb-2 flex justify-between items-center">
@@ -41,7 +41,7 @@ function getTime(localtime) {
 
     <!-- current weather -->
     <div class="text-center flex-1">
-      <img :src="place.current.condition.icon" alt="icon" width="175" class="mx-auto -mb-10">
+      <img :src="place.current.condition.icon" alt="icon" width="175" class="mx-auto">
       <h1 class="text-6xl mb-2 -mr-4">
         {{ Math.round(place.current.temp_f) }}&deg;
       </h1>
