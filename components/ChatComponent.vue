@@ -91,7 +91,7 @@ function formSubmit(_event: FormSubmitEvent) {
       </div>
     </template>
     <template #default>
-      <div class="chat-container flex flex-col max-w-2xl mx-auto">
+      <div class="chat-container flex flex-col w-full mx-auto">
         <div ref="messagesContainer" class="messages flex-grow overflow-y-auto mb-0 px-2 border-2 border-gray-200">
           <div v-for="message in messages" :key="message.id">
             <div
@@ -140,7 +140,6 @@ function formSubmit(_event: FormSubmitEvent) {
   display: flex;
   flex-direction: column;
   height: 80vh;
-  max-width: 600px;
   margin: 0 auto;
 }
 
