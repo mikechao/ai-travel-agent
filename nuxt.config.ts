@@ -50,10 +50,18 @@ export default defineNuxtConfig({
           root: {
             class: 'overflow-hidden',
           },
+          content: {
+            class: 'scrollbar-thumb-rounded-full scrollbar-thin scrollbar-thumb-primary-500 scrollbar-track-primary-200',
+          },
         },
         button: {
           root: {
             class: 'p-button-raised p-button-rounded',
+          },
+        },
+        panel: {
+          contentContainer: {
+            class: 'overflow-hidden',
           },
         },
       },
