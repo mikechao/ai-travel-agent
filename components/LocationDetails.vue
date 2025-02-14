@@ -192,8 +192,22 @@ function getRankingString() {
         </Dialog>
       </div>
       <div class="flex flex-row gap-1 items-start justify-start" :class="linksMarginTop">
-        <Button as="a" label="Visit Web Site" :href="website" target="_blank" rel="noopener" size="small" variant="link" />
-        <Button as="a" label="More photos" :href="location.see_all_photos" target="_blank" rel="noopener" size="small" variant="link" />
+        <Button
+          as="a"
+          label="Visit Web Site"
+          :href="website"
+          target="_blank"
+          rel="noopener"
+          size="small"
+        />
+        <Button
+          as="a"
+          label="More photos"
+          :href="location.see_all_photos"
+          target="_blank"
+          rel="noopener"
+          size="small"
+        />
       </div>
     </div>
   </div>
