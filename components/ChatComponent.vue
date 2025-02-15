@@ -64,7 +64,7 @@ watch(data, (newData) => {
   }
 })
 
-const md = useMarkdownIt()
+const md = await useMarkdownIt()
 
 function renderMessage(message: Message): string {
   return md.render(message.content)

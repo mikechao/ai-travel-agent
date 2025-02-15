@@ -32,7 +32,7 @@ defineProps({
   },
 })
 
-const md = useMarkdownIt()
+const md = await useMarkdownIt()
 
 function renderSearchResult(result: SearchResult) {
   const markdown = `# [${result.title}](${result.url})\n\n ${result.description}`
