@@ -47,13 +47,34 @@ function renderSummary(summary: SearchSummary) {
 <template>
   <Tabs :value="activeTab">
     <TabList>
-      <Tab value="queries">
+      <Tab
+        value="queries"
+        :pt="{
+          root: {
+            class: 'border-2 rounded-t-3xl',
+          },
+        }"
+      >
         Search Queries
       </Tab>
-      <Tab value="results">
+      <Tab
+        value="results"
+        :pt="{
+          root: {
+            class: 'border-2 rounded-t-3xl',
+          },
+        }"
+      >
         Search Results
       </Tab>
-      <Tab value="summary">
+      <Tab
+        value="summary"
+        :pt="{
+          root: {
+            class: 'border-2 rounded-t-3xl',
+          },
+        }"
+      >
         Search Summary
       </Tab>
     </TabList>
