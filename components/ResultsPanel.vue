@@ -10,6 +10,7 @@ import ActiveAgent from './agent/ActiveAgent.vue'
 const LocationList = defineAsyncComponent(() => import('./LocationList.vue'))
 const TravelRecommend = defineAsyncComponent(() => import('./recommend/TravelRecommend.vue'))
 const WeatherCard = defineAsyncComponent(() => import('./weather/WeatherCard.vue'))
+const SettingsPanel = defineAsyncComponent(() => import('./settings/SettingsPanel.vue'))
 
 const toast = useToast()
 const dataItemStore = useDataItemStore()
