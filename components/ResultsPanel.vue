@@ -6,9 +6,10 @@ import { useToast } from 'primevue/usetoast'
 import { useActiveAgentStore } from '~/stores/activeAgentStore'
 import { DataItemTypes } from '~/types/constants'
 import ActiveAgent from './agent/ActiveAgent.vue'
-import LocationList from './LocationList.vue'
-import TravelRecommend from './recommend/TravelRecommend.vue'
-import WeatherCard from './weather/WeatherCard.vue'
+
+const LocationList = defineAsyncComponent(() => import('./LocationList.vue'))
+const TravelRecommend = defineAsyncComponent(() => import('./recommend/TravelRecommend.vue'))
+const WeatherCard = defineAsyncComponent(() => import('./weather/WeatherCard.vue'))
 
 const toast = useToast()
 const dataItemStore = useDataItemStore()
