@@ -69,10 +69,6 @@ const md = await useMarkdownIt()
 function renderMessage(message: Message): string {
   return md.render(message.content)
 }
-
-function formSubmit(_event: FormSubmitEvent) {
-  handleSubmit()
-}
 </script>
 
 <template>
@@ -105,7 +101,7 @@ function formSubmit(_event: FormSubmitEvent) {
           </div>
         </div>
       </div>
-      <Form class="flex gap-2" @submit="formSubmit">
+      <div class="flex gap-2">
         <InputText
           v-model="input"
           type="text"
@@ -113,18 +109,20 @@ function formSubmit(_event: FormSubmitEvent) {
           variant="filled"
           :disabled="isLoading"
           class="flex-1 shadow-lg rounded-full"
+          @keyup.enter="handleSubmit"
         />
         <Button
           type="submit"
           label="Send"
           icon-pos="right"
           :loading="isLoading"
+          @click="handleSubmit"
         >
           <template #icon>
             <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
           </template>
         </Button>
-      </Form>
+      </div>
     </template>
   </Panel>
 </template>
