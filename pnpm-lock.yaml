@@ -38,9 +38,6 @@ importers:
       '@pinia/nuxt':
         specifier: ^0.10.1
         version: 0.10.1(magicast@0.3.5)(pinia@3.0.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))(rollup@4.34.0)
-      '@primevue/forms':
-        specifier: ^4.2.5
-        version: 4.2.5(vue@3.5.13(typescript@5.7.3))
       '@primevue/themes':
         specifier: ^4.2.5
         version: 4.2.5
@@ -1395,10 +1392,6 @@ packages:
   '@polka/url@1.0.0-next.28':
     resolution: {integrity: sha512-8LduaNlMZGwdZ6qWrKlfa+2M4gahzFkprZiAt2TF8uS0qQgBizKXpXURqvTJ4WtmupWxaLqjRb2UCTe72mu+Aw==}
 
-  '@primeuix/forms@0.0.2':
-    resolution: {integrity: sha512-DpecPQd/Qf/kav4LKCaIeGuT3AkwhJzuHCkLANTVlN/zBvo8KIj3OZHsCkm0zlIMVVnaJdtx1ULNlRQdudef+A==}
-    engines: {node: '>=12.11.0'}
-
   '@primeuix/styled@0.3.2':
     resolution: {integrity: sha512-ColZes0+/WKqH4ob2x8DyNYf1NENpe5ZguOvx5yCLxaP8EIMVhLjWLO/3umJiDnQU4XXMLkn2mMHHw+fhTX/mw==}
     engines: {node: '>=12.11.0'}
@@ -1416,10 +1409,6 @@ packages:
     engines: {node: '>=12.11.0'}
     peerDependencies:
       vue: ^3.3.0
-
-  '@primevue/forms@4.2.5':
-    resolution: {integrity: sha512-5jarJQ9Qv32bOo/0tY5bqR3JZI6+YmmoUQ2mjhVSbVElQsE4FNfhT7a7JwF+xgBPMPc8KWGNA1QB248HhPNVAg==}
-    engines: {node: '>=12.11.0'}
 
   '@primevue/icons@4.2.5':
     resolution: {integrity: sha512-WFbUMZhQkXf/KmwcytkjGVeJ9aGEDXjP3uweOjQZMmRdEIxFnqYYpd90wE90JE1teZn3+TVnT4ZT7ejGyEXnFQ==}
@@ -6958,10 +6947,6 @@ snapshots:
 
   '@polka/url@1.0.0-next.28': {}
 
-  '@primeuix/forms@0.0.2':
-    dependencies:
-      '@primeuix/utils': 0.3.2
-
   '@primeuix/styled@0.3.2':
     dependencies:
       '@primeuix/utils': 0.3.2
@@ -6977,14 +6962,6 @@ snapshots:
       '@primeuix/styled': 0.3.2
       '@primeuix/utils': 0.3.2
       vue: 3.5.13(typescript@5.7.3)
-
-  '@primevue/forms@4.2.5(vue@3.5.13(typescript@5.7.3))':
-    dependencies:
-      '@primeuix/forms': 0.0.2
-      '@primeuix/utils': 0.3.2
-      '@primevue/core': 4.2.5(vue@3.5.13(typescript@5.7.3))
-    transitivePeerDependencies:
-      - vue
 
   '@primevue/icons@4.2.5(vue@3.5.13(typescript@5.7.3))':
     dependencies:
