@@ -100,6 +100,8 @@ function renderMessage(message: Message): string {
           </div>
         </div>
       </div>
+    </template>
+    <template #footer>
       <div class="flex gap-2">
         <InputText
           v-model="input"
