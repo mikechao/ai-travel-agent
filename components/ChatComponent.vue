@@ -75,8 +75,8 @@ function renderMessage(message: Message): string {
     class="w-full h-full flex flex-col shadow-lg border border-gray-500"
     :pt="{
       root: { class: 'h-full' },
-      header: { class: 'p-2 shadow-lg' },
-      content: { class: 'flex-1 pb-0' },
+      header: { class: 'p-2' },
+      content: { class: 'flex-1 pb-1' },
     }"
   >
     <template #header>
