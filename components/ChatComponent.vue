@@ -1,7 +1,6 @@
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
 import { type Message, useChat } from '@ai-sdk/vue'
-import { Form, type FormSubmitEvent } from '@primevue/forms'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Panel from 'primevue/panel'

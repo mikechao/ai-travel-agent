@@ -89,7 +89,6 @@ export default defineNuxtConfig({
         'primevue/splitterpanel',
         'primevue/dialog',
         'primevue/ripple',
-        '@primevue/forms',
         'primevue/avatar',
         'primevue/button',
         'primevue/inputtext',
