@@ -10,6 +10,7 @@ import { consola } from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
 import { AgentNames, AgentToEmoji } from '~/types/constants'
 import { NodeNames } from '~/types/enums'
+import { ImageSearchTool } from '../toolkits/GeocodeToolKit'
 import { HotelToolKit } from '../toolkits/HotelToolKit'
 import { SightseeingToolKit } from '../toolkits/SightseeingToolKit'
 import { TransferToolKit, TransferToolNames } from '../toolkits/TransferToolKit'
@@ -181,11 +182,12 @@ export default defineLazyEventHandler(async () => {
 
   const travelAdvisor = makeAgent({
     name: NodeNames.TravelAdvisor,
-    tools: [...transferTools.getTransferTool(NodeNames.TravelAdvisor), ...travelRecommendToolKit.getTools()],
+    tools: [...transferTools.getTransferTool(NodeNames.TravelAdvisor), ...travelRecommendToolKit.getTools(), new ImageSearchTool()],
     // @format: off
     systemPrompt: [
       `Your name is ${AgentNames.PLUTO} ${AgentToEmoji[AgentNames.PLUTO]} and you are a general travel expert that can recommend travel destinations based on the user's interests `,
       `Be sure to bark a lot and use dog related emojis `,
+      `describe the tools available to you for the user `,
       `Use the tools available to you `,
       `If you use the tool \'searchQueryTool\', present the results to user `,
       `Wait for user input before using \'searchExecutionTool\' `,
