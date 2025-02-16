@@ -35,7 +35,7 @@ function toHTML(imageResults: ImageSearchApiResponse) {
   const galleryStart = `<div class="image-gallery grid grid-cols-2 gap-4 p-4">`
   const middle = imageResults.results.map(result =>
     `<div class="image-container relative rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-    onclick="window.dispatchEvent(new CustomEvent('show-full-image', { detail: { url: '${result.properties.url}', title: '${result.title}', caption: '${result.properties.url}' }}))"
+    onclick="window.dispatchEvent(new CustomEvent('show-full-image', { detail: { url: '${result.properties.url}', title: '${result.title}' }}))"
     >
       <img src="${result.properties.url}" alt="${result.title}" class="w-full h-48 object-cover" loading="lazy">
       <div class="image-caption absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">

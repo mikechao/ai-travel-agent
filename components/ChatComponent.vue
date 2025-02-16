@@ -41,15 +41,15 @@ onMounted(() => {
   append({ id: uuidv4(), content: '', role: 'system', data: JSON.stringify(initData) })
 
   window.addEventListener('show-full-image', ((event: CustomEvent) => {
-    const { url, title, caption } = event.detail
-    showFullImage(url, title, caption)
+    const { url, title } = event.detail
+    showFullImage(url, title)
   }) as EventListener)
 })
 
 onUnmounted(() => {
   window.removeEventListener('show-full-image', ((event: CustomEvent) => {
-    const { url, title, caption } = event.detail
-    showFullImage(url, title, caption)
+    const { url, title } = event.detail
+    showFullImage(url, title)
   }) as EventListener)
 })
 
@@ -82,10 +82,10 @@ function renderMessage(message: Message): string {
 }
 
 const showImageDialog = ref(false)
-const selectedImage = ref<{ url: string, title: string, caption: string } | null>(null)
+const selectedImage = ref<{ url: string, title: string } | null>(null)
 
-function showFullImage(url: string, title: string, caption: string) {
-  selectedImage.value = { url, title, caption }
+function showFullImage(url: string, title: string) {
+  selectedImage.value = { url, title }
   showImageDialog.value = true
 }
 </script>
@@ -163,11 +163,6 @@ function showFullImage(url: string, title: string, caption: string) {
           :alt="selectedImage.title"
           class="w-auto h-auto max-w-full max-h-[80vh] object-contain"
         >
-      </div>
-    </template>
-    <template #footer>
-      <div v-if="selectedImage" class="absolute bottom-0 left-0 right-0 bg-black/25 text-white p-4">
-        {{ selectedImage.caption }}
       </div>
     </template>
   </Dialog>
