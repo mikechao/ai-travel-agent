@@ -583,7 +583,9 @@ export default defineLazyEventHandler(async () => {
           ]
 
           const imageMarkdown = images.map(img => `
-            <div class="image-container relative rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div class="image-container relative rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            onclick="window.dispatchEvent(new CustomEvent('show-full-image', { detail: { url: '${img.url}', title: '${img.title}', caption: '${img.caption}' }}))"
+            >
               <img src="${img.url}" alt="${img.title}" class="w-full h-48 object-cover" loading="lazy">
               <div class="image-caption absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">
                 ${img.caption}

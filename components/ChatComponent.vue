@@ -39,6 +39,18 @@ onMounted(() => {
   // use append with empty content to trigger api endpoint call
   const initData = { init: true }
   append({ id: uuidv4(), content: '', role: 'system', data: JSON.stringify(initData) })
+
+  window.addEventListener('show-full-image', ((event: CustomEvent) => {
+    const { url, title, caption } = event.detail
+    showFullImage(url, title, caption)
+  }) as EventListener)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('show-full-image', ((event: CustomEvent) => {
+    const { url, title, caption } = event.detail
+    showFullImage(url, title, caption)
+  }) as EventListener)
 })
 
 const messagesContainer = ref<HTMLDivElement | null>(null)
@@ -67,6 +79,14 @@ const md = await useMarkdownIt()
 
 function renderMessage(message: Message): string {
   return md.render(message.content)
+}
+
+const showImageDialog = ref(false)
+const selectedImage = ref<{ url: string, title: string, caption: string } | null>(null)
+
+function showFullImage(url: string, title: string, caption: string) {
+  selectedImage.value = { url, title, caption }
+  showImageDialog.value = true
 }
 </script>
 
@@ -126,6 +146,32 @@ function renderMessage(message: Message): string {
       </div>
     </template>
   </Panel>
+  <Dialog
+    v-model:visible="showImageDialog"
+    modal
+    :style="{ width: '90vw', maxWidth: '1200px' }"
+    :pt="{
+      root: { class: 'border-round-2xl overflow-hidden' },
+      header: { class: 'p-4' },
+      content: { class: 'p-0 relative' },
+    }"
+  >
+    <template v-if="selectedImage" #header>
+      <h3 class="text-xl font-semibold m-0">
+        {{ selectedImage.title }}
+      </h3>
+    </template>
+    <div v-if="selectedImage" class="relative">
+      <img
+        :src="selectedImage.url"
+        :alt="selectedImage.title"
+        class="w-full h-auto"
+      >
+      <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4">
+        {{ selectedImage.caption }}
+      </div>
+    </div>
+  </Dialog>
 </template>
 
 <style scoped>
@@ -162,6 +208,7 @@ function renderMessage(message: Message): string {
   border-radius: 0.5rem;
   overflow: hidden;
   transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
 :deep(.image-container:hover) {
