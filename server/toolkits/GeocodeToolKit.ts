@@ -52,17 +52,19 @@ export class ImageSearchTool extends StructuredTool {
   description = `Searches the internet for images that are related to the user's interests`
   schema = z.object({
     searchTerm: z.string().describe('The term to search the internet for images of'),
+    imageCount: z.number().min(1).max(6).describe('The number of images to search for.'),
   })
 
   responseFormat = 'content_and_artifact'
 
-  protected async _call(input: { searchTerm: string }) {
+  protected async _call(input: { searchTerm: string, imageCount: number }) {
     const searchTerm = input.searchTerm
-    consola.debug({ tag: 'imageSearchTool', message: `called with ${searchTerm}` })
+    const imageCount = input.imageCount
+    consola.debug({ tag: 'imageSearchTool', message: `called with ${searchTerm} count ${imageCount}` })
     const searchURL = new URL('https://api.search.brave.com/res/v1/images/search')
     searchURL.searchParams.set('q', searchTerm)
     searchURL.searchParams.set('safesearch', 'strict')
-    searchURL.searchParams.set('count', '6')
+    searchURL.searchParams.set('count', imageCount.toString())
 
     try {
       const imageSearchResults = await $fetch<ImageSearchApiResponse>(searchURL.toString(), {
@@ -75,8 +77,7 @@ export class ImageSearchTool extends StructuredTool {
       })
       consola.debug({ tag: 'imageSearchTool', message: `${imageSearchResults.results.length} results` })
       const html = toHTML(imageSearchResults)
-      const titles = imageSearchResults.results.map(result => result.title).join(',')
-      return [`I found ${imageSearchResults.results.length} images related to ${searchTerm} with following titles ${titles}`, html]
+      return [`I found some images they should be above, have a look`, html]
     }
     catch (error) {
       consola.error('error searching for images', error)
