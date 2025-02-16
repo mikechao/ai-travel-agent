@@ -30,8 +30,8 @@ export function createStreamEventHandlers(): StreamEventHandlers {
     },
 
     handleToolEnd(event, controller, encoder) {
-      if (event.tags.includes(ImageSearchToolTag.ImageSearch)) {
-        consola.debug({ tag: 'streamHandlers', message: 'Handling image search' })
+      if (event.tags.includes(ImageSearchToolTag.ImageSearch) || event.tags.includes(WeatherToolTags.WeatherSearch)) {
+        consola.debug({ tag: 'streamHandlers', message: 'Handling image search or weather search' })
         const toolMessage = event.data.output as ToolMessage
         const html = toolMessage.artifact
         const text = formatDataStreamPart('text', html)
