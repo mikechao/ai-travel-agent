@@ -344,7 +344,7 @@ onMounted(() => {
           <font-awesome icon="fa-solid fa-cloud-sun" class="mr-1" />Weather
         </span>
       </template>
-      <WeatherCard :place="weatherData" />
+      <WeatherCard :weather="weatherData" />
     </Dialog>
     <Dialog
       v-model:visible="displayHotels"

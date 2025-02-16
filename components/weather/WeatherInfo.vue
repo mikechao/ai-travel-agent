@@ -1,9 +1,13 @@
-<script setup>
-const props = defineProps({
-  place: Object,
+<script setup lang="ts">
+import type { PropType } from 'vue'
+
+defineProps({
+  weather: {
+    type: Object as PropType<WeatherResponse>,
+    required: true,
+  },
 })
 defineEmits(['closeInfo'])
-const place = props.place
 </script>
 
 <template>
@@ -22,7 +26,7 @@ const place = props.place
       <div class="text-center flex-1">
         <font-awesome icon="fa-solid fa-wind" size="2x" class="mb-1" />
         <p class="text-xl font-bold">
-          {{ place.current.wind_mph }} mp/h
+          {{ weather.current.wind_mph }} mp/h
         </p>
         <p>wind</p>
       </div>
@@ -30,7 +34,7 @@ const place = props.place
       <div class="text-center flex-1">
         <font-awesome icon="fa-solid fa-droplet" size="2x" class="mb-1" />
         <p class="text-xl font-bold">
-          {{ place.current.humidity }}%
+          {{ weather.current.humidity }}%
         </p>
         <p>humidity</p>
       </div>
@@ -38,7 +42,7 @@ const place = props.place
       <div class="text-center flex-1">
         <font-awesome icon="fa-solid fa-umbrella" size="2x" class="mb-1" />
         <p class="text-xl font-bold">
-          {{ place.current.precip_in }} in
+          {{ weather.current.precip_in }} in
         </p>
         <p>precipitation</p>
       </div>
@@ -48,7 +52,7 @@ const place = props.place
       <div class="text-center flex-1">
         <font-awesome icon="fa-solid fa-fan" size="2x" class="mb-1" />
         <p class="text-xl font-bold">
-          {{ place.current.wind_dir }}
+          {{ weather.current.wind_dir }}
         </p>
         <p>direction</p>
       </div>
@@ -56,7 +60,7 @@ const place = props.place
       <div class="text-center flex-1">
         <font-awesome icon="fa-solid fa-temperature-half" size="2x" class="mb-1" />
         <p class="text-xl font-bold">
-          {{ Math.round(place.current.feelslike_f) }}
+          {{ Math.round(weather.current.feelslike_f) }}
         </p>
         <p>Feels</p>
       </div>
@@ -64,7 +68,7 @@ const place = props.place
       <div class="text-center flex-1">
         <font-awesome icon="fa-solid fa-sun" size="2x" class="mb-1" />
         <p class="text-xl font-bold">
-          {{ place.current.uv }}
+          {{ weather.current.uv }}
         </p>
         <p>UV index</p>
       </div>
@@ -72,7 +76,7 @@ const place = props.place
     <!-- Last update -->
     <div class="flex justify-between items-center">
       <h3 class="text-slate-900/50">
-        last update: {{ place.current.last_updated }}
+        last update: {{ weather.current.last_updated }}
       </h3>
     </div>
   </div>

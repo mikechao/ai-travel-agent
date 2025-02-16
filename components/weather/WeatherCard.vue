@@ -1,26 +1,26 @@
-<script setup>
+<script setup lang="ts">
+import type { PropType } from 'vue'
 import { ref } from 'vue'
 import BorderLine from './BorderLine.vue'
 import WeatherForecastDay from './WeatherForecastDay.vue'
 import WeatherInfo from './WeatherInfo.vue'
 
-const props = defineProps({
-  place: {
-    type: Object,
+defineProps({
+  weather: {
+    type: Object as PropType<WeatherResponse>,
     required: true,
   },
 })
 const showDetail = ref(false)
-const place = props.place
 
-function getTime(localtime) {
+function getTime(localtime: string) {
   return new Date(localtime).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: false })
 }
 </script>
 
 <template>
   <div
-    :class="place.current.is_day === 1 ? 'bg-day' : 'bg-night'"
+    :class="weather.current.is_day === 1 ? 'bg-day' : 'bg-night'"
     class="text-white p-6 rounded-lg shadow-lg gap-4 mb-0 relative overflow-hidden"
   >
     <!-- Location & time -->
@@ -28,40 +28,40 @@ function getTime(localtime) {
       <div class="flex items-center justify-center gap-2">
         <font-awesome icon="fa-solid fa-location-dot" />
         <h1 class="text-xl">
-          {{ place.location.name }}
+          {{ weather.location.name }}
         </h1>
       </div>
       <div class="flex items-center justify-center gap-2">
         <font-awesome icon="fa-solid fa-clock" />
         <h1 class="text-xl">
-          {{ getTime(place.location.localtime) }}
+          {{ getTime(weather.location.localtime) }}
         </h1>
       </div>
     </div>
 
     <!-- current weather -->
     <div class="text-center flex-1">
-      <img :src="place.current.condition.icon" alt="icon" width="175" class="mx-auto">
+      <img :src="weather.current.condition.icon" alt="icon" width="175" class="mx-auto">
       <h1 class="text-6xl mb-2 -mr-4">
-        {{ Math.round(place.current.temp_f) }}&deg;
+        {{ Math.round(weather.current.temp_f) }}&deg;
       </h1>
       <p class="text-xl">
-        {{ place.current.condition.text }}
+        {{ weather.current.condition.text }}
       </p>
     </div>
 
     <BorderLine />
 
     <!-- forecast -->
-    <div v-for="(day, idx) in place.forecast.forecastday" :key="idx">
-      <WeatherForecastDay :day="day" />
+    <div v-for="(day, idx) in weather.forecast.forecastday" :key="idx">
+      <WeatherForecastDay :forecast-day="day" />
     </div>
 
     <!-- info -->
     <Transition name="fade">
       <div v-show="showDetail">
         <WeatherInfo
-          :place="place"
+          :weather="weather"
           @close-info="showDetail = false"
         />
       </div>

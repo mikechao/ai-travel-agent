@@ -1,8 +1,13 @@
-<script setup>
-const props = defineProps({
-  day: Object,
+<script setup lang="ts">
+import type { PropType } from 'vue'
+
+defineProps({
+  forecastDay: {
+    type: Object as PropType<ForecastDay>,
+    required: true,
+  },
+
 })
-const day = props.day
 </script>
 
 <template>
@@ -12,17 +17,17 @@ const day = props.day
         <tr>
           <!-- day of the week -->
           <td class="w-1/3">
-            {{ new Date(day.date).toLocaleDateString('en-us', { weekday: 'long' }) }}
+            {{ new Date(forecastDay.date).toLocaleDateString('en-us', { weekday: 'long' }) }}
           </td>
 
           <!-- icon -->
           <td class="w-1/3">
-            <img :src="day.day.condition.icon" alt="icon" width="30" class="mx-auto">
+            <img :src="forecastDay.day.condition.icon" alt="icon" width="30" class="mx-auto">
           </td>
 
           <!-- high/low temp -->
           <td class="w-1/3 text-right">
-            {{ Math.round(day.day.maxtemp_f) }} / {{ Math.round(day.day.mintemp_f) }}
+            {{ Math.round(forecastDay.day.maxtemp_f) }} / {{ Math.round(forecastDay.day.mintemp_f) }}
           </td>
         </tr>
       </tbody>
