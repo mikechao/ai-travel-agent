@@ -22,7 +22,7 @@ class WeatherSearchTool extends StructuredTool {
     consola.debug({ tag: 'weatherForecastTool', message: 'weatherForecastTool called!' })
     const url = `http://api.weatherapi.com/v1/forecast.json?key=${runtimeConfig.weatherAPIKey}&q=${lat},${long}&days=7&aqi=no&alerts=no`
     consola.debug({ tag: 'weatherForecastTool', message: `url ${url}` })
-    const forecast = await $fetch(url)
+    const forecast = await $fetch<WeatherResponse>(url)
     // comes back as object, JSON.stringify it since it will be stored in ToolMessage.content
     return JSON.stringify(forecast)
   }

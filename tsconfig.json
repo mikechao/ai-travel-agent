@@ -4,6 +4,7 @@
   "includes": [
     "types/*.d.ts",
     "types/enums.ts",
-    "types/constants.ts"
+    "types/constants.ts",
+    "types/weather/*.d.ts"
   ]
 }
