@@ -27,11 +27,46 @@ class GeocodeTool extends StructuredTool {
   }
 }
 
+class ImageSearchTool extends StructuredTool {
+  name = 'imageSearchTool'
+  description = `Searches the internet for images that are related to the user's interests`
+  schema = z.object({
+    searchTerm: z.string().describe('The term to search the internet for images of'),
+  })
+
+  responseFormat = 'content_and_artifact'
+
+  protected async _call(input: { searchTerm: string }) {
+    const searchTerm = input.searchTerm
+    consola.debug({ tag: 'imageSearchTool', message: `called with ${searchTerm}` })
+    const searchURL = new URL('https://api.search.brave.com/res/v1/images/search')
+    searchURL.searchParams.set('q', searchTerm)
+    searchURL.searchParams.set('safesearch', 'strict')
+    searchURL.searchParams.set('count', '6')
+
+    try {
+      const results = await $fetch(searchURL.toString(), {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Encoding': 'gzip',
+          'X-Subscription-Token': runtimeConfig.braveAPIKey,
+        },
+      })
+      return [`I found 6 images related to ${searchTerm}`, '']
+    }
+    catch (error) {
+      consola.error('error searching for images', error)
+      return ['Something went wrong when searching for images', '']
+    }
+  }
+}
+
 export class GeocodeToolKit extends BaseToolkit {
   tools: StructuredToolInterface[]
 
   constructor() {
     super()
-    this.tools = [new GeocodeTool()]
+    this.tools = [new GeocodeTool(), new ImageSearchTool()]
   }
 }
