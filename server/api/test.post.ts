@@ -561,6 +561,20 @@ export default defineLazyEventHandler(async () => {
       })
     }
 
+    if (messages[0].content === 'image') {
+      return new ReadableStream({
+        async start(controller) {
+          const md = `![Image 1](https://i.pinimg.com/originals/68/c4/c9/68c4c9942917d5007f070fb556d2a73e.jpg "Image 1")\n`
+          const md2 = `![Image 2](https://static.vecteezy.com/system/resources/previews/025/015/156/large_2x/a-cute-and-beautiful-orange-tabby-cat-with-curious-eyes-sits-on-the-floor-lovely-portrait-of-the-domestic-pet-isolated-on-white-background-adorable-feline-animal-image-by-ai-generated-photo.jpg "Image 2")\n`
+          const bottom = `*This is the caption for the above images.*`
+          const total = md + md2 + bottom
+          const text = formatDataStreamPart('text', total)
+          controller.enqueue(encoder.encode(text))
+          controller.close()
+        },
+      })
+    }
+
     if (messages[0].content === 'piece') {
       const result = await piece()
       return new ReadableStream({
