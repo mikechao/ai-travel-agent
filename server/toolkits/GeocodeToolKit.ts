@@ -6,6 +6,10 @@ import { z } from 'zod'
 
 const runtimeConfig = useRuntimeConfig()
 
+export const ImageSearchToolTag = Object.freeze({
+  ImageSearch: 'image-search' as const,
+})
+
 class GeocodeTool extends StructuredTool {
   name = 'geocodeTool'
   description = 'Provides Latitude, Longitude and location for a place or address the user has expressed an interest in'

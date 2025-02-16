@@ -10,7 +10,7 @@ import { consola } from 'consola'
 import { LocalFileCache } from 'langchain/cache/file_system'
 import { AgentNames, AgentToEmoji } from '~/types/constants'
 import { NodeNames } from '~/types/enums'
-import { ImageSearchTool } from '../toolkits/GeocodeToolKit'
+import { ImageSearchTool, ImageSearchToolTag } from '../toolkits/GeocodeToolKit'
 import { HotelToolKit } from '../toolkits/HotelToolKit'
 import { SightseeingToolKit } from '../toolkits/SightseeingToolKit'
 import { TransferToolKit, TransferToolNames } from '../toolkits/TransferToolKit'
@@ -34,7 +34,6 @@ export default defineLazyEventHandler(async () => {
 
   const modelTag = 'stream-out'
   const toolTag = 'tool-out'
-
   const cache = runtimeConfig.dev
     ? await LocalFileCache.create('langchain-cache-travel')
     : undefined
@@ -66,6 +65,7 @@ export default defineLazyEventHandler(async () => {
       toolTagsByToolName.set(toolName, tag)
     })
   })
+  toolTagsByToolName.set('imageSearchTool', ImageSearchToolTag.ImageSearch)
 
   const AgentHelpText: Record<AgentName, string> = Object.freeze({
     [AgentNames.PLUTO]: `If you need general travel help, ask the agent named ${AgentNames.PLUTO} ${AgentToEmoji[AgentNames.PLUTO]} for help by using the tool named \'${TransferToolNames.TravelTransfer}\'.`,
@@ -298,7 +298,7 @@ export default defineLazyEventHandler(async () => {
                 handlers.handleChatModelStream(event, controller, encoder)
               }
               if (event.event === 'on_tool_end' && event.tags?.includes(toolTag)) {
-                handlers.handleToolEnd(event, controller)
+                handlers.handleToolEnd(event, controller, encoder)
               }
             }
             catch (error) {

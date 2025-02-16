@@ -1,8 +1,10 @@
 import type { AIMessageChunk, ToolMessage } from '@langchain/core/messages'
 import { isAIMessageChunk } from '@langchain/core/messages'
 import { formatDataStreamPart } from 'ai'
+import consola from 'consola'
 import { v4 as uuidv4 } from 'uuid'
 import { DataItemTypes } from '../../types/constants'
+import { ImageSearchToolTag } from '../toolkits/GeocodeToolKit'
 import { HotelToolTags } from '../toolkits/HotelToolKit'
 import { SightseeingToolTags } from '../toolkits/SightseeingToolKit'
 import { TransferToolTags } from '../toolkits/TransferToolKit'
@@ -11,7 +13,7 @@ import { WeatherToolTags } from '../toolkits/WeatherToolKit'
 
 export interface StreamEventHandlers {
   handleChatModelStream: (event: any, controller: ReadableStreamDefaultController, encoder: TextEncoder) => void
-  handleToolEnd: (event: any, controller: ReadableStreamDefaultController) => void
+  handleToolEnd: (event: any, controller: ReadableStreamDefaultController, encoder: TextEncoder) => void
 }
 
 export function createStreamEventHandlers(): StreamEventHandlers {
@@ -27,7 +29,7 @@ export function createStreamEventHandlers(): StreamEventHandlers {
       }
     },
 
-    handleToolEnd(event, controller) {
+    handleToolEnd(event, controller, encoder) {
       if (event.data.output && (event.data.output as ToolMessage).content.length) {
         const content = (event.data.output as ToolMessage).content as string
 
@@ -51,6 +53,13 @@ export function createStreamEventHandlers(): StreamEventHandlers {
             controller.enqueue(part)
             break
           }
+        }
+        if (event.tag.includes(ImageSearchToolTag.ImageSearch)) {
+          consola.debug({ tag: 'streamHandlers', message: 'Handling image search' })
+          const toolMessage = event.data.output as ToolMessage
+          const html = toolMessage.artifact
+          const text = formatDataStreamPart('text', html)
+          controller.enqueue(encoder.encode(text))
         }
       }
     },
