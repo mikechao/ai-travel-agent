@@ -27,7 +27,23 @@ class GeocodeTool extends StructuredTool {
   }
 }
 
-class ImageSearchTool extends StructuredTool {
+function toHTML(imageResults: ImageSearchApiResponse) {
+  const galleryStart = `<div class="image-gallery grid grid-cols-2 gap-4 p-4">`
+  const middle = imageResults.results.map(result =>
+    `<div class="image-container relative rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+    onclick="window.dispatchEvent(new CustomEvent('show-full-image', { detail: { url: '${result.properties.url}', title: '${result.title}', caption: '${result.properties.url}' }}))"
+    >
+      <img src="${result.properties.url}" alt="${result.title}" class="w-full h-48 object-cover" loading="lazy">
+      <div class="image-caption absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">
+        ${result.properties.url}
+      </div>
+    </div>`,
+  ).join(' ')
+  const galleryEnd = `</div>`
+  return galleryStart + middle + galleryEnd
+}
+
+export class ImageSearchTool extends StructuredTool {
   name = 'imageSearchTool'
   description = `Searches the internet for images that are related to the user's interests`
   schema = z.object({
@@ -45,7 +61,7 @@ class ImageSearchTool extends StructuredTool {
     searchURL.searchParams.set('count', '6')
 
     try {
-      const results = await $fetch(searchURL.toString(), {
+      const imageSearchResults = await $fetch<ImageSearchApiResponse>(searchURL.toString(), {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -53,7 +69,9 @@ class ImageSearchTool extends StructuredTool {
           'X-Subscription-Token': runtimeConfig.braveAPIKey,
         },
       })
-      return [`I found 6 images related to ${searchTerm}`, '']
+      consola.debug({ tag: 'imageSearchTool', message: `${imageSearchResults.results.length} results` })
+      const html = toHTML(imageSearchResults)
+      return [`I found ${imageSearchResults.results.length} images related to ${searchTerm}`, html]
     }
     catch (error) {
       consola.error('error searching for images', error)
