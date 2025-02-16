@@ -77,7 +77,7 @@ export class ImageSearchTool extends StructuredTool {
       })
       consola.debug({ tag: 'imageSearchTool', message: `${imageSearchResults.results.length} results` })
       const html = toHTML(imageSearchResults)
-      return [`The tools results are presented separately to the user. Do not make anything up.`, html]
+      return [`The tools results are presented separately to the user.`, html]
     }
     catch (error) {
       consola.error('error searching for images', error)
