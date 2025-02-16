@@ -33,7 +33,7 @@ export function createStreamEventHandlers(): StreamEventHandlers {
       if (event.tags.includes(ImageSearchToolTag.ImageSearch)) {
         consola.debug({ tag: 'streamHandlers', message: 'Handling image search' })
         const toolMessage = event.data.output as ToolMessage
-        const html = toolMessage.content as string
+        const html = toolMessage.artifact
         const text = formatDataStreamPart('text', html)
         controller.enqueue(encoder.encode(text))
       }

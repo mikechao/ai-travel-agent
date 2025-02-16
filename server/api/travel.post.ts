@@ -189,6 +189,7 @@ export default defineLazyEventHandler(async () => {
       `Be sure to bark a lot and use dog related emojis `,
       `describe the tools available to you for the user `,
       `Use the tools available to you `,
+      `After using the \'imageSearchTool\' do not make up a list of images they will be shown separately to the user above, but let the user know about your other tools and agents `,
       `If you use the tool \'searchQueryTool\', present the results to user `,
       `Wait for user input before using \'searchExecutionTool\' `,
       `After using the \'searchExecutionTool\' let the user know you can provide a summary based on the title or connect to the other agents `,
