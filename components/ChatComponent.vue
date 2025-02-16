@@ -150,27 +150,26 @@ function showFullImage(url: string, title: string, caption: string) {
     v-model:visible="showImageDialog"
     modal
     :style="{ width: '90vw', maxWidth: '1200px' }"
-    :pt="{
-      root: { class: 'border-round-2xl overflow-hidden' },
-      header: { class: 'p-4' },
-      content: { class: 'p-0 relative' },
-    }"
   >
     <template v-if="selectedImage" #header>
       <h3 class="text-xl font-semibold m-0">
         {{ selectedImage.title }}
       </h3>
     </template>
-    <div v-if="selectedImage" class="relative">
-      <img
-        :src="selectedImage.url"
-        :alt="selectedImage.title"
-        class="w-full h-auto"
-      >
-      <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4">
+    <template #default>
+      <div v-if="selectedImage" class="relative max-h-[80vh] flex items-center justify-center">
+        <img
+          :src="selectedImage.url"
+          :alt="selectedImage.title"
+          class="w-auto h-auto max-w-full max-h-[80vh] object-contain"
+        >
+      </div>
+    </template>
+    <template #footer>
+      <div v-if="selectedImage" class="absolute bottom-0 left-0 right-0 bg-black/25 text-white p-4">
         {{ selectedImage.caption }}
       </div>
-    </div>
+    </template>
   </Dialog>
 </template>
 

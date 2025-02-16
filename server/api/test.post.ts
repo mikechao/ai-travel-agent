@@ -580,6 +580,11 @@ export default defineLazyEventHandler(async () => {
               title: 'Image 2',
               caption: 'Orange tabby cat',
             },
+            {
+              url: 'https://hips.hearstapps.com/hmg-prod/images/names-for-an-orange-cat-carrot-1597174306.jpg',
+              title: 'Image 3',
+              caption: 'Meeeow',
+            },
           ]
 
           const imageMarkdown = images.map(img => `
