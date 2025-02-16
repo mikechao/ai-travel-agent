@@ -564,11 +564,35 @@ export default defineLazyEventHandler(async () => {
     if (messages[0].content === 'image') {
       return new ReadableStream({
         async start(controller) {
-          const md = `![Image 1](https://i.pinimg.com/originals/68/c4/c9/68c4c9942917d5007f070fb556d2a73e.jpg "Image 1")\n`
-          const md2 = `![Image 2](https://static.vecteezy.com/system/resources/previews/025/015/156/large_2x/a-cute-and-beautiful-orange-tabby-cat-with-curious-eyes-sits-on-the-floor-lovely-portrait-of-the-domestic-pet-isolated-on-white-background-adorable-feline-animal-image-by-ai-generated-photo.jpg "Image 2")\n`
-          const bottom = `*This is the caption for the above images.*`
-          const total = md + md2 + bottom
-          const text = formatDataStreamPart('text', total)
+          // Create a gallery wrapper with CSS grid
+          const galleryStart = `<div class="image-gallery grid grid-cols-2 gap-4 p-4">`
+          const galleryEnd = `</div>`
+
+          // Add images with consistent sizing and hover effects
+          const images = [
+            {
+              url: 'https://i.pinimg.com/originals/68/c4/c9/68c4c9942917d5007f070fb556d2a73e.jpg',
+              title: 'Image 1',
+              caption: 'A beautiful cat lounging',
+            },
+            {
+              url: 'https://www.catster.com/wp-content/uploads/2018/01/An-orange-tabby-cat-with-the-M-marking-on-the-forehead.jpg',
+              title: 'Image 2',
+              caption: 'Orange tabby cat',
+            },
+          ]
+
+          const imageMarkdown = images.map(img => `
+            <div class="image-container relative rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+              <img src="${img.url}" alt="${img.title}" class="w-full h-48 object-cover" loading="lazy">
+              <div class="image-caption absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">
+                ${img.caption}
+              </div>
+            </div>`,
+          ).join(' ')
+
+          const markdown = galleryStart + imageMarkdown + galleryEnd
+          const text = formatDataStreamPart('text', markdown)
           controller.enqueue(encoder.encode(text))
           controller.close()
         },

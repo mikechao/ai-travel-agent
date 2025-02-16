@@ -149,4 +149,39 @@ function renderMessage(message: Message): string {
   padding: 1rem;
   margin-bottom: 1rem;
 }
+
+:deep(.image-gallery) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+:deep(.image-container) {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+:deep(.image-container:hover) {
+  transform: scale(1.05);
+}
+
+:deep(.image-container img) {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+:deep(.image-caption) {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+}
 </style>
