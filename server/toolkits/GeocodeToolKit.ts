@@ -55,7 +55,7 @@ export class ImageSearchTool extends StructuredTool {
     imageCount: z.number().min(1).max(6).describe('The number of images to search for.'),
   })
 
-  responseFormat = 'content_and_artifact'
+  // responseFormat = 'content_and_artifact'
 
   protected async _call(input: { searchTerm: string, imageCount: number }) {
     const searchTerm = input.searchTerm
@@ -77,7 +77,9 @@ export class ImageSearchTool extends StructuredTool {
       })
       consola.debug({ tag: 'imageSearchTool', message: `${imageSearchResults.results.length} results` })
       const html = toHTML(imageSearchResults)
-      return [`I found some images they should be above, have a look`, html]
+      const noFormat = 'Do not apply additional formatting to the HTML below, just output it raw.\n'
+      return noFormat + html
+      // return [`I found some images they should be above, have a look`, html]
     }
     catch (error) {
       consola.error('error searching for images', error)
