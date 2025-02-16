@@ -30,6 +30,13 @@ export function createStreamEventHandlers(): StreamEventHandlers {
     },
 
     handleToolEnd(event, controller, encoder) {
+      if (event.tags.includes(ImageSearchToolTag.ImageSearch)) {
+        consola.debug({ tag: 'streamHandlers', message: 'Handling image search' })
+        const toolMessage = event.data.output as ToolMessage
+        const html = toolMessage.artifact
+        const text = formatDataStreamPart('text', html)
+        controller.enqueue(encoder.encode(text))
+      }
       if (event.data.output && (event.data.output as ToolMessage).content.length) {
         const content = (event.data.output as ToolMessage).content as string
 
@@ -53,13 +60,6 @@ export function createStreamEventHandlers(): StreamEventHandlers {
             controller.enqueue(part)
             break
           }
-        }
-        if (event.tag.includes(ImageSearchToolTag.ImageSearch)) {
-          consola.debug({ tag: 'streamHandlers', message: 'Handling image search' })
-          const toolMessage = event.data.output as ToolMessage
-          const html = toolMessage.artifact
-          const text = formatDataStreamPart('text', html)
-          controller.enqueue(encoder.encode(text))
         }
       }
     },

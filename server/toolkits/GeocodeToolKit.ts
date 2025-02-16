@@ -39,7 +39,7 @@ function toHTML(imageResults: ImageSearchApiResponse) {
     >
       <img src="${result.properties.url}" alt="${result.title}" class="w-full h-48 object-cover" loading="lazy">
       <div class="image-caption absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2 text-sm">
-        ${result.properties.url}
+        ${result.title}
       </div>
     </div>`,
   ).join(' ')
@@ -75,7 +75,8 @@ export class ImageSearchTool extends StructuredTool {
       })
       consola.debug({ tag: 'imageSearchTool', message: `${imageSearchResults.results.length} results` })
       const html = toHTML(imageSearchResults)
-      return [`I found ${imageSearchResults.results.length} images related to ${searchTerm}`, html]
+      const titles = imageSearchResults.results.map(result => result.title).join(',')
+      return [`I found ${imageSearchResults.results.length} images related to ${searchTerm} with following titles ${titles}`, html]
     }
     catch (error) {
       consola.error('error searching for images', error)
