@@ -15,7 +15,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@ai-sdk/vue": "^1.1.16",
+    "@ai-sdk/vue": "^1.1.17",
     "@langchain/community": "^0.3.30",
     "@langchain/core": "^0.3.40",
     "@langchain/langgraph": "^0.2.46",
@@ -26,7 +26,7 @@
     "@pinia/nuxt": "^0.10.1",
     "@primevue/themes": "^4.2.5",
     "@vesp/nuxt-fontawesome": "^1.2.1",
-    "ai": "^4.1.40",
+    "ai": "^4.1.41",
     "axios": "^1.7.9",
     "brave-search": "^0.6.5",
     "cheerio": "^1.0.0",
