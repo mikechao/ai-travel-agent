@@ -70,9 +70,14 @@ pnpm dev
 
 ## 👷 Built with
 
-| Name       |                                        Link                                        | Usage                                                     |
-| :--------- | :--------------------------------------------------------------------------------: | :-------------------------------------------------------- |
-| NuxtJS     |      [![My Skills](https://skillicons.dev/icons?i=nuxtjs)](https://nuxt.com/)      | Building pages, interactions and server apis              |
-| TypeScript | [![My Skills](https://skillicons.dev/icons?i=ts)](https://www.typescriptlang.org/) | Static typing, better autocompletion                      |
-| Pinia      |   [![My Skills](https://skillicons.dev/icons?i=pinia)](https://pinia.vuejs.org/)   | Management of various states like settings, chat messages |
-| Pnpm       |       [![My Skills](https://skillicons.dev/icons?i=pnpm)](https://pnpm.io/)        | Manage JavaScript packages                                |
+| Name         |                                         Link                                         | Usage                                                     |
+| :----------- | :----------------------------------------------------------------------------------: | :-------------------------------------------------------- |
+| NuxtJS       |       [![My Skills](https://skillicons.dev/icons?i=nuxtjs)](https://nuxt.com/)       | Building pages, interactions and server apis              |
+| TypeScript   |  [![My Skills](https://skillicons.dev/icons?i=ts)](https://www.typescriptlang.org/)  | Static typing, better autocompletion                      |
+| Pinia        |    [![My Skills](https://skillicons.dev/icons?i=pinia)](https://pinia.vuejs.org/)    | Management of various states like settings, chat messages |
+|Langchain|<a href="https://js.langchain.com/docs/introduction/"><img src="https://github.com/onemarc/tech-icons/blob/main/icons/langchain.svg" width="50"></a> | Integration with LLM managing chat message history, memory and prompts |
+| Pnpm         |        [![My Skills](https://skillicons.dev/icons?i=pnpm)](https://pnpm.io/)         | Manage JavaScript packages                                |
+| Postgres     | [![My Skills](https://skillicons.dev/icons?i=postgres)](https://www.postgresql.org/) | Persistence of chat messages                              |
+| Tailwind Css |  [![My Skills](https://skillicons.dev/icons?i=tailwind)](https://tailwindcss.com/)   | CSS Styling                                               |
+| Vite         |        [![My Skills](https://skillicons.dev/icons?i=vite)](https://vite.dev)         | Build tool                                             |
+|Visual Studio Code|[![My Skills](https://skillicons.dev/icons?i=vscode)](https://code.visualstudio.com/)| Code Editor |
