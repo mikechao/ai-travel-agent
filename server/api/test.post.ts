@@ -418,20 +418,21 @@ export default defineLazyEventHandler(async () => {
   })
 
   function weatherHTML() {
-    return `<div class="p-4 w-fit border-2 border-primary rounded-xl shadow-lg">
-          <h1 class="text-center mb-2 text-lg text-surface-700 dark:text-surface-0 font-bold">Currently</h1>
+    return `<div class="w-fit border-2 border-primary rounded-xl shadow-lg p-4">
+          <h1 class="text-center text-lg text-surface-700 dark:text-surface-0 font-bold">Currently</h1>
+          <p class="text-center mb-2 text-surface-700 dark:text-surface-0 text-sm">${weatherData.location.name}, ${weatherData.location.region}</p>
+          <hr class="border-t border-surface-200 dark:border-surface-700 my-2 mb-1" />
           <div class="flex items-center">
             <img 
               src="${weatherData.current.condition.icon}" 
               alt="${weatherData.current.condition.text}" 
               class="w-16 h-16"
             />
-            <div class="ml-4 pr-4">
+            <div class="ml-4 space-y-1">
               <h2 class="text-md text-surface-700 dark:text-surface-0 font-semibold">${weatherData.current.condition.text}</h2>
-              <p class="text-surface-700 dark:text-surface-0 text-sm">${weatherData.location.name}, ${weatherData.location.region}</p>
               <p class="text-surface-700 dark:text-surface-0 text-sm">Temperature: ${weatherData.current.temp_f}°F</p>
               <p class="text-surface-700 dark:text-surface-0 text-sm">Feels Like: ${weatherData.current.feelslike_f}°F</p>
-              <p class="text-surface-700 dark:text-surface-0 text-sm">Wind: ${weatherData.current.wind_mph} mph ${weatherData.current.wind_dir}</p>
+              <p class="text-surface-700 dark:text-surface-0 text-sm mb-2 mr-2">Wind: ${weatherData.current.wind_mph} mph ${weatherData.current.wind_dir}</p>
             </div>
           </div>
         </div>`

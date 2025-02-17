@@ -10,24 +10,21 @@ export const WeatherToolTags = Object.freeze({
 const runtimeConfig = useRuntimeConfig()
 
 function toHTML(weather: WeatherResponse) {
-  return `<div class="bg-blue-600 p-4">
-          <h1 class="text-white text-2xl font-bold">${weather.location.name}</h1>
-          <p class="text-blue-100">${weather.location.region}, ${weather.location.country}</p>
-          <p class="text-blue-100 text-sm">Local Time: ${weather.location.localtime}</p>
-        </div>
-        <!-- Current Weather Section -->
-        <div class="p-4">
+  return `<div class="w-fit border-2 border-primary rounded-xl shadow-lg p-1">
+          <h1 class="text-center text-lg text-surface-700 dark:text-surface-0 font-bold">Currently</h1>
+          <p class="text-center text-surface-700 dark:text-surface-0 text-sm mb-1">${weather.location.name}, ${weather.location.region}</p>
+          <hr class="border-t border-surface-200 dark:border-surface-700 my-2" />
           <div class="flex items-center">
             <img 
               src="${weather.current.condition.icon}" 
               alt="${weather.current.condition.text}" 
               class="w-16 h-16"
             />
-            <div class="ml-4">
-              <h2 class="text-xl font-semibold">${weather.current.condition.text}</h2>
-              <p class="text-gray-600">Temperature: ${weather.current.temp_f}°F</p>
-              <p class="text-gray-600 text-sm">Feels Like: ${weather.current.feelslike_f}°F</p>
-              <p class="text-gray-600 text-sm">Wind: ${weather.current.wind_mph} mph ${weather.current.wind_dir}</p>
+            <div class="ml-4 space-y-1">
+              <h2 class="text-md text-surface-700 dark:text-surface-0 font-semibold">${weather.current.condition.text}</h2>
+              <p class="text-surface-700 dark:text-surface-0 text-sm">Temperature: ${weather.current.temp_f}°F</p>
+              <p class="text-surface-700 dark:text-surface-0 text-sm">Feels Like: ${weather.current.feelslike_f}°F</p>
+              <p class="text-surface-700 dark:text-surface-0 text-sm mb-2 mr-2">Wind: ${weather.current.wind_mph} mph ${weather.current.wind_dir}</p>
             </div>
           </div>
         </div>`
