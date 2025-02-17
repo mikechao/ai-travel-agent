@@ -54,7 +54,7 @@ Tools and Datasources
 4. Get TripAdvisor API Key
 5. Get OpenCage API Key
 6. Get Postgres URL
-7. Create .env by following [env example](./env-example) with information from above
+7. Create .env by following [env example](./.env-example) with information from above
 8. Install project dependencies
    ```bash
    pnpm install
