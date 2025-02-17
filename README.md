@@ -29,12 +29,14 @@ There are 4 agents in this network
   <li>Polly Parrot 🦜: The sightseeing agent who is equipped with the <strong>SightseeingSearchTool</strong> to help users find sights to see or attractions. The <strong>SightsDetailsTool</strong> provides additional details about sights or attractions and the <strong>SightsReviewsTool</strong> provides reviews from other users.</li>
 </ol>
 
-<h3 align="center">
+<h2 align="center">
 Tools and Datasources
-</h3>
+</h2>
+
 | Name | Source |
 | :--- | :---: |
 |ImageSearchTool| [Brave Search API](https://brave.com/search/api/ "Brave Search API")|
+
 ## Setup
 
 Make sure to install dependencies:
