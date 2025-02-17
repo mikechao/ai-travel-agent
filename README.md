@@ -1,6 +1,15 @@
-# Nuxt Minimal Starter
+<h1 align="center">
+  <img src="https://github.com/mikechao/ai-travel-agent/blob/master/public/favicon.ico"/>
+  AI Travel Agent
+</h1>
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+<p align="center">
+  A multi-agent network with human in the loop chat helping user explore various travel destinations
+</p>
+
+<p align="center">
+Currently live at <a href="https://ai-travel-agent-pied.vercel.app/">https://ai-travel-agent-pied.vercel.app/</a>
+</p>
 
 ## Setup
 
