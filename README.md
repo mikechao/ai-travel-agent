@@ -26,8 +26,15 @@ There are 4 agents in this network
   <li>Pluto the Pup 🐶: General travel agent who is equipped with tools that can search the internet for images(ImageSearchTool), generate search queries related to user's travel interests, execute those search queries on the web(SearchExecutionTool) and provide a summary of specific search results (SearchSummaryTool).</li>
   <li>Petey the Pirate 🏴‍☠️: The weather agent who is equipped with a geocoding tool (GeocodeTool) and a weather forecasting tool (WeatherForecastTool) to provide the weather and clothing recommendations for the user.</li>
   <li>Penny Restmore 🏨: The hotel agent who is equipped with the <strong>HotelSearchTool</strong> to help users find hotels near travel destinations. In additional she has the <strong>HotelDetailsTool</strong> to provide additional details about specific hotels. The <strong>HotelReviewsTool</strong> helps her show reviews of hotels for the user.</li>
+  <li>Polly Parrot 🦜: The sightseeing agent who is equipped with the <strong>SightseeingSearchTool</strong> to help users find sights to see or attractions. The <strong>SightsDetailsTool</strong> provides additional details about sights or attractions and the <strong>SightsReviewsTool</strong> provides reviews from other users.</li>
 </ol>
 
+<h3 align="center">
+Tools and Datasources
+</h3>
+| Name | Source |
+| :--- | :---: |
+|ImageSearchTool| [Brave Search API](https://brave.com/search/api/ "Brave Search API")|
 ## Setup
 
 Make sure to install dependencies:
