@@ -15,7 +15,8 @@ All of the agents in the network have the "ability" to talk to each other and ar
 There are 4 agents in this network
 </h2>
 <ol>
-  <li>Pluto the Pup 🐶: Equipped with tools that can search the internet for images, generate search queries related to user's travel interests, execute those search queries on the web and provide a summary of specific search results.</li>
+  <li>Pluto the Pup 🐶: General travel agent who is equipped with tools that can search the internet for images(ImageSearchTool), generate search queries related to user's travel interests, execute those search queries on the web(SearchExecutionTool) and provide a summary of specific search results (SearchSummaryTool).</li>
+  <li>Petey the Pirate 🏴‍☠️: The weather agent who is equipped with a geocoding tool (GeocodeTool) and a weather forecasting tool (WeatherForecastTool) to provide the weather and clothing recommendations for the user.</li>
 </ol>
 
 <p align="center">
