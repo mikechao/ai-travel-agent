@@ -3,11 +3,11 @@
   AI Travel Agent
 </h1>
 
-<p align="center">
+<p align="left">
   A multi-agent network with human in the loop chat helping user explore various travel destinations.
 </p>
 
-<p align="center">
+<p align="left">
 All of the agents in the network have the "ability" to talk to each other and are equipped with tools related to their tasks.
 </p>
 
