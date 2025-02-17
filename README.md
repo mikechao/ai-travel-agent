@@ -33,12 +33,18 @@ There are 4 agents in this network
 Tools and Datasources
 </h2>
 
-| Name                |                                Source                                |
-| :------------------ | :------------------------------------------------------------------: |
-| ImageSearchTool     | [Brave Search API](https://brave.com/search/api/ 'Brave Search API') |
-| SearchExecutionTool | [Brave Search API](https://brave.com/search/api/ 'Brave Search API') |
-| GeocodeTool         |    [OpenCage](https://opencagedata.com/ 'OpenCage Geocoding API')    |
-| WeatherForecastTool |       [Weather API](https://www.weatherapi.com/ 'Weather API')       |
+| Name                  |                                         Source                                          |
+| :-------------------- | :-------------------------------------------------------------------------------------: |
+| ImageSearchTool       |          [Brave Search API](https://brave.com/search/api/ 'Brave Search API')           |
+| SearchExecutionTool   |          [Brave Search API](https://brave.com/search/api/ 'Brave Search API')           |
+| GeocodeTool           |             [OpenCage](https://opencagedata.com/ 'OpenCage Geocoding API')              |
+| WeatherForecastTool   |                [Weather API](https://www.weatherapi.com/ 'Weather API')                 |
+| HotelSearchTool       | [Tripadvisor Content API](https://tripadvisor-content-api.readme.io/reference/overview) |
+| HotelDetailsTool      | [Tripadvisor Content API](https://tripadvisor-content-api.readme.io/reference/overview) |
+| HotelReviewsTool      | [Tripadvisor Content API](https://tripadvisor-content-api.readme.io/reference/overview) |
+| SightseeingSearchTool | [Tripadvisor Content API](https://tripadvisor-content-api.readme.io/reference/overview) |
+| SightsDetailsTool     | [Tripadvisor Content API](https://tripadvisor-content-api.readme.io/reference/overview) |
+| SightsReviewsTool     | [Tripadvisor Content API](https://tripadvisor-content-api.readme.io/reference/overview) |
 
 ## Setup
 
