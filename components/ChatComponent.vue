@@ -15,7 +15,8 @@ const { activeAgent } = storeToRefs(activeAgentStore)
 const emojiToUse = computed(() => AgentToEmoji[activeAgent.value])
 
 const sessionId = uuidv4()
-const { messages, input, handleSubmit, isLoading, append, data } = useChat({
+const isLoading = ref(false)
+const { messages, input, handleSubmit, append, data } = useChat({
   api: '/api/travel',
   body: computed(() => ({
     sessionId,
@@ -88,6 +89,11 @@ function showFullImage(url: string, title: string) {
   selectedImage.value = { url, title }
   showImageDialog.value = true
 }
+
+function sendMessage() {
+  isLoading.value = true
+  handleSubmit()
+}
 </script>
 
 <template>
@@ -130,14 +136,14 @@ function showFullImage(url: string, title: string) {
           variant="filled"
           :disabled="isLoading"
           class="flex-1 shadow-lg rounded-full"
-          @keyup.enter="handleSubmit"
+          @keyup.enter="sendMessage"
         />
         <Button
           type="submit"
           label="Send"
           icon-pos="right"
           :loading="isLoading"
-          @click="handleSubmit"
+          @click="sendMessage"
         >
           <template #icon>
             <font-awesome icon="fa-regular fa-paper-plane" class="p-button-icon-right" />
