@@ -10,7 +10,7 @@ import { RunnableTools } from '../toolkits/RunnableTools'
 // or data based on certain content in the message
 export default defineLazyEventHandler(async () => {
   // cSpell:disable
-  const weatherData = JSON.stringify({
+  const weatherData = {
     location: {
       name: 'Danville',
       region: 'California',
@@ -108,7 +108,7 @@ export default defineLazyEventHandler(async () => {
         },
       ],
     },
-  })
+  }
 
   const sightsData = JSON.stringify([
     {
@@ -417,6 +417,26 @@ export default defineLazyEventHandler(async () => {
     apiKey: runtimeConfig.openaiAPIKey,
   })
 
+  function weatherHTML() {
+    return `<div class="p-4 w-fit border-2 border-primary rounded-xl shadow-lg">
+          <h1 class="text-center mb-2 text-lg text-surface-700 dark:text-surface-0 font-bold">Currently</h1>
+          <div class="flex items-center">
+            <img 
+              src="${weatherData.current.condition.icon}" 
+              alt="${weatherData.current.condition.text}" 
+              class="w-16 h-16"
+            />
+            <div class="ml-4 pr-4">
+              <h2 class="text-md text-surface-700 dark:text-surface-0 font-semibold">${weatherData.current.condition.text}</h2>
+              <p class="text-surface-700 dark:text-surface-0 text-sm">${weatherData.location.name}, ${weatherData.location.region}</p>
+              <p class="text-surface-700 dark:text-surface-0 text-sm">Temperature: ${weatherData.current.temp_f}°F</p>
+              <p class="text-surface-700 dark:text-surface-0 text-sm">Feels Like: ${weatherData.current.feelslike_f}°F</p>
+              <p class="text-surface-700 dark:text-surface-0 text-sm">Wind: ${weatherData.current.wind_mph} mph ${weatherData.current.wind_dir}</p>
+            </div>
+          </div>
+        </div>`
+  }
+
   async function webBrowser() {
     const browser = new WebBrowser({ model, embeddings })
 
@@ -645,9 +665,10 @@ export default defineLazyEventHandler(async () => {
       const id = uuidv4()
       return new ReadableStream({
         async start(controller) {
-          const text = formatDataStreamPart('text', 'Here is some weather for you')
+          const text = formatDataStreamPart('text', weatherHTML())
           controller.enqueue(encoder.encode(text))
-          const part = `2:[{"id":"${id}","type":"weather","data":${weatherData}}]\n`
+          const jsonWeather = JSON.stringify(weatherData)
+          const part = `2:[{"id":"${id}","type":"weather","data":${jsonWeather}}]\n`
           controller.enqueue(part)
           controller.close()
         },
