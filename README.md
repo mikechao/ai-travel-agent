@@ -57,9 +57,11 @@ Tools and Datasources
 7. Optional get LangSmith API Key for tracing LLM calls
 8. Create .env by following [env example](./.env-example) with information from above
 9. Install project dependencies
-   ```bash
-   pnpm install
-   ```
+
+```bash
+pnpm install
+```
+
 10. Start the development server on `http://localhost:3000`
 
 ```bash
