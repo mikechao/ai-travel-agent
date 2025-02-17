@@ -89,3 +89,4 @@ pnpm dev
 |OpenCage|<a href="https://opencagedata.com/"><img src="https://assets.opencagedata.com/assets/favicon-87b005b78d525e217f87b3da68cfc008223392f914c557c04120e05f98caa617.ico"></a>| Geocoding, provides latitude longitude needed for API calls|
 |Tripadvisor|<a href="https://www.tripadvisor.com/developers"><img src="https://static.tacdn.com/favicon.ico?v2"></a>|Data about hotels, attractions|
 |Weather API|<a href="https://www.weatherapi.com/"><img src="https://cdn.weatherapi.com/favicon.ico" width="50"></a>|Provides weather forecasts|
+|Font Awesome|<a href="https://fontawesome.com/"><img src="https://fontawesome.com/favicon.ico" width="50"></a>|Various icons|
