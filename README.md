@@ -37,6 +37,8 @@ Tools and Datasources
 | :------------------ | :------------------------------------------------------------------: |
 | ImageSearchTool     | [Brave Search API](https://brave.com/search/api/ 'Brave Search API') |
 | SearchExecutionTool | [Brave Search API](https://brave.com/search/api/ 'Brave Search API') |
+| GeocodeTool         |    [OpenCage](https://opencagedata.com/ 'OpenCage Geocoding API')    |
+| WeatherForecastTool |       [Weather API](https://www.weatherapi.com/ 'Weather API')       |
 
 ## Setup
 
