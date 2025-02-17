@@ -85,3 +85,5 @@ pnpm dev
 |PrimeVue|<a href="https://primevue.org/"><img src="https://primevue.org/favicon.ico" width="50"></a> |Various UI Components |
 |Vercel|[![My Skills](https://skillicons.dev/icons?i=vercel)](https://vercel.com/)| App hosting and useChat composable |  
 |Supabase|[![My Skills](https://skillicons.dev/icons?i=supabase)](https://supabase.com/)|Postgres DB hosting|
+|Brave Search API|<a href="https://brave.com/search/api/"><img src="https://brave.com/static-assets/images/brave-logo-sans-text.svg" width="50"></a>|Internet and image search capabilities |
+|OpenCage|<a href="https://opencagedata.com/"><img src="https://assets.opencagedata.com/assets/favicon-87b005b78d525e217f87b3da68cfc008223392f914c557c04120e05f98caa617.ico"></a>| Geocoding, provides latitude longitude needed for API calls|
