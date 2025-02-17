@@ -4,8 +4,19 @@
 </h1>
 
 <p align="center">
-  A multi-agent network with human in the loop chat helping user explore various travel destinations
+  A multi-agent network with human in the loop chat helping user explore various travel destinations.
 </p>
+
+<p align="center">
+All of the agents in the network have the "ability" to talk to each other and are equipped with tools related to their tasks.
+</p>
+
+<h2 align="center">
+There are 4 agents in this network
+</h2>
+<ol>
+  <li>Pluto the Pup 🐶: Equipped with tools that can search the internet for images, generate search queries related to user's travel interests, execute those search queries on the web and provide a summary of specific search results.</li>
+</ol>
 
 <p align="center">
 Currently live at <a href="https://ai-travel-agent-pied.vercel.app/">https://ai-travel-agent-pied.vercel.app/</a>
