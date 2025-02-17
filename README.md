@@ -83,3 +83,5 @@ pnpm dev
 | Vite         |        [![My Skills](https://skillicons.dev/icons?i=vite)](https://vite.dev)         | Build tool                                             |
 |Visual Studio Code|[![My Skills](https://skillicons.dev/icons?i=vscode)](https://code.visualstudio.com/)| Code Editor |
 |PrimeVue|<a href="https://primevue.org/"><img src="https://primevue.org/favicon.ico" width="50"></a> |Various UI Components |
+|Vercel|[![My Skills](https://skillicons.dev/icons?i=vercel)](https://vercel.com/)| App hosting and useChat composable |  
+|Supabase|[![My Skills](https://skillicons.dev/icons?i=supabase)](https://supabase.com/)|Postgres DB hosting|
