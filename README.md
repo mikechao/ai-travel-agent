@@ -54,12 +54,14 @@ Tools and Datasources
 4. Get TripAdvisor API Key
 5. Get OpenCage API Key
 6. Get Postgres URL
-7. Create .env by following [env example](./.env-example) with information from above
-8. Install project dependencies
+7. Optional get LangSmith API Key for tracing LLM calls
+8. Create .env by following [env example](./.env-example) with information from above
+9. Install project dependencies
    ```bash
    pnpm install
    ```
-9. Start the development server on `http://localhost:3000`
-   ```bash
-   pnpm dev
-   ```
+10. Start the development server on `http://localhost:3000`
+
+```bash
+pnpm dev
+```
