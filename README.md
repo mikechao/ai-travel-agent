@@ -33,9 +33,10 @@ There are 4 agents in this network
 Tools and Datasources
 </h2>
 
-| Name | Source |
-| :--- | :---: |
-|ImageSearchTool| [Brave Search API](https://brave.com/search/api/ "Brave Search API")|
+| Name                |                                Source                                |
+| :------------------ | :------------------------------------------------------------------: |
+| ImageSearchTool     | [Brave Search API](https://brave.com/search/api/ 'Brave Search API') |
+| SearchExecutionTool | [Brave Search API](https://brave.com/search/api/ 'Brave Search API') |
 
 ## Setup
 
