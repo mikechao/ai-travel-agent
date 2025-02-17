@@ -46,74 +46,20 @@ Tools and Datasources
 | SightsDetailsTool     | [Tripadvisor Content API](https://tripadvisor-content-api.readme.io/reference/overview) |
 | SightsReviewsTool     | [Tripadvisor Content API](https://tripadvisor-content-api.readme.io/reference/overview) |
 
-## Setup
+## 🛠️ Installation Steps
 
-Make sure to install dependencies:
-
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+1. Get an OpenAI API Key
+2. Get Weather API Key
+3. Get Brave Search API Key
+4. Get TripAdvisor API Key
+5. Get OpenCage API Key
+6. Get Postgres URL
+7. Create .env by following [env example](./env-example) with information from above
+8. Install project dependencies
+   ```bash
+   pnpm install
+   ```
+9. Start the development server on `http://localhost:3000`
+   ```bash
+   pnpm dev
+   ```
