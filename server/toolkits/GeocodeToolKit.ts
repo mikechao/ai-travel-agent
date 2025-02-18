@@ -1,5 +1,6 @@
 import type { StructuredToolInterface } from '@langchain/core/tools'
 import { BaseToolkit, StructuredTool } from '@langchain/core/tools'
+import { BraveSearch, type ImageSearchApiResponse } from 'brave-search'
 import { consola } from 'consola'
 import opencage from 'opencage-api-client'
 import { z } from 'zod'
@@ -9,6 +10,17 @@ const runtimeConfig = useRuntimeConfig()
 export const ImageSearchToolTag = Object.freeze({
   ImageSearch: 'image-search' as const,
 })
+
+const braveSearch = new BraveSearch(runtimeConfig.braveAPIKey)
+
+// seems like we need this to workaround
+// vercel not being able to resolve it from
+// the brave-search package
+enum SafeSearchLevel {
+  Off = 'off',
+  Moderate = 'moderate',
+  Strict = 'strict',
+}
 
 class GeocodeTool extends StructuredTool {
   name = 'geocodeTool'
@@ -61,19 +73,11 @@ export class ImageSearchTool extends StructuredTool {
     const searchTerm = input.searchTerm
     const imageCount = input.imageCount
     consola.debug({ tag: 'imageSearchTool', message: `called with ${searchTerm} count ${imageCount}` })
-    const searchURL = new URL('https://api.search.brave.com/res/v1/images/search')
-    searchURL.searchParams.set('q', searchTerm)
-    searchURL.searchParams.set('safesearch', 'strict')
-    searchURL.searchParams.set('count', imageCount.toString())
 
     try {
-      const imageSearchResults = await $fetch<ImageSearchApiResponse>(searchURL.toString(), {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Accept-Encoding': 'gzip',
-          'X-Subscription-Token': runtimeConfig.braveAPIKey,
-        },
+      const imageSearchResults = await braveSearch.imageSearch(searchTerm, {
+        count: imageCount,
+        safesearch: SafeSearchLevel.Strict,
       })
       consola.debug({ tag: 'imageSearchTool', message: `${imageSearchResults.results.length} results` })
       const html = toHTML(imageSearchResults)
