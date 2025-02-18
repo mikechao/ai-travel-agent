@@ -1,78 +1,9 @@
-import type { MetaUrl, Query, Thumbnail } from 'brave-search/dist/types'
 import type { AgentName, DataItemTypes } from './constants'
 import type { NodeNames } from './enums'
 
 export {}
 
 declare global {
-
-  // https://api-dashboard.search.brave.com/app/documentation/image-search/responses
-  interface ImageSearchApiResponse {
-    /**
-     * The type of search API result. The value is always images.
-     */
-    type: 'images'
-    /**
-     * Image search query string.
-     */
-    query: Query
-    /**
-     * The list of image results for the given query.
-     */
-    results: ImageResult[]
-  }
-
-  /**
-   * A model representing an image result for the requested query.
-   */
-  interface ImageResult {
-    /**
-     * The type of image search API result. The value is always image_result.
-     */
-    type: 'image_result'
-    /**
-     * The title of the image.
-     */
-    title: string
-    /**
-     * The original page url where the image was found.
-     */
-    url: string
-    /**
-     * The source domain where the image was found.
-     */
-    source: string
-    /**
-     * The iso date time when the page was last fetched. The format is YYYY-MM-DDTHH:MM:SSZ
-     */
-    page_fetched: string
-    /**
-     * The thumbnail for the image.
-     */
-    thumbnail: Thumbnail
-    /**
-     * Metadata for the image
-     */
-    properties: Properties
-    /**
-     * Aggregated information on the url associated with the image search result.
-     */
-    meta_url: MetaUrl
-  }
-
-  /**
-   * Metadata on an image.
-   */
-  interface Properties {
-    /**
-     * The image URL.
-     */
-    url: string
-    /**
-     * The lower resolution placeholder image url.
-     */
-    placeholder: string
-  }
 
   interface AdvisorTransferResult {
     goto: NodeNames

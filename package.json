@@ -28,7 +28,7 @@
     "@vesp/nuxt-fontawesome": "^1.2.1",
     "ai": "^4.1.41",
     "axios": "^1.7.9",
-    "brave-search": "^0.6.5",
+    "brave-search": "^0.7.0",
     "cheerio": "^1.0.0",
     "consola": "^3.4.0",
     "langchain": "^0.3.15",

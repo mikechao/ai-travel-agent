@@ -51,8 +51,8 @@ importers:
         specifier: ^1.7.9
         version: 1.7.9(debug@4.4.0)
       brave-search:
-        specifier: ^0.6.5
-        version: 0.6.5
+        specifier: ^0.7.0
+        version: 0.7.0
       cheerio:
         specifier: ^1.0.0
         version: 1.0.0
@@ -2050,8 +2050,8 @@ packages:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
 
-  brave-search@0.6.5:
-    resolution: {integrity: sha512-ygLVm1SHzWZHcKal+RPU6LpygNHl5GEjgZlMVX0Wx7j/Gilbjy5Ui1OyiR1Mm9aPnYbLCtZCK9YZ2u3Zx+rY5A==}
+  brave-search@0.7.0:
+    resolution: {integrity: sha512-O2uDxLEbrEomOKKlB5wjtRKKtnvd9Ryl++HO6HPoq+J8OpRznUUK4WoclwBiFWpMWYT8U5UI7rL/nCo+raHooQ==}
 
   browserslist@4.24.4:
     resolution: {integrity: sha512-KDi1Ny1gSePi1vm0q4oxSF8b4DR44GF4BbmS2YdhPLOEqd8pDviZOGH/GsmRwoWJ2+5Lr085X7naowMwKHDG1A==}
@@ -7708,7 +7708,7 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  brave-search@0.6.5:
+  brave-search@0.7.0:
     dependencies:
       axios: 1.7.9(debug@4.4.0)
     transitivePeerDependencies:
