@@ -1,4 +1,4 @@
-/* eslint-disable node/prefer-global/process */
+import process from 'node:process'
 import Nora from '@primevue/themes/nora'
 import { defineNuxtConfig } from 'nuxt/config'
 // https://nuxt.com/docs/api/configuration/nuxt-config
