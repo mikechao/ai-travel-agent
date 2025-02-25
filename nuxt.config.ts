@@ -1,5 +1,5 @@
 import process from 'node:process'
-import Nora from '@primevue/themes/nora'
+import Aura from '@primeuix/themes/aura'
 import { defineNuxtConfig } from 'nuxt/config'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -67,7 +67,7 @@ export default defineNuxtConfig({
       },
       ripple: true,
       theme: {
-        preset: Nora,
+        preset: Aura,
         options: {
           darkModeSelector: '.p-dark',
           cssLayer: {
