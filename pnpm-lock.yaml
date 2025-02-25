@@ -78,8 +78,8 @@ importers:
         specifier: ^4.3.1
         version: 4.3.1(vue@3.5.13(typescript@5.7.3))
       tailwindcss-primeui:
-        specifier: ^0.4.0
-        version: 0.4.0(tailwindcss@3.4.17)
+        specifier: ^0.5.1
+        version: 0.5.1(tailwindcss@3.4.17)
       uuid:
         specifier: ^11.0.5
         version: 11.0.5
@@ -5124,8 +5124,8 @@ packages:
     peerDependencies:
       tailwindcss: 3.x
 
-  tailwindcss-primeui@0.4.0:
-    resolution: {integrity: sha512-YYC7B7Yyzm1/4pEGgpf1ABAhbrKY++LuPoUamnKE7fTPO5Ct/Qr/dT+Uq2yiVhQnaW1zHQpYnThxfksaxhlDfQ==}
+  tailwindcss-primeui@0.5.1:
+    resolution: {integrity: sha512-zNqp62N4c+pwBVkVJd8ByvujepVKAMxZBdYy5MzIDi/Zb2p8wTGo4RrQaqLQazm3teOWVmttzZYPH/GlOB3lgw==}
     peerDependencies:
       tailwindcss: '>=3.1.0'
 
@@ -11222,7 +11222,7 @@ snapshots:
     dependencies:
       tailwindcss: 3.4.17
 
-  tailwindcss-primeui@0.4.0(tailwindcss@3.4.17):
+  tailwindcss-primeui@0.5.1(tailwindcss@3.4.17):
     dependencies:
       tailwindcss: 3.4.17
 
