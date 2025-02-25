@@ -38,7 +38,7 @@
     "pinia": "^3.0.1",
     "primevue": "^4.3.1",
     "tailwindcss-primeui": "^0.5.1",
-    "uuid": "^11.0.5",
+    "uuid": "^11.1.0",
     "vue": "latest",
     "vue-router": "latest",
     "zod": "^3.24.2"
