@@ -24,8 +24,8 @@ importers:
         specifier: ^0.2.49
         version: 0.2.49(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))
       '@langchain/langgraph-checkpoint-postgres':
-        specifier: ^0.0.3
-        version: 0.0.3(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(@langchain/langgraph-checkpoint@0.0.15(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))))
+        specifier: ^0.0.4
+        version: 0.0.4(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(@langchain/langgraph-checkpoint@0.0.15(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))))
       '@langchain/openai':
         specifier: ^0.4.4
         version: 0.4.4(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
@@ -1130,8 +1130,8 @@ packages:
     resolution: {integrity: sha512-RGhJOTzJv6H+3veBAnDlH2KXuZ68CXMEg6B6DPTzL3IGDyd+vLxXG4FIttzUwjdeQKjrrFBwlXpJDl7bkoApzQ==}
     engines: {node: '>=18'}
 
-  '@langchain/langgraph-checkpoint-postgres@0.0.3':
-    resolution: {integrity: sha512-MaRr15SrO/xG1OyGR6BuF0aZYRjwvhe0N/0Uske1xwBsihM5CWCoFBwUceb76p3M7owiIz8rV6DdIHqzp7OqsA==}
+  '@langchain/langgraph-checkpoint-postgres@0.0.4':
+    resolution: {integrity: sha512-KLiST5yBUO5pGgcTMrpPUBgijM3E8+7SKmBiD9ddJGNzhCLaFcgbpvgjySvdDAoEAxDn1wJDE72U4yh5rFS/OA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.2.31 <0.4.0'
@@ -6478,7 +6478,7 @@ snapshots:
     transitivePeerDependencies:
       - openai
 
-  '@langchain/langgraph-checkpoint-postgres@0.0.3(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(@langchain/langgraph-checkpoint@0.0.15(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))))':
+  '@langchain/langgraph-checkpoint-postgres@0.0.4(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(@langchain/langgraph-checkpoint@0.0.15(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))))':
     dependencies:
       '@langchain/core': 0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))
       '@langchain/langgraph-checkpoint': 0.0.15(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))

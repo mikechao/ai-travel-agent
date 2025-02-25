@@ -19,7 +19,7 @@
     "@langchain/community": "^0.3.32",
     "@langchain/core": "^0.3.40",
     "@langchain/langgraph": "^0.2.49",
-    "@langchain/langgraph-checkpoint-postgres": "^0.0.3",
+    "@langchain/langgraph-checkpoint-postgres": "^0.0.4",
     "@langchain/openai": "^0.4.4",
     "@nuxtjs/color-mode": "3.5.2",
     "@nuxtjs/tailwindcss": "6.13.1",
