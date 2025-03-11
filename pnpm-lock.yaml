@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  axios: ^1.8.2
   koa: ^2.15.4
 
 importers:
@@ -16,7 +17,7 @@ importers:
         version: 1.1.19(vue@3.5.13(typescript@5.7.3))(zod@3.24.2)
       '@langchain/community':
         specifier: ^0.3.32
-        version: 0.3.32(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.11.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.4.0(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(cheerio@1.0.0)(duck-duck-scrape@2.2.7)(ibm-cloud-sdk-core@5.1.2)(ignore@5.3.2)(ioredis@5.6.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(pg@8.13.1)(playwright@1.50.1)(ws@8.18.1)
+        version: 0.3.32(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.11.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.4.0(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.2)(cheerio@1.0.0)(duck-duck-scrape@2.2.7)(ibm-cloud-sdk-core@5.1.2)(ignore@5.3.2)(ioredis@5.6.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(pg@8.13.1)(playwright@1.50.1)(ws@8.18.1)
       '@langchain/core':
         specifier: ^0.3.40
         version: 0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))
@@ -48,8 +49,8 @@ importers:
         specifier: ^4.1.46
         version: 4.1.46(react@19.0.0)(zod@3.24.2)
       axios:
-        specifier: ^1.7.9
-        version: 1.7.9(debug@4.4.0)
+        specifier: ^1.8.2
+        version: 1.8.2(debug@4.4.0)
       brave-search:
         specifier: ^0.7.0
         version: 0.7.0
@@ -61,7 +62,7 @@ importers:
         version: 3.4.0
       langchain:
         specifier: ^0.3.19
-        version: 0.3.19(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(cheerio@1.0.0)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
+        version: 0.3.19(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.2)(cheerio@1.0.0)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -134,7 +135,7 @@ importers:
         version: 3.21.1
       postcss-import:
         specifier: ^16.1.0
-        version: 16.1.0(postcss@8.5.1)
+        version: 16.1.0(postcss@8.5.3)
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -2333,8 +2334,8 @@ packages:
     peerDependencies:
       postcss: ^8.1.0
 
-  axios@1.7.9:
-    resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
+  axios@1.8.2:
+    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
 
   b4a@1.6.7:
     resolution: {integrity: sha512-OnAYlL5b7LEkALw87fUVafQw5rVR9RjwGd4KUwNQ6DrrNmaVaUCgLipfVlzrPQ4tWOR9P0IXGNOx50jYCCdSJg==}
@@ -3940,7 +3941,7 @@ packages:
       '@langchain/mistralai': '*'
       '@langchain/ollama': '*'
       '@langchain/xai': '*'
-      axios: '*'
+      axios: ^1.8.2
       cheerio: '*'
       handlebars: ^4.7.8
       peggy: ^3.0.2
@@ -5233,7 +5234,7 @@ packages:
     resolution: {integrity: sha512-pOLi+Gdll3JekwuFjXO3fTq+L9lzMQGcSq7M5gIjExcl3Gu1hd4XXuf5o3+LuSBsaULQH7DiNbsqPd1chVpQGQ==}
     engines: {node: '>=10.7.0'}
     peerDependencies:
-      axios: '*'
+      axios: ^1.8.2
 
   retry@0.13.1:
     resolution: {integrity: sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg==}
@@ -6927,7 +6928,7 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@langchain/community@0.3.32(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.11.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.4.0(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(cheerio@1.0.0)(duck-duck-scrape@2.2.7)(ibm-cloud-sdk-core@5.1.2)(ignore@5.3.2)(ioredis@5.6.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(pg@8.13.1)(playwright@1.50.1)(ws@8.18.1)':
+  '@langchain/community@0.3.32(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.11.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.4.0(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.2)(cheerio@1.0.0)(duck-duck-scrape@2.2.7)(ibm-cloud-sdk-core@5.1.2)(ignore@5.3.2)(ioredis@5.6.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(pg@8.13.1)(playwright@1.50.1)(ws@8.18.1)':
     dependencies:
       '@browserbasehq/stagehand': 1.11.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)
       '@ibm-cloud/watsonx-ai': 1.4.0(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))
@@ -6938,7 +6939,7 @@ snapshots:
       flat: 5.0.2
       ibm-cloud-sdk-core: 5.1.2
       js-yaml: 4.1.0
-      langchain: 0.3.19(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(cheerio@1.0.0)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
+      langchain: 0.3.19(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.2)(cheerio@1.0.0)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
       langsmith: 0.3.11(openai@4.82.0(ws@8.18.1)(zod@3.24.2))
       openai: 4.82.0(ws@8.18.1)(zod@3.24.2)
       uuid: 10.0.0
@@ -8328,7 +8329,7 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  axios@1.7.9(debug@4.4.0):
+  axios@1.8.2(debug@4.4.0):
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.0)
       form-data: 4.0.1
@@ -8380,7 +8381,7 @@ snapshots:
 
   brave-search@0.7.0:
     dependencies:
-      axios: 1.7.9(debug@4.4.0)
+      axios: 1.8.2(debug@4.4.0)
     transitivePeerDependencies:
       - debug
 
@@ -9770,7 +9771,7 @@ snapshots:
       '@types/debug': 4.1.12
       '@types/node': 10.14.22
       '@types/tough-cookie': 4.0.5
-      axios: 1.7.9(debug@4.4.0)
+      axios: 1.8.2(debug@4.4.0)
       camelcase: 6.3.0
       debug: 4.4.0(supports-color@9.4.0)
       dotenv: 16.4.7
@@ -9780,7 +9781,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9)
+      retry-axios: 2.6.0(axios@1.8.2)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -10102,7 +10103,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  langchain@0.3.19(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(cheerio@1.0.0)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1):
+  langchain@0.3.19(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.2)(cheerio@1.0.0)(openai@4.82.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1):
     dependencies:
       '@langchain/core': 0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2))
       '@langchain/openai': 0.4.4(@langchain/core@0.3.40(openai@4.82.0(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
@@ -10118,7 +10119,7 @@ snapshots:
       zod: 3.24.2
       zod-to-json-schema: 3.24.3(zod@3.24.2)
     optionalDependencies:
-      axios: 1.7.9(debug@4.4.0)
+      axios: 1.8.2(debug@4.4.0)
       cheerio: 1.0.0
     transitivePeerDependencies:
       - encoding
@@ -11344,9 +11345,9 @@ snapshots:
       read-cache: 1.0.0
       resolve: 1.22.10
 
-  postcss-import@16.1.0(postcss@8.5.1):
+  postcss-import@16.1.0(postcss@8.5.3):
     dependencies:
-      postcss: 8.5.1
+      postcss: 8.5.3
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.10
@@ -11690,9 +11691,9 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
-  retry-axios@2.6.0(axios@1.7.9):
+  retry-axios@2.6.0(axios@1.8.2):
     dependencies:
-      axios: 1.7.9(debug@4.4.0)
+      axios: 1.8.2(debug@4.4.0)
 
   retry@0.13.1: {}
 
