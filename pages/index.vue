@@ -1,3 +1,29 @@
+<script setup lang="ts">
+import { useHead, useSeoMeta } from '#app/composables/head'
+
+useSeoMeta({
+  title: 'AI Travel Agent Chat',
+  ogTitle: 'AI Travel Agent Chat',
+  ogType: 'website',
+  ogUrl: 'https://ai-travel-agent-pied.vercel.app/',
+  description: 'A multi AI agent network helping you explore various travel destinations',
+  ogDescription: 'A multi AI agent network helping you explore various travel destinations',
+})
+
+useHead({
+  htmlAttrs: {
+    lang: 'en',
+  },
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico',
+    },
+  ],
+})
+</script>
+
 <template>
   <div class="hero-container">
     <LandingHero />
