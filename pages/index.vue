@@ -25,8 +25,9 @@ useHead({
 </script>
 
 <template>
-  <div class="hero-container">
+  <div class="hero-container flex flex-col">
     <LandingHero />
+    <LandingAgents />
   </div>
 </template>
 

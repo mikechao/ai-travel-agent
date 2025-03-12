@@ -21,7 +21,7 @@ import Button from 'primevue/button'
         <div
           class="mt-8 flex flex-col-reverse items-center justify-center gap-4 lg:flex-row"
         >
-          <NuxtLink to="#">
+          <NuxtLink to="#meet-agents">
             <Button label="More Info" to="#">
               <template #icon>
                 <font-awesome icon="fa-solid fa-arrow-down-long" class="p-button-icon-right" />
