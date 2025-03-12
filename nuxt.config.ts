@@ -132,6 +132,7 @@ export default defineNuxtConfig({
         'xmark',
         'gears',
         'route',
+        'triangle-exclamation',
         'chevron-down',
         'chevron-up',
         'cloud-sun',
