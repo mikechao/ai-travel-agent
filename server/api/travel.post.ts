@@ -3,7 +3,6 @@ import type { AgentName } from '~/types/constants'
 import { setMaxListeners } from 'node:events'
 import { SystemMessage } from '@langchain/core/messages'
 import { Annotation, Command, interrupt, MessagesAnnotation, START, StateGraph } from '@langchain/langgraph'
-import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { formatDataStreamPart } from 'ai'
 import { consola } from 'consola'
@@ -16,6 +15,7 @@ import { SightseeingToolKit } from '../toolkits/SightseeingToolKit'
 import { TransferToolKit, TransferToolNames } from '../toolkits/TransferToolKit'
 import { TravelRecommendToolKit } from '../toolkits/TravelRecommendToolKit'
 import { WeatherToolKit } from '../toolkits/WeatherToolKit'
+import { postgresCheckpointer } from '../utils/postgresCheckpointer'
 import { createStreamEventHandlers } from '../utils/streamHandlers'
 import { StreamTimeoutError } from '../utils/streamTimeoutError'
 
@@ -74,10 +74,7 @@ export default defineLazyEventHandler(async () => {
     [AgentNames.POLLY]: `If you need sightseeing or attractions recommendations, ask the agent named ${AgentNames.POLLY} ${AgentToEmoji[AgentNames.POLLY]} for help using the tool named \'${TransferToolNames.SightseeingTransfer}\'.`,
   } as const)
 
-  const checkpointer = PostgresSaver.fromConnString(
-    runtimeConfig.postgresURL,
-  )
-  await checkpointer.setup()
+  const checkpointer = await postgresCheckpointer()
 
   const AgentState = Annotation.Root({
     ...MessagesAnnotation.spec,
