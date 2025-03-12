@@ -4,7 +4,14 @@ import primeui from 'tailwindcss-primeui'
 
 export default <Config> {
   darkMode: ['selector', '[class~="p-dark"]'],
-  content: [],
+  content: [
+    './components/**/*.{vue,js}',
+    './layouts/**/*.vue',
+    './pages/**/*.vue',
+    './plugins/**/*.{js,ts}',
+    './app.vue',
+    './error.vue',
+  ],
   theme: {
     extend: {
       colors: {
