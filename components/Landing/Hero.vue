@@ -28,7 +28,7 @@ import Button from 'primevue/button'
               </template>
             </Button>
           </NuxtLink>
-          <NuxtLink to="/chat">
+          <NuxtLink to="/chat" :prefetch="false">
             <Button label="Get Started">
               <template #icon>
                 <font-awesome icon="fa-solid fa-suitcase" class="p-button-icon-right" />
