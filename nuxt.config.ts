@@ -120,6 +120,8 @@ export default defineNuxtConfig({
   fontawesome: {
     icons: {
       solid: [
+        'suitcase',
+        'arrow-down-long',
         'arrow-right',
         'location-dot',
         'clock',
