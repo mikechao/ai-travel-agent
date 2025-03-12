@@ -34,8 +34,10 @@ export function createStreamEventHandlers(): StreamEventHandlers {
         consola.debug({ tag: 'streamHandlers', message: 'Handling image search or weather search' })
         const toolMessage = event.data.output as ToolMessage
         const html = toolMessage.artifact
-        const text = formatDataStreamPart('text', html)
-        controller.enqueue(encoder.encode(text))
+        if (html && html.length) {
+          const text = formatDataStreamPart('text', html)
+          controller.enqueue(encoder.encode(text))
+        }
       }
       if (event.data.output && (event.data.output as ToolMessage).content.length) {
         const content = (event.data.output as ToolMessage).content as string
@@ -56,8 +58,10 @@ export function createStreamEventHandlers(): StreamEventHandlers {
         for (const [tag, type] of Object.entries(toolOutputTypes)) {
           if (event.tags.includes(tag)) {
             const id = uuidv4()
-            const part = `2:[{"id":"${id}","type":"${type}","data":${content}}]\n`
-            controller.enqueue(part)
+            if (content.length && !content.includes('*Error*')) {
+              const part = `2:[{"id":"${id}","type":"${type}","data":${content}}]\n`
+              controller.enqueue(part)
+            }
             break
           }
         }

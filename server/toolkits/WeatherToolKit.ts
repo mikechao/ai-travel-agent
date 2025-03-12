@@ -43,11 +43,17 @@ class WeatherSearchTool extends StructuredTool {
   protected async _call(input: { lat: number, long: number }) {
     const { lat, long } = input
     consola.debug({ tag: 'weatherForecastTool', message: 'weatherForecastTool called!' })
-    const url = `http://api.weatherapi.com/v1/forecast.json?key=${runtimeConfig.weatherAPIKey}&q=${lat},${long}&days=7&aqi=no&alerts=no`
-    consola.debug({ tag: 'weatherForecastTool', message: `url ${url}` })
-    const forecast = await $fetch<WeatherResponse>(url)
-    const html = toHTML(forecast)
-    return [JSON.stringify(forecast), html]
+    try {
+      const url = `http://api.weatherapi.com/v1/forecast.json?key=${runtimeConfig.weatherAPIKey}&q=${lat},${long}&days=7&aqi=no&alerts=no`
+      consola.debug({ tag: 'weatherForecastTool', message: `url ${url}` })
+      const forecast = await $fetch<WeatherResponse>(url)
+      const html = toHTML(forecast)
+      return [JSON.stringify(forecast), html]
+    }
+    catch (error: any) {
+      consola.error({ tag: 'weatherForecastTool', message: 'Error fetching weather forecast', error })
+      return [`*Error* Unable to get weather forecast for the location with Latitude ${lat} and Longitude ${long}`, '']
+    }
   }
 }
 
