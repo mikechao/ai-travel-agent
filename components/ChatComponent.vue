@@ -31,10 +31,25 @@ const { messages, input, handleSubmit, append, data } = useChat({
     isLoading.value = false
   },
   onError: (error) => {
-    console.error('error', error)
+    handleError(error)
   },
 
 })
+
+function handleError(error: Error) {
+  isLoading.value = false
+  console.error('Error:', error)
+  let errorObj: { statusCode?: number, message?: string } = {}
+  try {
+    errorObj = JSON.parse(error.message)
+  }
+  catch {
+    // If parsing fails, use empty object
+  }
+  const statusCode = errorObj?.statusCode ?? 500
+  const message = errorObj?.message ?? 'An error occurred while processing the request'
+  showError({ statusCode, message })
+}
 
 onMounted(() => {
   // use append with empty content to trigger api endpoint call
