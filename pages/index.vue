@@ -27,7 +27,7 @@ useHead({
 <template>
   <div class="hero-container flex flex-col">
     <LandingHero />
-    <LandingAgents />
+    <LazyLandingAgents hydrate-on-visible />
   </div>
 </template>
 
