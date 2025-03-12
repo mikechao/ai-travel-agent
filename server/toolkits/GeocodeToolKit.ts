@@ -32,14 +32,20 @@ class GeocodeTool extends StructuredTool {
   protected async _call(input: { location: string }) {
     const location = input.location
     consola.debug({ tag: 'geocodeTool', message: `geocodeTool call for ${location}` })
-    const data = await opencage.geocode({ q: `${location}`, key: `${runtimeConfig.opencageAPIKey}` })
-    const place = data.results[0]
-    const result = {
-      location: place.formatted,
-      ...place.geometry,
+    try {
+      const data = await opencage.geocode({ q: `${location}`, key: `${runtimeConfig.opencageAPIKey}` })
+      const place = data.results[0]
+      const result = {
+        location: place.formatted,
+        ...place.geometry,
+      }
+      consola.debug({ tag: 'geocodeTool', message: `result ${JSON.stringify(result)}` })
+      return JSON.stringify(result)
     }
-    consola.debug({ tag: 'geocodeTool', message: `result ${JSON.stringify(result)}` })
-    return JSON.stringify(result)
+    catch (error: any) {
+      consola.error({ tag: 'geocodeTool', message: `Error fetching geocode for ${location}`, error })
+      return `*Error* Unable to get Latitude and Longitude for ${location}`
+    }
   }
 }
 
