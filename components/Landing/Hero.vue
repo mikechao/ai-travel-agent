@@ -78,4 +78,9 @@ import Button from 'primevue/button'
   background-position: center;
   background-repeat: no-repeat;
 }
+
+:deep(.p-button) {
+  background-color: #006127;
+  border-color: #006127;
+}
 </style>

@@ -92,4 +92,9 @@ const features = [
 :deep(.p-card-content) {
   flex: 1;
 }
+
+:deep(.p-button) {
+  background-color: #006127;
+  border-color: #006127;
+}
 </style>
