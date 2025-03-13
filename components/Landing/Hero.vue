@@ -9,7 +9,7 @@ import Button from 'primevue/button'
     <div class="relative z-20 w-11/12 md:w-10/12">
       <div class="flex flex-col items-center justify-center">
         <h1
-          class="mt-8 text-center text-5xl font-semibold text-primary-50 sm:text-6xl md:text-7xl dark:text-dark-100"
+          class="mt-8 text-center text-5xl font-semibold text-primary-50 sm:text-6xl md:text-7xl dark:text-dark-100 animate-temp-shadow"
         >
           AI Travel Agent Chat
         </h1>
@@ -42,6 +42,25 @@ import Button from 'primevue/button'
 </template>
 
 <style scoped>
+@keyframes tempDropShadow {
+  0% {
+    filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+  }
+  15% {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+  }
+  85% {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+  }
+  100% {
+    filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+  }
+}
+
+.animate-temp-shadow {
+  animation: tempDropShadow 3s ease-in-out forwards;
+}
+
 .hero-container {
   position: relative;
   display: flex;
