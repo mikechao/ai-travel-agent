@@ -25,7 +25,7 @@ const social_media_navigation = [
           <NuxtLink
             :to="nav.link"
             target="_blank"
-            class="text-primary-50 dark:text-primary-50/50 hover:text-dark-950 dark:hover:text-dark-50"
+            class="text-primary-50 dark:text-primary-50/50 hover:text-dark-950 dark:hover:text-dark-50 text-xs"
           >
             {{ nav.label }}
           </NuxtLink>
